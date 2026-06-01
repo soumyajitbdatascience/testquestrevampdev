@@ -1,0 +1,878 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Taxonomy ───────────────────────────────────────────
+
+model Class {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(100) // e.g. "Class 6", "Class 12"
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  // Source row id from legacy `catigories` table (for idempotent migration)
+  legacyId  Int?     @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  subjects Subject[]
+  students Student[]
+  tests    Test[]
+  bundles  Bundle[]
+
+  @@map("tq_classes")
+}
+
+model Subject {
+  id        Int      @id @default(autoincrement())
+  classId   Int
+  name      String   @db.VarChar(200)
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  // Source row id from legacy `subjects` table (for idempotent migration)
+  legacyId  Int?     @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  class     Class      @relation(fields: [classId], references: [id])
+  chapters  Chapter[]
+  tests     Test[]
+  questions Question[]
+
+  @@map("tq_subjects")
+}
+
+model Chapter {
+  id        Int      @id @default(autoincrement())
+  subjectId Int
+  name      String   @db.VarChar(200)
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  subject   Subject    @relation(fields: [subjectId], references: [id])
+  questions Question[]
+
+  @@map("tq_chapters")
+}
+
+// ─── Questions ──────────────────────────────────────────
+
+enum QuestionType {
+  SINGLE_MCQ
+  MULTI_MCQ
+  FILL_IN_BLANK
+  // Migrated from legacy. Not surfaced in MVP student UI; visible in admin.
+  PARAGRAPH    // Comprehensive paragraph / audio / video parent question
+  SUBJECTIVE   // Free-text descriptive question requiring faculty grading
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+model Question {
+  id           Int          @id @default(autoincrement())
+  // Chapter is optional — legacy questions don't have a chapter. Admin can assign later.
+  chapterId    Int?
+  subjectId    Int          // Direct subject link (always set, even when chapter is null)
+  type         QuestionType
+  difficulty   Difficulty   @default(MEDIUM)
+  text         String       @db.Text
+  explanation  String?      @db.Text
+  // For FILL_IN_BLANK or SUBJECTIVE: accepted/model answer
+  correctText  String?      @db.Text
+  marks        Int          @default(1)
+  // True for questions migrated from the legacy DB
+  isLegacy     Boolean      @default(false)
+  // Legacy id retained for trace / re-migration
+  legacyId     Int?         @unique
+  isActive     Boolean      @default(true)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  chapter       Chapter?         @relation(fields: [chapterId], references: [id])
+  subject       Subject          @relation(fields: [subjectId], references: [id])
+  options       QuestionOption[]
+  testQuestions TestQuestion[]
+
+  @@index([chapterId])
+  @@index([subjectId])
+  @@index([isLegacy])
+  @@map("tq_questions")
+}
+
+model QuestionOption {
+  id         Int     @id @default(autoincrement())
+  questionId Int
+  label      String  @db.VarChar(10) // A, B, C, D
+  text       String  @db.Text
+  isCorrect  Boolean @default(false)
+
+  question      Question       @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  attemptAnswers AttemptAnswer[]
+
+  @@index([questionId])
+  @@map("tq_question_options")
+}
+
+// ─── Tests ──────────────────────────────────────────────
+
+model Test {
+  id                 Int      @id @default(autoincrement())
+  classId            Int
+  subjectId          Int
+  name               String   @db.VarChar(300)
+  description        String?  @db.Text
+  durationMinutes    Int
+  totalMarks         Int
+  isFree             Boolean  @default(false)
+  price              Decimal  @default(0) @db.Decimal(10, 2)
+  isPractice         Boolean  @default(false)
+  randomizeQuestions Boolean  @default(true)
+  randomizeOptions   Boolean  @default(true)
+  retakeCooldownDays Int      @default(0)
+  isActive           Boolean  @default(true)
+  // True for tests migrated from legacy main_exam table
+  isLegacy           Boolean  @default(false)
+  // Source row id from legacy `main_exam` table
+  legacyId           Int?     @unique
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  class         Class          @relation(fields: [classId], references: [id])
+  subject       Subject        @relation(fields: [subjectId], references: [id])
+  questions     TestQuestion[]
+  attempts      Attempt[]
+
+  @@index([classId])
+  @@index([subjectId])
+  @@index([isFree])
+  @@map("tq_tests")
+}
+
+model TestQuestion {
+  id         Int @id @default(autoincrement())
+  testId     Int
+  questionId Int
+  sortOrder  Int @default(0)
+
+  test     Test     @relation(fields: [testId], references: [id], onDelete: Cascade)
+  question Question @relation(fields: [questionId], references: [id])
+
+  @@unique([testId, questionId])
+  @@map("tq_test_questions")
+}
+
+// ─── Students ───────────────────────────────────────────
+
+model Student {
+  id           Int      @id @default(autoincrement())
+  name         String   @db.VarChar(200)
+  email        String   @unique @db.VarChar(200)
+  mobile       String?  @db.VarChar(20)
+  passwordHash String?  @db.VarChar(255) // null for Google-only accounts
+  googleId     String?  @unique @db.VarChar(100)
+  avatarUrl    String?  @db.VarChar(500)
+  classId      Int?     // null until student completes profile after Google signup
+  board        String?  @db.VarChar(50) // CBSE, ICSE, State
+  isActive     Boolean  @default(true)
+  // Source row id from legacy `student` table
+  legacyId     Int?     @unique
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  class    Class?          @relation(fields: [classId], references: [id])
+  attempts Attempt[]
+
+  @@index([classId])
+  @@map("tq_students")
+}
+
+// ─── Admin ──────────────────────────────────────────────
+
+model Admin {
+  id           Int      @id @default(autoincrement())
+  name         String   @db.VarChar(200)
+  email        String   @unique @db.VarChar(200)
+  passwordHash String   @db.VarChar(255)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("tq_admins")
+}
+
+// ─── Attempts ───────────────────────────────────────────
+
+enum AttemptStatus {
+  IN_PROGRESS
+  PAUSED
+  COMPLETED
+  AUTO_SUBMITTED
+  // Migrated from legacy — already complete, scoring is final
+  LEGACY_COMPLETED
+}
+
+model Attempt {
+  id              Int           @id @default(autoincrement())
+  studentId       Int
+  testId          Int
+  status          AttemptStatus @default(IN_PROGRESS)
+  isPractice      Boolean       @default(false)
+  // Migrated attempts are flagged so analytics queries can exclude them
+  isLegacy        Boolean       @default(false)
+  // Legacy attempt key (token from legacy.main_exam_status / practice_exam_status)
+  legacyKey       String?       @unique @db.VarChar(80)
+  // Randomized order stored at attempt start (JSON array of questionId). Empty for legacy.
+  questionOrder   String        @db.Text
+  score           Int?
+  totalMarks      Int
+  percentage      Decimal?      @db.Decimal(5, 2)
+  timeSpentSeconds Int          @default(0)
+  startedAt       DateTime      @default(now())
+  finishedAt      DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  student Student         @relation(fields: [studentId], references: [id])
+  test    Test            @relation(fields: [testId], references: [id])
+  answers AttemptAnswer[]
+
+  @@index([isLegacy])
+  @@index([studentId])
+  @@index([testId])
+  @@index([studentId, testId])
+  @@map("tq_attempts")
+}
+
+model AttemptAnswer {
+  id             Int      @id @default(autoincrement())
+  attemptId      Int
+  questionId     Int
+  selectedOptionId Int?   // for MCQ — null if unanswered
+  fillAnswer     String?  @db.VarChar(500) // for FILL_IN_BLANK
+  isCorrect      Boolean?
+  marksAwarded   Int      @default(0)
+  isFlagged      Boolean  @default(false)
+  answeredAt     DateTime @default(now())
+
+  attempt  Attempt         @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  selectedOption QuestionOption? @relation(fields: [selectedOptionId], references: [id])
+
+  @@unique([attemptId, questionId])
+  @@map("tq_attempt_answers")
+}
+
+// ─── Commerce: Bundles ──────────────────────────────────
+
+model Bundle {
+  id            Int      @id @default(autoincrement())
+  name          String   @db.VarChar(300)
+  description   String?  @db.Text
+  price         Decimal  @db.Decimal(10, 2)
+  validityDays  Int
+  classId       Int?     // optional scoping
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  class  Class?       @relation(fields: [classId], references: [id])
+  tests  BundleTest[]
+  orders Order[]
+
+  @@map("tq_bundles")
+}
+
+model BundleTest {
+  id       Int @id @default(autoincrement())
+  bundleId Int
+  // Soft reference to vw_tests.id (legacy main_exam / practice_exam union).
+  // No DB-level FK — validated at the application layer (see /api/admin/bundles).
+  testId   Int
+
+  bundle Bundle @relation(fields: [bundleId], references: [id], onDelete: Cascade)
+
+  @@unique([bundleId, testId])
+  @@map("tq_bundle_tests")
+}
+
+// ─── Commerce: Coupons ──────────────────────────────────
+
+enum DiscountType {
+  PERCENTAGE
+  FLAT
+}
+
+enum CouponScope {
+  ALL
+  BUNDLE_ONLY
+  FIRST_TIME
+}
+
+model Coupon {
+  id              Int          @id @default(autoincrement())
+  code            String       @unique @db.VarChar(50)
+  discountType    DiscountType
+  discountValue   Decimal      @db.Decimal(10, 2)
+  maxDiscountCap  Decimal?     @db.Decimal(10, 2) // for PERCENTAGE type
+  minOrderValue   Decimal      @default(0) @db.Decimal(10, 2)
+  scope           CouponScope  @default(ALL)
+  bundleId        Int?         // if scope = BUNDLE_ONLY
+  totalUsageLimit Int?
+  perUserLimit    Int          @default(1)
+  validFrom       DateTime
+  validUntil      DateTime
+  isActive        Boolean      @default(true)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  usages CouponUsage[]
+
+  @@map("tq_coupons")
+}
+
+model CouponUsage {
+  id        Int      @id @default(autoincrement())
+  couponId  Int
+  studentId Int
+  orderId   Int
+  usedAt    DateTime @default(now())
+
+  // studentId is a soft reference to legacy `student` (vw_students); no DB FK.
+  coupon  Coupon  @relation(fields: [couponId], references: [id])
+  order   Order   @relation(fields: [orderId], references: [id])
+
+  @@index([couponId, studentId])
+  @@map("tq_coupon_usages")
+}
+
+// ─── Commerce: Orders ───────────────────────────────────
+
+enum OrderStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum OrderItemType {
+  TEST
+  BUNDLE
+  // Phase 1 / Task 1.11: orgs pay a one-time amount to convert trial → ACTIVE
+  // or to renew. The order references a `tq_subscriptions.id` via `bundleId`
+  // (reused as the FK target is just `Int` here, but the runtime semantics
+  // are "subscription id" when itemType=ORG_SUB).
+  ORG_SUB
+}
+
+model Order {
+  id                Int           @id @default(autoincrement())
+  studentId         Int
+  itemType          OrderItemType
+  testId            Int?
+  bundleId          Int?
+  amount            Decimal       @db.Decimal(10, 2)
+  discount          Decimal       @default(0) @db.Decimal(10, 2)
+  finalAmount       Decimal       @db.Decimal(10, 2)
+  couponCode        String?       @db.VarChar(50)
+  razorpayOrderId   String?       @db.VarChar(100)
+  razorpayPaymentId String?       @db.VarChar(100)
+  razorpaySignature String?       @db.VarChar(255)
+  status            OrderStatus   @default(PENDING)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // studentId and testId are soft references to legacy `student` (vw_students)
+  // and vw_tests respectively — no DB-level FK; validated at the application layer.
+  bundle      Bundle?       @relation(fields: [bundleId], references: [id])
+  couponUsage CouponUsage[]
+
+  @@index([studentId])
+  @@index([razorpayOrderId])
+  @@map("tq_orders")
+}
+
+// ─── Access Control ─────────────────────────────────────
+
+model StudentAccess {
+  id        Int       @id @default(autoincrement())
+  studentId Int
+  // Soft reference to vw_tests.id; no DB FK.
+  testId    Int
+  orderId   Int?      // null for free tests
+  expiresAt DateTime? // null = lifetime (per-test purchase)
+  createdAt DateTime  @default(now())
+
+  // studentId is a soft reference to legacy `student` (vw_students); no DB FK.
+
+  @@unique([studentId, testId])
+  @@index([expiresAt])
+  @@map("tq_student_access")
+}
+
+// ─── Settings ───────────────────────────────────────────
+
+model Setting {
+  id    Int    @id @default(autoincrement())
+  key   String @unique @db.VarChar(100)
+  value String @db.Text
+
+  @@map("tq_settings")
+}
+
+// ─── Password Reset Tokens ─────────────────────────────
+
+model PasswordResetToken {
+  id        Int      @id @default(autoincrement())
+  email     String   @db.VarChar(200)
+  token     String   @unique @db.VarChar(255)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@map("tq_password_reset_tokens")
+}
+
+// ─── Coaching Centre / Multi-tenancy ────────────────────
+
+enum OrgType {
+  COACHING_CENTRE
+  SCHOOL
+  B2C_FAMILY
+}
+
+enum OrgRole {
+  OWNER
+  ADMIN
+  TEACHER
+  STUDENT
+  PARENT
+}
+
+model Organization {
+  id           Int      @id @default(autoincrement())
+  type         OrgType
+  name         String   @db.VarChar(300)
+  logoUrl      String?  @db.VarChar(500)
+  city         String?  @db.VarChar(100)
+  brandingJson Json?
+  /// Phase 2 / Task 2.5 — Testquest-staff CRM bookkeeping (sales stage,
+  /// next follow-up, sales notes, onboarding path). Shape enforced by
+  /// `organization-admin.service.ts`; not edited by org members.
+  salesJson    Json?
+  parentOrgId  Int?
+  // Soft reference to legacy `student.student_id` (vw_students); no DB FK.
+  ownerUserId  Int
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  parent        Organization?   @relation("OrgHierarchy", fields: [parentOrgId], references: [id], onDelete: Restrict)
+  children      Organization[]  @relation("OrgHierarchy")
+  memberships   OrgMembership[]
+  batches       Batch[]
+  subscriptions Subscription[]
+  orgQuestions  OrgQuestion[]
+  orgTests      OrgTest[]
+  inviteTokens  InviteToken[]
+  teamInvites   TeamInvite[]
+  assignments   Assignment[]
+
+  @@index([parentOrgId])
+  @@index([ownerUserId])
+  @@map("tq_organizations")
+}
+
+model OrgMembership {
+  id       Int      @id @default(autoincrement())
+  orgId    Int
+  // Soft reference to legacy `student.student_id` (vw_students); no DB FK.
+  userId   Int
+  role     OrgRole
+  isActive Boolean  @default(true)
+  joinedAt DateTime @default(now())
+
+  org Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@unique([orgId, userId, role])
+  @@index([userId])
+  @@index([orgId, role])
+  @@map("tq_org_memberships")
+}
+
+model Batch {
+  id          Int      @id @default(autoincrement())
+  orgId       Int
+  name        String   @db.VarChar(200)
+  // Soft reference to legacy `catigories.categories_id` (vw_classes); no DB FK.
+  classId     Int
+  board       String   @db.VarChar(50)
+  subjectsCsv String   @db.VarChar(500)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  org          Organization      @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  enrollments  BatchEnrollment[]
+  inviteTokens InviteToken[]
+  assignments  Assignment[]
+  teachers     BatchTeacher[]
+
+  @@index([orgId])
+  @@map("tq_batches")
+}
+
+/**
+ * Phase 4 / Task 4.6 — Per-batch teacher assignment.
+ *
+ * A user with TEACHER membership on an org is org-wide visible, but their
+ * concrete classroom responsibility is scoped to specific batches via this
+ * mapping. The revoke flow uses it: revoking a TEACHER who has any active
+ * row here requires the owner to nominate replacements (or null = batch
+ * reverts to "owner-managed" / no teacher).
+ *
+ * `userId` is a soft reference to legacy `student.student_id`; no DB FK.
+ */
+model BatchTeacher {
+  id         Int      @id @default(autoincrement())
+  batchId    Int
+  userId     Int
+  assignedAt DateTime @default(now())
+  isActive   Boolean  @default(true)
+
+  batch Batch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+
+  @@unique([batchId, userId])
+  @@index([userId])
+  @@index([batchId])
+  @@map("tq_batch_teachers")
+}
+
+model Assignment {
+  id            Int      @id @default(autoincrement())
+  orgId         Int
+  batchId       Int
+  // Soft reference to vw_tests.id (legacy test ids; +1M offset for practice).
+  testId        Int
+  // Display title; defaults to the legacy test name when unset.
+  title         String?  @db.VarChar(300)
+  // Free-text instructions shown to students on the assignment intro page.
+  instructions  String?  @db.Text
+  // Per-assignment overrides + notify-channel choices; e.g.
+  // { notify: ["sms","email"], allowLateSubmission: false, ... }
+  settingsJson  Json?
+  dueAt         DateTime?
+  // Soft reference to legacy student.student_id of the org member who created it.
+  assignedBy    Int
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  org      Organization        @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  batch    Batch               @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  attempts AssignmentAttempt[]
+
+  @@index([orgId])
+  @@index([batchId])
+  @@index([createdAt])
+  @@map("tq_assignments")
+}
+
+model AssignmentAttempt {
+  id             Int      @id @default(autoincrement())
+  assignmentId   Int
+  // Soft reference to legacy `student.student_id`.
+  studentId      Int
+  // 40-char token from legacy `main_exam_status.token` / `practice_exam_status.token`.
+  // We link by token so a single mapping row covers both main + practice exam variants.
+  attemptToken   String   @unique @db.VarChar(80)
+  startedAt      DateTime @default(now())
+  // Denormalised completion timestamp; populated when the submit endpoint
+  // sees an assignment-mapped attempt finish. Kept here to avoid joining
+  // vw_attempts_legacy for assignment-progress queries.
+  completedAt    DateTime?
+
+  assignment Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+
+  @@index([assignmentId])
+  @@index([studentId])
+  @@map("tq_assignment_attempts")
+}
+
+model BatchEnrollment {
+  id         Int      @id @default(autoincrement())
+  batchId    Int
+  // Soft reference to legacy `student.student_id` (vw_students); no DB FK.
+  studentId  Int
+  isActive   Boolean  @default(true)
+  enrolledAt DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  batch Batch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+
+  @@unique([batchId, studentId])
+  @@index([studentId])
+  @@map("tq_batch_enrollments")
+}
+
+// ─── Subscriptions / Plans ──────────────────────────────
+
+enum PlanAudience {
+  B2C
+  COACHING_CENTRE
+  SCHOOL
+}
+
+enum PricingModel {
+  PER_SEAT
+  FLAT
+  TIERED
+}
+
+enum BillingCycle {
+  MONTHLY
+  QUARTERLY
+  ANNUAL
+}
+
+enum SubscriptionStatus {
+  TRIAL
+  ACTIVE
+  GRACE
+  EXPIRED
+  CANCELLED
+}
+
+model SubscriptionPlan {
+  id             Int          @id @default(autoincrement())
+  name           String       @db.VarChar(120)
+  targetAudience PlanAudience
+  pricingModel   PricingModel
+  featuresJson   Json?
+  durationDays   Int
+  basePrice      Decimal      @db.Decimal(10, 2)
+  isActive       Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  subscriptions Subscription[]
+
+  @@index([targetAudience])
+  @@map("tq_subscription_plans")
+}
+
+model Subscription {
+  id              Int                @id @default(autoincrement())
+  // Exactly one of orgId / studentId must be set (B2B vs B2C). Enforced at
+  // the application layer in subscription-creation routes (MariaDB's CHECK
+  // parser rejected the column-reference form in this DB version).
+  orgId           Int?
+  // Soft reference to legacy `student.student_id` for B2C subscriptions; no DB FK.
+  studentId       Int?
+  planId          Int
+  seatsPurchased  Int                @default(1)
+  seatsUsed       Int                @default(0)
+  startsAt        DateTime           @default(now())
+  expiresAt       DateTime
+  billingCycle    BillingCycle       @default(ANNUAL)
+  autoRenew       Boolean            @default(false)
+  status          SubscriptionStatus @default(TRIAL)
+  // Razorpay recurring (Task 4.1). Set once a mandate is created; null for
+  // trial / one-time-paid subs. razorpaySubscriptionId is the webhook lookup key.
+  razorpayCustomerId     String? @db.VarChar(64)
+  razorpaySubscriptionId String? @db.VarChar(64)
+  // Raw Razorpay subscription entity snapshot (status, short_url, plan_id,
+  // current_start/end, etc.) for debugging + replay.
+  razorpayMeta           Json?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  org  Organization?    @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  plan SubscriptionPlan @relation(fields: [planId], references: [id])
+
+  @@unique([razorpaySubscriptionId], map: "uniq_rzp_sub")
+  @@index([orgId])
+  @@index([studentId])
+  @@index([status])
+  @@index([expiresAt])
+  @@map("tq_subscriptions")
+}
+
+model InviteToken {
+  id        Int       @id @default(autoincrement())
+  token     String    @unique @db.VarChar(64)
+  batchId   Int
+  orgId     Int
+  // Soft reference to legacy `student.student_id` (the org member who issued the token).
+  createdBy Int
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  batch Batch        @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  org   Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([batchId])
+  @@index([orgId])
+  @@index([expiresAt])
+  @@map("tq_invite_tokens")
+}
+
+enum TeamInviteRole {
+  ADMIN
+  TEACHER
+}
+
+/**
+ * Phase 2 / Task 2.1 — Team invite (owner invites a teammate by email).
+ *
+ * Lifecycle:
+ *   created (createdAt set, accepted/revoked nulls)
+ *     → accepted (acceptedAt set; OrgMembership row written; legacy student
+ *       row created or attached if email already matches)
+ *     → revoked (revokedAt set; cannot be accepted)
+ *     → expired (expiresAt < now; cannot be accepted; cleaned up lazily)
+ *
+ * `invitedBy` is a soft reference to the legacy `student.student_id` of the
+ * inviting member — no DB FK because the student table is legacy-managed.
+ */
+model TeamInvite {
+  id         Int            @id @default(autoincrement())
+  orgId      Int
+  email      String         @db.VarChar(255)
+  name       String         @db.VarChar(200)
+  role       TeamInviteRole
+  token      String         @unique @db.VarChar(64)
+  invitedBy  Int
+  expiresAt  DateTime
+  acceptedAt DateTime?
+  revokedAt  DateTime?
+  createdAt  DateTime       @default(now())
+
+  org Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+  @@index([email])
+  @@index([expiresAt])
+  @@map("tq_team_invites")
+}
+
+model OtpCode {
+  id        Int      @id @default(autoincrement())
+  // Mobile in raw 10-digit form (we ignore country code for India MVP).
+  mobile    String   @db.VarChar(20)
+  // bcrypt hash of the 6-digit OTP.
+  codeHash  String   @db.VarChar(255)
+  // Purpose — namespaces OTPs so we don't cross-use (join vs login vs reset).
+  purpose   String   @db.VarChar(40)
+  attempts  Int      @default(0)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([mobile, purpose])
+  @@index([expiresAt])
+  @@map("tq_otp_codes")
+}
+
+model OrgQuestion {
+  id                Int      @id @default(autoincrement())
+  orgId             Int
+  // Soft reference to legacy `question.question_id`; no DB FK (legacy stays out of Prisma).
+  legacyQuestionId  Int
+  // Soft reference to legacy `student.student_id` (the org member who added it).
+  createdBy         Int
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  org Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@unique([orgId, legacyQuestionId])
+  @@index([orgId])
+  @@map("tq_org_questions")
+}
+
+/**
+ * Phase 2 / Task 2.2 — Org-scoped mapping for custom tests.
+ *
+ * When an owner/teacher builds a test via /coaching/tests/new we still write
+ * to legacy `main_exam` + `main_exam_description` + `main_exam_to_question`
+ * (so the mobile app and the attempt flow stay unchanged), and we write a
+ * row here to mark the test as private to this org. B2C `/tests` browse and
+ * other orgs' assignment pickers exclude any test that has an active row in
+ * `tq_org_tests`.
+ */
+model OrgTest {
+  id           Int      @id @default(autoincrement())
+  orgId        Int
+  // Soft reference to legacy `main_exam.exam_id`; no DB FK.
+  legacyTestId Int
+  // Soft reference to legacy `student.student_id` (author).
+  createdBy    Int
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  org Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@unique([orgId, legacyTestId])
+  @@index([orgId])
+  @@index([legacyTestId])
+  @@map("tq_org_tests")
+}
+
+/**
+ * Phase 3 / Task 3.2 — Weekly parent-report dedupe.
+ *
+ * One row per (org, student, batch, ISO-week) the Sunday cron has processed.
+ * The UNIQUE constraint is what makes the cron safe to retry: a failed
+ * Vercel invocation can re-run without re-sending the same week's report.
+ * `skippedReason` is populated when we recorded a tuple but did NOT send
+ * (e.g. "no_activity").
+ */
+model WeeklyReportRun {
+  id                Int      @id @default(autoincrement())
+  orgId             Int
+  // Soft reference to legacy `student.student_id`.
+  studentId         Int
+  batchId           Int
+  /// ISO 8601 week like "2026-W22". Fixed 10-char width for cheap indexing.
+  weekKey           String   @db.Char(10)
+  pdfUrl            String?  @db.VarChar(500)
+  deliveredChannels String?  @db.VarChar(100)
+  sentAt            DateTime @default(now())
+  skippedReason     String?  @db.VarChar(200)
+
+  @@unique([orgId, studentId, batchId, weekKey], map: "tq_wrr_uniq")
+  @@index([orgId, weekKey], map: "tq_wrr_org_week")
+  @@map("tq_weekly_report_runs")
+}
+
+/**
+ * Razorpay webhook idempotency ledger (Task 4.1).
+ *
+ * Razorpay redelivers webhooks (at-least-once). We record each delivery's
+ * `x-razorpay-event-id` here with a UNIQUE constraint; the webhook handler
+ * inserts first and short-circuits to 200 if the id already exists, making
+ * every event exactly-once regardless of redelivery. Reusable across all
+ * webhook event types (payments + subscriptions).
+ */
+model WebhookEvent {
+  id         Int      @id @default(autoincrement())
+  eventId    String   @unique(map: "uniq_event") @db.VarChar(64)
+  eventType  String   @db.VarChar(80)
+  receivedAt DateTime @default(now())
+
+  @@map("tq_webhook_events")
+}
