@@ -22,6 +22,8 @@ If you are new, read in this order:
 | 10 | [10-accounts-checklist.md](./10-accounts-checklist.md) | Third-party accounts to transfer and secrets to rotate |
 | 11 | [11-testing-qa.md](./11-testing-qa.md) | How the app is tested today (manual QA) |
 | 12 | [12-known-gaps-and-risks.md](./12-known-gaps-and-risks.md) | Pending work, known risks, and an index of older documents |
+| 13 | [13-user-journeys.md](./13-user-journeys.md) | **For the business:** the end-to-end journey of every persona, in plain English (also available as a Word document in this folder) |
+| 14 | [14-srs.md](./14-srs.md) | **The delivery baseline:** as-built Software Requirements Specification — numbered requirements with acceptance criteria and honest status flags (also available as a Word document in this folder) |
 
 ## Feature guide (the part you will use most)
 
