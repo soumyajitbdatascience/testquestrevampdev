@@ -23,7 +23,7 @@ import {
   Circle,
 } from "@react-pdf/renderer";
 
-const DEFAULT_ACCENT = "#e89b3c";
+const DEFAULT_ACCENT = "#6134EB";
 const INK = "#111111";
 const MUTED = "#666666";
 const RULE = "#dddddd";

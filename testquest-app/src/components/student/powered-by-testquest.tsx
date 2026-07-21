@@ -36,8 +36,8 @@ export function PoweredByTestquest({ className }: { className?: string }) {
         className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors"
       >
         <LogoMark className="h-4 w-4" />
-        <span className="font-semibold">
-          Test<em className="font-display italic font-normal text-primary not-italic">quest</em>
+        <span className="font-bold tracking-tight">
+          Test<span className="text-primary">Quest</span>
         </span>
       </Link>
     </div>

@@ -65,7 +65,7 @@ export interface EmailBranding {
 
 // ─── Branded HTML email shell ──────────────────────────────────────
 
-const DEFAULT_PRIMARY = "#e89b3c";
+const DEFAULT_PRIMARY = "#6134EB";
 
 function escapeHtml(s: string): string {
   return s
@@ -104,7 +104,7 @@ export function renderBrandedEmailHtml(
   branding?: EmailBranding,
 ): string {
   const primary = branding?.primaryColor || DEFAULT_PRIMARY;
-  const displayName = branding?.displayName || branding?.orgName || "Testquest";
+  const displayName = branding?.displayName || branding?.orgName || "TestQuest";
   const supportEmail = branding?.supportEmail;
   const supportPhone = branding?.supportPhone;
 
@@ -138,7 +138,7 @@ export function renderBrandedEmailHtml(
     : "";
 
   // "Powered by Testquest" — Task 3.7 will hide for Pro plans.
-  const poweredBy = `<p style="margin:6px 0 0 0;font-size:11px;color:#aaaaaa;">Powered by Testquest</p>`;
+  const poweredBy = `<p style="margin:6px 0 0 0;font-size:11px;color:#aaaaaa;">Powered by TestQuest</p>`;
   const testquestMark = branding ? "" : `<p style="margin:0 0 6px 0;font-size:12px;color:#888888;">— Testquest</p>`;
 
   return `<!DOCTYPE html>

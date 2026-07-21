@@ -164,15 +164,15 @@ export default function ForCoachingCentresPage() {
   }, []);
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden">
+    <div className="relative min-h-screen overflow-x-clip">
       {/* Background glows + grid — same recipe as the consumer landing */}
       <div
         className="absolute top-[-120px] right-[60px] w-[640px] h-[640px] pointer-events-none animate-glow"
-        style={{ background: "radial-gradient(circle, oklch(0.76 0.17 72 / 0.11), transparent 62%)" }}
+        style={{ background: "radial-gradient(circle, color-mix(in oklab, var(--primary) 11%, transparent), transparent 62%)" }}
       />
       <div
         className="absolute bottom-[-100px] left-[-60px] w-[520px] h-[520px] pointer-events-none"
-        style={{ background: "radial-gradient(circle, oklch(0.66 0.14 195 / 0.08), transparent 62%)" }}
+        style={{ background: "radial-gradient(circle, color-mix(in oklab, var(--accent) 8%, transparent), transparent 62%)" }}
       />
       <div className="absolute inset-0 bg-grid pointer-events-none" />
       <div className="absolute inset-x-0 top-0 h-[110vh] pointer-events-none">
@@ -616,7 +616,7 @@ function SectionFinalCta() {
           <div className="absolute inset-0 pointer-events-none">
             <AchievementPulseRings
               anchor="center"
-              color="oklch(0.76 0.17 72 / 0.5)"
+              color="color-mix(in oklab, var(--primary) 50%, transparent)"
               ringCount={2}
               duration={3.4}
               size={70}

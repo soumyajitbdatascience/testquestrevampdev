@@ -18,7 +18,7 @@ The web app and the mobile app share content, students, and attempts via the leg
 - **Language:** TypeScript (strict)
 - **DB:** MySQL on Hostinger (113 tables — 94 legacy + 19 `tq_*` + views)
 - **ORM:** Prisma 6 for `tq_*` tables; **raw SQL via `$queryRaw` for legacy reads/writes** (we never let Prisma `db push` touch the legacy schema)
-- **UI:** shadcn/ui + Tailwind v4, dark default
+- **UI:** shadcn/ui + Tailwind v4, light default (purple brand `#6134EB`; logo assets in `public/brand/`)
 - **Auth:** Custom JWT in httpOnly cookies; bcrypt passwords
 - **Payments:** Razorpay (test keys only — live pending)
 - **Validation:** Zod

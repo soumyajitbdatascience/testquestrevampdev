@@ -17,9 +17,9 @@ const STORAGE_KEY = "testquest-theme";
 
 function resolveTheme(theme: Theme): ResolvedTheme {
   if (theme === "system") {
-    if (typeof window === "undefined") return "dark";
-    // Meridian defaults to dark when system preference cannot be determined
-    return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+    if (typeof window === "undefined") return "light";
+    // Defaults to light when system preference cannot be determined
+    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
   }
   return theme;
 }
@@ -31,11 +31,11 @@ function applyThemeClass(resolved: ResolvedTheme) {
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>("dark");
-  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>("dark");
+  const [theme, setThemeState] = useState<Theme>("light");
+  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>("light");
 
   useEffect(() => {
-    const stored = (localStorage.getItem(STORAGE_KEY) as Theme) || "dark";
+    const stored = (localStorage.getItem(STORAGE_KEY) as Theme) || "light";
     setThemeState(stored);
     const resolved = resolveTheme(stored);
     setResolvedTheme(resolved);

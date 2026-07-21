@@ -15,12 +15,12 @@ import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const BRAND_SWATCHES = [
-  { name: "Saffron",  value: "oklch(0.78 0.17 65)"   },  // existing --primary
-  { name: "Teal",     value: "oklch(0.66 0.14 195)"  },  // existing --accent
+  { name: "Purple",   value: "oklch(0.508 0.251 284.3)" },  // brand --primary #6134EB
+  { name: "Lavender", value: "oklch(0.592 0.199 290.3)" },  // brand --accent #815FE9
   { name: "Emerald",  value: "oklch(0.65 0.17 145)"  },  // existing --score-strong
   { name: "Rose",     value: "oklch(0.68 0.15 355)"  },  // existing chart-4
-  { name: "Indigo",   value: "oklch(0.66 0.14 230)"  },
-  { name: "Plum",     value: "oklch(0.68 0.15 295)"  },
+  { name: "Teal",     value: "oklch(0.66 0.14 195)"  },
+  { name: "Saffron",  value: "oklch(0.78 0.17 65)"   },
 ] as const;
 
 export interface ColorSwatchPickerProps {
