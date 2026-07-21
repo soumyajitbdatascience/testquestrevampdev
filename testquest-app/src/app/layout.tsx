@@ -21,18 +21,18 @@ export const metadata: Metadata = {
   description: "Master CBSE, ICSE and State Board exams. Thousands of chapter-wise tests with detailed solutions. Built for Indian school students.",
 };
 
-// Pre-hydration script — applies dark by default with light/system override
+// Pre-hydration script — applies light by default with dark/system override
 const themeInitScript = `
 (function(){
   try {
-    var theme = localStorage.getItem('testquest-theme') || 'dark';
+    var theme = localStorage.getItem('testquest-theme') || 'light';
     var resolved = theme;
     if (theme === 'system') {
-      resolved = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+      resolved = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }
     document.documentElement.classList.add(resolved);
   } catch (e) {
-    document.documentElement.classList.add('dark');
+    document.documentElement.classList.add('light');
   }
 })();
 `;

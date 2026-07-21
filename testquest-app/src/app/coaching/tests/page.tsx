@@ -29,7 +29,7 @@ export default async function CoachingTestsPage() {
   const tests = await listOrgTests(session.orgId);
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden">
+    <div className="relative min-h-screen overflow-x-clip">
       <div className="absolute inset-0 bg-grid pointer-events-none" />
       <CoachingHeader />
 

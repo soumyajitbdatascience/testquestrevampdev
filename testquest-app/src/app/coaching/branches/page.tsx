@@ -35,7 +35,7 @@ export default async function BranchesPage() {
   });
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden">
+    <div className="relative min-h-screen overflow-x-clip">
       <CoachingHeader
         orgName={parent?.name ?? null}
         role={session.orgRole}

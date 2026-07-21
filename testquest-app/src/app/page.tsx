@@ -20,15 +20,15 @@ const SUBJECTS = [
 ];
 
 const SUBCOLOR: Record<string, string> = {
-  Mathematics: "oklch(0.76 0.17 72)",
-  Physics:     "oklch(0.66 0.14 195)",
+  Mathematics: "oklch(0.508 0.251 284.3)",
+  Physics:     "oklch(0.62 0.15 250)",
   Chemistry:   "oklch(0.68 0.15 355)",
-  Biology:     "oklch(0.76 0.17 72)",
-  Science:     "oklch(0.66 0.14 195)",
+  Biology:     "oklch(0.508 0.251 284.3)",
+  Science:     "oklch(0.62 0.15 250)",
   English:     "oklch(0.75 0.15 200)",
   "Social Science": "oklch(0.68 0.15 355)",
   Hindi:       "oklch(0.78 0.17 65)",
-  Sanskrit:    "oklch(0.66 0.14 195)",
+  Sanskrit:    "oklch(0.62 0.15 250)",
   "Computer Science": "oklch(0.65 0.17 145)",
   Economics:   "oklch(0.70 0.15 130)",
   Accountancy: "oklch(0.78 0.17 65)",
@@ -55,12 +55,12 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden">
+    <div className="relative min-h-screen overflow-x-clip">
       {/* Background decorations */}
       <div className="absolute top-[-120px] right-[60px] w-[640px] h-[640px] pointer-events-none animate-glow"
-        style={{ background: "radial-gradient(circle, oklch(0.76 0.17 72 / 0.11), transparent 62%)" }} />
+        style={{ background: "radial-gradient(circle, color-mix(in oklab, var(--primary) 11%, transparent), transparent 62%)" }} />
       <div className="absolute bottom-[-100px] left-[-60px] w-[520px] h-[520px] pointer-events-none"
-        style={{ background: "radial-gradient(circle, oklch(0.66 0.14 195 / 0.08), transparent 62%)" }} />
+        style={{ background: "radial-gradient(circle, color-mix(in oklab, var(--accent) 8%, transparent), transparent 62%)" }} />
       <div className="absolute inset-0 bg-grid pointer-events-none" />
 
       {/* Decorative quest constellation — sits above grid, below content */}

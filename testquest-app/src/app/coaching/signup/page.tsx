@@ -135,16 +135,16 @@ export default function CoachingSignupPage() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden">
+    <div className="relative min-h-screen overflow-x-clip">
       {/* Background — same tokens as /for-coaching-centres */}
       <div className="absolute inset-0 bg-grid pointer-events-none" />
       <div
         className="absolute top-[-120px] right-[60px] w-[640px] h-[640px] pointer-events-none animate-glow"
-        style={{ background: "radial-gradient(circle, oklch(0.76 0.17 72 / 0.11), transparent 62%)" }}
+        style={{ background: "radial-gradient(circle, color-mix(in oklab, var(--primary) 11%, transparent), transparent 62%)" }}
       />
       <div
         className="absolute bottom-[-100px] left-[-60px] w-[520px] h-[520px] pointer-events-none"
-        style={{ background: "radial-gradient(circle, oklch(0.66 0.14 195 / 0.08), transparent 62%)" }}
+        style={{ background: "radial-gradient(circle, color-mix(in oklab, var(--accent) 8%, transparent), transparent 62%)" }}
       />
 
       {/* Top bar */}

@@ -20,15 +20,15 @@ import {
 import { DriftingFormulas } from "@/components/decor/drifting-formulas";
 
 const SUBCOLOR: Record<string, string> = {
-  Mathematics: "oklch(0.76 0.17 72)",
-  Physics:     "oklch(0.66 0.14 195)",
+  Mathematics: "oklch(0.508 0.251 284.3)",
+  Physics:     "oklch(0.62 0.15 250)",
   Chemistry:   "oklch(0.68 0.15 355)",
-  Biology:     "oklch(0.76 0.17 72)",
-  Science:     "oklch(0.66 0.14 195)",
+  Biology:     "oklch(0.508 0.251 284.3)",
+  Science:     "oklch(0.62 0.15 250)",
   English:     "oklch(0.75 0.15 200)",
   "Social Science": "oklch(0.68 0.15 355)",
   Hindi:       "oklch(0.78 0.17 65)",
-  Sanskrit:    "oklch(0.66 0.14 195)",
+  Sanskrit:    "oklch(0.62 0.15 250)",
   "Computer Science": "oklch(0.65 0.17 145)",
   Economics:   "oklch(0.70 0.15 130)",
   Accountancy: "oklch(0.78 0.17 65)",

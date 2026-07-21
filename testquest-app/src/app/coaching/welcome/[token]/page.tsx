@@ -31,7 +31,7 @@ export default async function WelcomePage({ params }: Params) {
   }
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden">
+    <div className="relative min-h-screen overflow-x-clip">
       <div className="absolute inset-0 bg-grid pointer-events-none" />
       <header className="relative">
         <div className="mx-auto max-w-[1280px] flex items-center justify-between px-6 py-5 lg:px-10">

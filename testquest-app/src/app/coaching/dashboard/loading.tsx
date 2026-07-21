@@ -12,7 +12,7 @@ import {
 
 export default function DashboardLoading() {
   return (
-    <div className="relative min-h-screen overflow-x-hidden">
+    <div className="relative min-h-screen overflow-x-clip">
       <div className="absolute inset-0 bg-grid pointer-events-none" />
       <header className="relative border-b">
         <div className="mx-auto max-w-[1280px] h-[64px] flex items-center justify-between px-6 lg:px-10">

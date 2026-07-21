@@ -140,7 +140,7 @@ export function BillingClient({ state, plans }: { state: StateDTO; plans: PlanRo
           }
         },
         modal: { ondismiss: () => setPaying(false) },
-        theme: { color: "#e89b3c" },
+        theme: { color: "#6134EB" },
       });
       rzp.open();
     } catch {
@@ -182,7 +182,7 @@ export function BillingClient({ state, plans }: { state: StateDTO; plans: PlanRo
           setTimeout(() => window.location.reload(), 1500);
         },
         modal: { ondismiss: () => setSubscribing(false) },
-        theme: { color: "#e89b3c" },
+        theme: { color: "#6134EB" },
       });
       rzp.open();
     } catch {

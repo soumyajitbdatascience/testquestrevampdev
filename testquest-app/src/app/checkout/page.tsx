@@ -162,7 +162,7 @@ function CheckoutContent() {
         }
       },
       prefill: { name: me?.name || "", email: me?.email || "", contact: me?.mobile || "" },
-      theme: { color: "#000000" },
+      theme: { color: "#6134EB" },
       modal: { ondismiss: () => setProcessing(false) },
     });
 

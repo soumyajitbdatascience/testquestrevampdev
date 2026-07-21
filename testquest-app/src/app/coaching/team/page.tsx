@@ -37,7 +37,7 @@ export default async function CoachingTeamPage() {
   }));
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden">
+    <div className="relative min-h-screen overflow-x-clip">
       <div className="absolute inset-0 bg-grid pointer-events-none" />
       <CoachingHeader />
 

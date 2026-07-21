@@ -149,7 +149,7 @@ export function QuestConstellation({
     >
       <svg ref={svgRef} style={{ width: "100%", height: "100%" }} preserveAspectRatio="none">
         <g className="tq-edges" stroke="var(--border)" strokeWidth="0.5" fill="none" />
-        <g className="tq-nodes" fill="oklch(0.96 0.005 265 / 0.4)" />
+        <g className="tq-nodes" fill="oklch(0.62 0.21 288 / 0.4)" />
         <g className="tq-pulses" />
       </svg>
     </div>

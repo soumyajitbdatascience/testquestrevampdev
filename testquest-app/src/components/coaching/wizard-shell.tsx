@@ -47,12 +47,12 @@ export function WizardShell({
   const pct = Math.max(0, Math.min(100, (currentStep / steps.length) * 100));
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden flex flex-col">
+    <div className="relative min-h-screen overflow-x-clip flex flex-col">
       {/* Background */}
       <div className="absolute inset-0 bg-grid pointer-events-none" />
       <div
         className="absolute top-[-120px] right-[60px] w-[640px] h-[640px] pointer-events-none animate-glow"
-        style={{ background: "radial-gradient(circle, oklch(0.76 0.17 72 / 0.10), transparent 62%)" }}
+        style={{ background: "radial-gradient(circle, color-mix(in oklab, var(--primary) 10%, transparent), transparent 62%)" }}
       />
 
       {/* Top bar */}
