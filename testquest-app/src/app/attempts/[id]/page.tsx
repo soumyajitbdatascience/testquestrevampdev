@@ -16,7 +16,8 @@ import {
   Clock, Flag, ChevronLeft, ChevronRight, CheckCircle2,
   Loader2, AlertCircle, Pause, Send, Sparkles, LayoutGrid,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, friendlyAuthError } from "@/lib/utils";
+import { RichText } from "@/components/rich-text";
 
 interface QuestionOption { id: number; label: string; text: string }
 
@@ -67,7 +68,7 @@ export default function AttemptPage({ params }: { params: Promise<{ id: string }
 
   useEffect(() => {
     fetch(`/api/attempts/${id}`).then((r) => r.json()).then((d) => {
-      if (!d.ok) { setError(d.error); return; }
+      if (!d.ok) { setError(friendlyAuthError(d.error, "Could not load this attempt")); return; }
       const data: Attempt = d.data;
       setAttempt(data);
       setRemainingSec(data.remainingSeconds);
@@ -133,12 +134,12 @@ export default function AttemptPage({ params }: { params: Promise<{ id: string }
     const res = await fetch(`/api/attempts/${id}/submit`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ auto: false }) });
     const data = await res.json();
     if (data.ok) router.push(`/attempts/${id}/result`);
-    else { setError(data.error || "Submit failed"); setSubmitting(false); }
+    else { setError(friendlyAuthError(data.error, "Submit failed")); setSubmitting(false); }
   }
 
   async function pauseAttempt() {
     await fetch(`/api/attempts/${id}/pause`, { method: "POST" });
-    router.push("/tests");
+    router.push("/dashboard");
   }
 
   if (loading) {
@@ -151,7 +152,7 @@ export default function AttemptPage({ params }: { params: Promise<{ id: string }
         <div className="text-center max-w-md">
           <AlertCircle className="mx-auto h-12 w-12 text-muted-foreground" />
           <h2 className="mt-6 font-display text-3xl">{error || "Attempt not found"}</h2>
-          <Button onClick={() => router.push("/tests")} className="mt-8 bg-primary text-primary-foreground hover:bg-primary/90 shadow-gold">Back to tests</Button>
+          <Button onClick={() => router.push("/dashboard")} className="mt-8 bg-primary text-primary-foreground hover:bg-primary/90 shadow-gold">Back to home</Button>
         </div>
       </div>
     );
@@ -244,7 +245,13 @@ export default function AttemptPage({ params }: { params: Promise<{ id: string }
               </Button>
             </div>
 
-            <div className="text-lg md:text-xl leading-relaxed mb-8 font-medium">{currentQ.text}</div>
+            {/* Question bodies are cleaned HTML — MathML, sub/superscripts, tables.
+                Printed as text they show raw tags, which is what the "&ndash;"
+                reports were. RichText sanitises and renders. */}
+            <RichText
+              html={currentQ.text}
+              className="text-lg md:text-xl leading-relaxed mb-8 font-medium"
+            />
 
             {currentQ.type === "SINGLE_MCQ" && (
               <div className="space-y-2.5">
@@ -266,7 +273,7 @@ export default function AttemptPage({ params }: { params: Promise<{ id: string }
                       )}>
                         {opt.label}
                       </div>
-                      <div className="flex-1 pt-1">{opt.text}</div>
+                      <RichText html={opt.text} className="flex-1 pt-1" />
                     </div>
                   </button>
                 ))}
@@ -297,7 +304,7 @@ export default function AttemptPage({ params }: { params: Promise<{ id: string }
                         )}>
                           {isSelected ? <CheckCircle2 className="h-4 w-4" /> : opt.label}
                         </div>
-                        <div className="flex-1 pt-1">{opt.text}</div>
+                        <RichText html={opt.text} className="flex-1 pt-1" />
                       </div>
                     </button>
                   );

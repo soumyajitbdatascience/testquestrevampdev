@@ -2,60 +2,111 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAuth } from "@/lib/auth";
 import { handleApiError, success } from "@/lib/api-utils";
+import type { Prisma } from "@/generated/prisma/client";
 
 /**
- * Admin: paginated student list. Reads from legacy `student` via vw_students
- * since the tq_students Prisma table is unused (real students live in legacy,
- * shared with the mobile app).
+ * Admin student list, from `tq_students`.
+ *
+ * The table starts empty on this database — legacy students are deliberately
+ * not migrated, so it fills up as people sign up.
+ *
+ * A student has no class column any more: which board and class they study is
+ * a StudentContext, and there can be more than one. Pass status comes from
+ * `tq_class_access`, where a row is active while `expiresAt` is in the future.
  */
 export async function GET(request: NextRequest) {
   try {
     await requireAuth("admin");
+
     const params = request.nextUrl.searchParams;
-    const search = params.get("search");
-    const classId = params.get("classId");
+    const search = (params.get("search") ?? "").trim();
+    const boardId = Number(params.get("boardId")) || undefined;
+    const classId = Number(params.get("classId")) || undefined;
     const page = Math.max(1, Number(params.get("page") || "1"));
-    const limit = Math.min(100, Math.max(1, Number(params.get("limit") || "20")));
-    const offset = (page - 1) * limit;
+    const limit = Math.min(100, Math.max(1, Number(params.get("limit") || "25")));
+    const now = new Date();
 
-    const whereParts: string[] = ["isActive = 1"];
-    const args: (string | number)[] = [];
-    if (classId) { whereParts.push("classId = ?"); args.push(Number(classId)); }
-    if (search) {
-      whereParts.push("(name LIKE ? OR email LIKE ? OR mobile LIKE ?)");
-      args.push(`%${search}%`, `%${search}%`, `%${search}%`);
+    const where: Prisma.StudentWhereInput = {
+      ...(search
+        ? {
+            OR: [
+              { name: { contains: search } },
+              { email: { contains: search } },
+              { mobile: { contains: search } },
+            ],
+          }
+        : {}),
+      ...(boardId || classId
+        ? { contexts: { some: { ...(boardId ? { boardId } : {}), ...(classId ? { classId } : {}) } } }
+        : {}),
+    };
+
+    const [total, rows, activePasses] = await Promise.all([
+      prisma.student.count({ where }),
+      prisma.student.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        skip: (page - 1) * limit,
+        take: limit,
+        select: {
+          id: true, name: true, email: true, mobile: true,
+          emailVerified: true, isActive: true, createdAt: true,
+          contexts: {
+            orderBy: [{ isPrimary: "desc" }, { id: "asc" }],
+            select: { boardId: true, classId: true, isPrimary: true },
+          },
+          _count: { select: { attempts: true, orders: true } },
+        },
+      }),
+      prisma.classAccess.findMany({
+        where: { expiresAt: { gt: now } },
+        select: { studentId: true, boardId: true, classId: true, expiresAt: true },
+      }),
+    ]);
+
+    // Resolve board/class names once rather than per row.
+    const [boards, classes] = await Promise.all([
+      prisma.board.findMany({ select: { id: true, code: true } }),
+      prisma.class.findMany({ select: { id: true, name: true } }),
+    ]);
+    const boardCode = new Map(boards.map((b) => [b.id, b.code]));
+    const className = new Map(classes.map((c) => [c.id, c.name]));
+
+    const passByStudent = new Map<number, { label: string; expiresAt: Date }>();
+    for (const p of activePasses) {
+      // Keep the longest-running pass when a student holds several.
+      const existing = passByStudent.get(p.studentId);
+      if (!existing || p.expiresAt > existing.expiresAt) {
+        passByStudent.set(p.studentId, {
+          label: `${boardCode.get(p.boardId) ?? "?"} · ${className.get(p.classId) ?? "?"}`,
+          expiresAt: p.expiresAt,
+        });
+      }
     }
-    const where = whereParts.join(" AND ");
-
-    const rows = await prisma.$queryRawUnsafe<Array<{
-      id: number; name: string; email: string; mobile: string | null;
-      classId: number | null; createdAt: Date | null;
-    }>>(
-      `SELECT id, name, email, mobile, classId, createdAt
-       FROM vw_students
-       WHERE ${where}
-       ORDER BY createdAt DESC
-       LIMIT ${limit} OFFSET ${offset}`,
-      ...args,
-    );
-    const totalRow = await prisma.$queryRawUnsafe<Array<{ cnt: bigint }>>(
-      `SELECT COUNT(*) AS cnt FROM vw_students WHERE ${where}`,
-      ...args,
-    );
-    const total = Number(totalRow[0]?.cnt ?? 0);
 
     return success({
-      students: rows.map((r) => ({
-        id: Number(r.id),
-        name: r.name,
-        email: r.email,
-        mobile: r.mobile,
-        classId: r.classId !== null ? Number(r.classId) : null,
-        createdAt: r.createdAt,
+      students: rows.map((s) => ({
+        id: s.id,
+        name: s.name,
+        email: s.email,
+        mobile: s.mobile,
+        emailVerified: s.emailVerified,
+        isActive: s.isActive,
+        joinedAt: s.createdAt,
+        contexts: s.contexts.map((c) => ({
+          boardId: c.boardId,
+          classId: c.classId,
+          isPrimary: c.isPrimary,
+          label: `${boardCode.get(c.boardId) ?? "?"} · ${className.get(c.classId) ?? "?"}`,
+        })),
+        activePass: passByStudent.get(s.id) ?? null,
+        attempts: s._count.attempts,
+        orders: s._count.orders,
       })),
       total,
       page,
-      totalPages: Math.ceil(total / limit),
+      limit,
+      totalPages: Math.max(1, Math.ceil(total / limit)),
     });
   } catch (err) {
     return handleApiError(err);

@@ -2,7 +2,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { verifyPassword, signToken } from "@/lib/auth";
 import { handleApiError, parseBody, success, error } from "@/lib/api-utils";
-import { findByEmail } from "@/lib/legacy-students";
+import { findByEmail } from "@/lib/students";
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -23,7 +23,7 @@ export async function POST(request: Request) {
       if (!valid) return error("Invalid credentials", 401);
 
       const token = signToken({ id: admin.id, email: admin.email, role: "admin" });
-      const response = success({ id: admin.id, name: admin.name, email: admin.email, role: "admin" });
+      const response = success({ id: admin.id, name: admin.name, email: admin.email, role: "admin", token });
       response.cookies.set("token", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
@@ -34,14 +34,13 @@ export async function POST(request: Request) {
       return response;
     }
 
-    // Students authenticate against the legacy `student` table (shared with mobile)
+    // Students authenticate against tq_students.
     const student = await findByEmail(body.email);
     if (!student || !student.isActive || !student.passwordHash) {
       return error("Invalid credentials", 401);
     }
 
-    // Only bcrypt-hashed passwords are supported. Legacy plaintext rows must
-    // request a password reset before logging in.
+    // Only bcrypt hashes are accepted.
     if (!student.passwordHash.startsWith("$2")) {
       return error("Please reset your password to continue", 401);
     }
@@ -49,22 +48,16 @@ export async function POST(request: Request) {
     const valid = await verifyPassword(body.password, student.passwordHash);
     if (!valid) return error("Invalid credentials", 401);
 
-    // Phase 0.3: check if this student also has an active org membership and
-    // embed orgId + orgRole in the token if so. Pick the most-privileged role
-    // (OWNER > ADMIN > TEACHER > STUDENT > PARENT) when multiple exist.
-    const ROLE_RANK: Record<string, number> = { OWNER: 5, ADMIN: 4, TEACHER: 3, STUDENT: 2, PARENT: 1 };
-    const memberships = await prisma.orgMembership.findMany({
-      where: { userId: student.id, isActive: true, org: { isActive: true } },
-      select: { orgId: true, role: true },
-    });
-    const best = memberships.sort((a, b) => (ROLE_RANK[b.role] ?? 0) - (ROLE_RANK[a.role] ?? 0))[0];
-
+    // The org-membership lookup that used to enrich this token is gone: the
+    // coaching/B2B stack has no tables in the decoupled database, so querying
+    // it here would fail every student login. Org claims stay null until that
+    // feature is rebuilt.
     const token = signToken({
       id: student.id,
       email: student.email,
       role: "student",
-      orgId: best?.orgId ?? null,
-      orgRole: best?.role ?? null,
+      orgId: null,
+      orgRole: null,
     });
 
     const response = success({
@@ -72,8 +65,10 @@ export async function POST(request: Request) {
       name: student.name,
       email: student.email,
       role: "student",
-      orgId: best?.orgId ?? null,
-      orgRole: best?.role ?? null,
+      orgId: null,
+      orgRole: null,
+      // For mobile clients that can't read the httpOnly cookie
+      token,
     });
     response.cookies.set("token", token, {
       httpOnly: true,

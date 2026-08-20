@@ -4,15 +4,15 @@ import { prisma } from "@/lib/db";
 import { requireAuth } from "@/lib/auth";
 import { handleApiError, parseBody, success } from "@/lib/api-utils";
 
+// Field names follow tq_coupons. BUNDLE_ONLY scope is gone with bundles.
 const createSchema = z.object({
   code: z.string().min(1).max(50).transform((s) => s.toUpperCase()),
-  discountType: z.enum(["PERCENTAGE", "FLAT"]),
+  discountType: z.enum(["PERCENT", "FLAT"]),
   discountValue: z.number().positive(),
-  maxDiscountCap: z.number().positive().optional(),
-  minOrderValue: z.number().min(0).default(0),
-  scope: z.enum(["ALL", "BUNDLE_ONLY", "FIRST_TIME"]).default("ALL"),
-  bundleId: z.number().int().positive().optional(),
-  totalUsageLimit: z.number().int().positive().optional(),
+  maxDiscount: z.number().positive().optional(),
+  minOrder: z.number().min(0).default(0),
+  scope: z.enum(["ALL", "FIRST_TIME"]).default("ALL"),
+  totalLimit: z.number().int().positive().optional(),
   perUserLimit: z.number().int().positive().default(1),
   validFrom: z.string().transform((s) => new Date(s)),
   validUntil: z.string().transform((s) => new Date(s)),

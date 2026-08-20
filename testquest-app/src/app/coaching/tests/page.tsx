@@ -24,7 +24,7 @@ function formatDuration(mins: number): string {
 export default async function CoachingTestsPage() {
   const session = await getSession();
   if (!session || !session.orgId) redirect("/coaching/login");
-  if (session.orgRole === "STUDENT" || session.orgRole === "PARENT") redirect("/tests");
+  if (session.orgRole === "STUDENT" || session.orgRole === "PARENT") redirect("/dashboard");
 
   const tests = await listOrgTests(session.orgId);
 

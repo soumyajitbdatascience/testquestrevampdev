@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 const JWT_EXPIRES_IN_SECONDS = 7 * 24 * 60 * 60; // 7 days
@@ -59,7 +59,13 @@ export function verifyToken(token: string): TokenPayload | null {
 
 export async function getSession(): Promise<TokenPayload | null> {
   const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
+  let token = cookieStore.get("token")?.value;
+  if (!token) {
+    // Mobile clients (native Android app) authenticate with a Bearer header
+    // instead of the httpOnly cookie. Cookie wins when both are present.
+    const authHeader = (await headers()).get("authorization");
+    if (authHeader?.startsWith("Bearer ")) token = authHeader.slice(7);
+  }
   if (!token) return null;
   return verifyToken(token);
 }

@@ -85,7 +85,7 @@ export default async function StudentAssignmentPage({ params }: Params) {
 
       <header className="relative">
         <div className="mx-auto max-w-[1280px] flex items-center justify-between px-6 py-5 lg:px-10">
-          <Link href="/tests" className="flex items-center gap-3">
+          <Link href="/dashboard" className="flex items-center gap-3">
             <OrgLogo />
           </Link>
           <ThemeToggle />
@@ -183,7 +183,7 @@ function NotForYou() {
         <p className="mt-3 text-sm text-muted-foreground">
           Ask your centre owner for the right invite link, or check if you signed in with the right account.
         </p>
-        <Link href="/tests" className="mt-6 inline-flex items-center gap-1.5 rounded-[10px] border border-strong px-5 py-2.5 text-sm hover:bg-white/5">
+        <Link href="/dashboard" className="mt-6 inline-flex items-center gap-1.5 rounded-[10px] border border-strong px-5 py-2.5 text-sm hover:bg-white/5">
           Browse tests
         </Link>
       </div>

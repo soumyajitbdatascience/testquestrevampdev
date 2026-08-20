@@ -65,11 +65,9 @@ export async function GET(_request: Request, { params }: Params) {
     const { id } = await params;
     const bundle = await prisma.bundle.findUnique({
       where: { id: Number(id) },
-      include: {
-        class: true,
-        tests: true,
-        _count: { select: { orders: true } },
-      },
+      // Bundles are retired in the decoupled model (no tq_bundles table here);
+      // the class and order relations no longer exist on the model.
+      include: { tests: true },
     });
     if (!bundle) return error("Bundle not found", 404);
     const tests = await hydrateTests(bundle.tests);

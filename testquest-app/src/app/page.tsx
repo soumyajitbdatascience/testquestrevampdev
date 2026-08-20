@@ -86,7 +86,6 @@ export default function LandingPage() {
           <nav className="hidden md:flex items-center gap-8">
             {[
               { label: "How it works", href: "#how-it-works" },
-              { label: "Subjects", href: "#subjects" },
               { label: "Pricing", href: "#pricing" },
               { label: "FAQ", href: "#faq" },
             ].map((l) => (
@@ -152,7 +151,7 @@ export default function LandingPage() {
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
-                href="/tests"
+                href="/dashboard"
                 className="inline-flex items-center gap-1.5 rounded-[10px] border border-strong px-6 py-3.5 text-sm text-foreground hover:bg-white/5 transition-colors"
               >
                 Explore tests
@@ -254,7 +253,7 @@ export default function LandingPage() {
             </p>
           </div>
           {[
-            { title: "Product",  items: [["Browse tests", "/tests"], ["Pricing", "#pricing"], ["How it works", "#how-it-works"], ["For coaching centres", "/for-coaching-centres"]] },
+            { title: "Product",  items: [["Browse tests", "/dashboard"], ["Pricing", "#pricing"], ["How it works", "#how-it-works"], ["For coaching centres", "/for-coaching-centres"]] },
             { title: "Company",  items: [["About", "/about"], ["Contact", "/contact"], ["Careers", "/careers"]] },
             { title: "Legal",    items: [["Privacy", "/privacy"], ["Terms", "/terms"], ["Refunds", "/refund"]] },
           ].map((col) => (

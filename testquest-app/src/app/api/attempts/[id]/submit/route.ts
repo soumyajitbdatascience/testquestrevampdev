@@ -1,44 +1,44 @@
+import { prisma } from "@/lib/db";
 import { requireAuth } from "@/lib/auth";
 import { handleApiError, success, error } from "@/lib/api-utils";
-import { getAttemptStatus, submitAttempt } from "@/lib/legacy-attempts";
-import { prisma } from "@/lib/db";
+import { submitAttempt } from "@/lib/attempts";
 
 type Params = { params: Promise<{ id: string }> };
 
+/**
+ * Submits and scores in one step. Scoring walks the attempt's pinned rows, so
+ * the result always reflects the paper the student actually sat.
+ */
 export async function POST(_request: Request, { params }: Params) {
   try {
     const session = await requireAuth("student");
     const { id } = await params;
     const attemptId = Number(id);
+    if (!Number.isFinite(attemptId)) return error("Invalid attempt id", 400);
 
-    const status = await getAttemptStatus(attemptId);
-    if (!status || status.studentId !== session.id) return error("Attempt not found", 404);
-    if (status.status === 2) return error("Already submitted", 400);
+    const attempt = await prisma.attempt.findFirst({
+      where: { id: attemptId, studentId: session.id },
+      select: { status: true },
+    });
+    if (!attempt) return error("Attempt not found", 404);
+    if (attempt.status === "COMPLETED") return error("Already submitted", 400);
 
-    await submitAttempt(attemptId);
-
-    const final = await getAttemptStatus(attemptId);
-    if (!final) return error("Submit failed", 500);
-
-    // If this attempt is linked to an assignment, mark the mapping row done.
-    if (final.token) {
-      await prisma.assignmentAttempt.updateMany({
-        where: { attemptToken: final.token, completedAt: null },
-        data: { completedAt: final.finishedAt ?? new Date() },
-      });
-    }
-
-    const percentage = final.totalMarks > 0
-      ? Number(((final.userScore / final.totalMarks) * 100).toFixed(2))
-      : 0;
+    const result = await submitAttempt(attemptId);
+    const final = await prisma.attempt.findUnique({
+      where: { id: attemptId },
+      select: { timeSpentSeconds: true },
+    });
 
     return success({
       submitted: true,
       status: "COMPLETED",
-      score: final.userScore,
-      totalMarks: final.totalMarks,
-      percentage,
-      timeSpentSeconds: final.timeSpentSeconds,
+      score: result.score,
+      totalMarks: result.totalMarks,
+      percentage: result.percentage,
+      correctCount: result.correctCount,
+      wrongCount: result.wrongCount,
+      unansweredCount: result.unansweredCount,
+      timeSpentSeconds: final?.timeSpentSeconds ?? 0,
     });
   } catch (err) {
     return handleApiError(err);

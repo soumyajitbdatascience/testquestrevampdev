@@ -8,16 +8,17 @@ import {
   LayoutDashboard,
   GraduationCap,
   BookOpen,
-  HelpCircle,
-  ClipboardList,
-  Package,
   TicketPercent,
   Receipt,
   Users,
-  Building2,
   LogOut,
   ChevronLeft,
   ChevronRight,
+  Rocket,
+  Landmark,
+  BadgeIndianRupee,
+  CreditCard,
+  Layers,
 } from "lucide-react";
 import { LogoMark, Logo } from "@/components/brand/logo";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
@@ -27,37 +28,60 @@ type NavItem = {
   label: string;
   icon: typeof LayoutDashboard;
   exact?: boolean;
+  badge?: "New" | "Legacy";
 };
 
+// Organised around three intents: what needs doing (Overview), the content
+// itself (Offerings, with Curriculum setup behind it), and the business
+// (Commerce, People).
+//
+// Offerings is the hub — chapters, questions, tests, videos and the free
+// sample are all reached by opening a shelf, not from their own screens.
 export const adminNavSections: { label: string; items: NavItem[] }[] = [
   {
     label: "Overview",
     items: [
-      { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
+      // Launch readiness is the landing page — opening the admin should answer
+      // "what do I do next?" before anything else.
+      { href: "/admin", label: "Launch readiness", icon: Rocket, exact: true, badge: "New" },
+      { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
     ],
   },
   {
-    label: "Content",
+    // The hub. Chapters, questions, tests, videos and the free sample all live
+    // inside an offering's workspace now, not as standalone screens.
+    label: "Offerings",
     items: [
-      { href: "/admin/classes", label: "Classes", icon: GraduationCap },
-      { href: "/admin/subjects", label: "Subjects", icon: BookOpen },
-      { href: "/admin/questions", label: "Questions", icon: HelpCircle },
-      { href: "/admin/tests", label: "Tests", icon: ClipboardList },
+      { href: "/admin/offerings", label: "All offerings", icon: Layers, badge: "New" },
     ],
   },
+  {
+    label: "Curriculum setup",
+    items: [
+      { href: "/admin/boards", label: "Boards", icon: Landmark },
+      { href: "/admin/classes", label: "Classes", icon: GraduationCap },
+      { href: "/admin/subjects", label: "Subjects", icon: BookOpen },
+    ],
+  },
+  // Retired: the standalone Questions, Tests, Chapters & tagging, Videos and
+  // Free samples screens now live inside the offering workspace, and Bundles
+  // are dropped from the model entirely. Their route files are still on disk
+  // but are no longer reachable from the nav.
   {
     label: "Commerce",
     items: [
-      { href: "/admin/bundles", label: "Bundles", icon: Package },
-      { href: "/admin/coupons", label: "Coupons", icon: TicketPercent },
+      { href: "/admin/plans", label: "Plans & pricing", icon: BadgeIndianRupee },
+      { href: "/admin/subscriptions", label: "Subscriptions", icon: CreditCard },
       { href: "/admin/orders", label: "Orders", icon: Receipt },
+      { href: "/admin/coupons", label: "Coupons", icon: TicketPercent },
     ],
   },
   {
-    label: "Users",
+    // Organizations is retired with the rest of the coaching/B2B stack — it has
+    // no tables in the decoupled database. Its route files remain on disk.
+    label: "People",
     items: [
       { href: "/admin/students", label: "Students", icon: Users },
-      { href: "/admin/organizations", label: "Organizations", icon: Building2 },
     ],
   },
 ];
@@ -143,6 +167,17 @@ export function AdminSidebar() {
                   >
                     <Icon className="h-4 w-4 flex-shrink-0" />
                     {!collapsed && <span className="truncate">{item.label}</span>}
+                    {!collapsed && item.badge && (
+                      <span className={cn(
+                        "ml-auto rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide",
+                        item.badge === "New"
+                          ? "bg-primary/15 text-primary"
+                          : "border border-border text-muted-foreground",
+                        isActive && "bg-white/20 text-primary-foreground border-transparent",
+                      )}>
+                        {item.badge}
+                      </span>
+                    )}
                   </Link>
                 );
               })}

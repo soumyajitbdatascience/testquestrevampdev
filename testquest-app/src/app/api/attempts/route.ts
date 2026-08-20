@@ -1,97 +1,68 @@
 import { z } from "zod";
+import { prisma } from "@/lib/db";
 import { requireAuth } from "@/lib/auth";
 import { handleApiError, parseBody, success, error } from "@/lib/api-utils";
-import { getTest, getTestQuestions } from "@/lib/legacy-content";
-import { startAttempt, findActiveAttemptForStudent } from "@/lib/legacy-attempts";
-import { prisma } from "@/lib/db";
+import { startAttempt, findActiveAttempt, getAttempt } from "@/lib/attempts";
+import { resolveTestAccess } from "@/lib/access";
 
 const startSchema = z.object({
   testId: z.number().int().positive(),
-  // Optional: when a student starts a test as part of an assignment, we record
-  // the link in tq_assignment_attempts so the owner can see who has started /
-  // completed which assignment without scanning legacy tables.
-  assignmentId: z.number().int().positive().optional(),
 });
 
+/**
+ * Starts (or resumes) an attempt.
+ *
+ * Test ids are plain `tq_tests.id` now — the +1,000,000 practice offset was a
+ * legacy device for telling `main_exam` and `practice_exam` apart, and one
+ * table with an `isPractice` flag has no such ambiguity.
+ */
 export async function POST(request: Request) {
   try {
     const session = await requireAuth("student");
-    const { testId, assignmentId } = await parseBody(request, startSchema);
+    const { testId } = await parseBody(request, startSchema);
 
-    const test = await getTest(testId);
-    if (!test || !test.isActive) return error("Test not found", 404);
+    const test = await prisma.test.findFirst({
+      where: { id: testId, isActive: true },
+      select: { id: true, name: true, durationMinutes: true, isPractice: true },
+    });
+    if (!test) return error("Test not found", 404);
 
-    // If an assignmentId was supplied, sanity-check it: must belong to the
-    // student's org, target this test, and the student must be enrolled in
-    // the batch. Failures degrade silently — we still let the attempt go
-    // through, just without the assignment-link.
-    let validAssignmentId: number | null = null;
-    if (assignmentId && session.orgId) {
-      const a = await prisma.assignment.findUnique({
-        where: { id: assignmentId },
-        select: { id: true, orgId: true, batchId: true, testId: true, isActive: true },
-      });
-      if (a && a.isActive && a.orgId === session.orgId && a.testId === testId) {
-        const enrolled = await prisma.batchEnrollment.findUnique({
-          where: { batchId_studentId: { batchId: a.batchId, studentId: session.id } },
-        });
-        if (enrolled && enrolled.isActive) validAssignmentId = a.id;
-      }
-    }
-
-    // If student has an existing in-progress attempt for this test, resume it
-    const active = await findActiveAttemptForStudent(session.id, testId);
+    // Resume first: an in-flight attempt is returned as-is, with the paper in
+    // the order it was pinned.
+    const active = await findActiveAttempt(session.id, testId);
     if (active) {
-      if (validAssignmentId) {
-        await prisma.assignmentAttempt.upsert({
-          where: { attemptToken: active.token },
-          create: { assignmentId: validAssignmentId, studentId: session.id, attemptToken: active.token },
-          update: {},
-        });
-      }
+      const loaded = await getAttempt(active.id, session.id);
       return success({
-        attemptId: active.attemptId,
+        attemptId: active.id,
         testName: test.name,
         durationMinutes: test.durationMinutes,
         isPractice: test.isPractice,
         totalMarks: active.totalMarks,
+        questionIds: loaded?.questions.map((q) => q.id) ?? [],
+        startedAt: active.startedAt,
         resumed: true,
       }, 200);
     }
 
-    // (Access check is handled in /api/tests/[id] before student gets here.
-    //  Free tests are open to all. Paid tests require tq_student_access.)
-    if (!test.isFree) {
-      const access = await prisma.studentAccess.findUnique({
-        where: { studentId_testId: { studentId: session.id, testId } },
-      });
-      if (!access || (access.expiresAt && access.expiresAt < new Date())) {
-        return error("You don't have access to this test", 403);
-      }
+    // POLICY: the resume check above intentionally precedes this access check —
+    // in-flight attempts survive access expiry (a student mid-test never gets
+    // locked out). Access itself resolves through the single helper, which
+    // fails closed: free sample → active class pass → locked.
+    const { access } = await resolveTestAccess(session.id, testId);
+    if (!access) {
+      return error("You don't have access to this test", 403);
     }
-
-    const questions = await getTestQuestions(testId);
-    if (questions.length === 0) return error("This test has no questions yet", 400);
 
     const attempt = await startAttempt(session.id, testId);
 
-    if (validAssignmentId) {
-      await prisma.assignmentAttempt.upsert({
-        where: { attemptToken: attempt.token },
-        create: { assignmentId: validAssignmentId, studentId: session.id, attemptToken: attempt.token },
-        update: {},
-      });
-    }
-
     return success({
       attemptId: attempt.attemptId,
-      testName: test.name,
-      durationMinutes: test.durationMinutes,
-      isPractice: test.isPractice,
+      testName: attempt.testName,
+      durationMinutes: attempt.durationMinutes,
+      isPractice: attempt.isPractice,
       totalMarks: attempt.totalMarks,
-      questionIds: questions.map(q => q.id),
+      questionIds: attempt.questionIds,
       startedAt: attempt.startedAt,
-      assignmentId: validAssignmentId,
     }, 201);
   } catch (err) {
     return handleApiError(err);

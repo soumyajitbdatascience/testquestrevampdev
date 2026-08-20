@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { hashPassword } from "@/lib/auth";
 import { handleApiError, parseBody, success, error } from "@/lib/api-utils";
-import { consumePasswordResetToken } from "@/lib/legacy-students";
+import { consumePasswordResetToken } from "@/lib/students";
 
 const schema = z.object({
   token: z.string().min(1),

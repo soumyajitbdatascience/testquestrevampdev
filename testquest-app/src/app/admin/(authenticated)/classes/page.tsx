@@ -24,12 +24,21 @@ import {
 } from "@/components/ui/dialog";
 import { Plus, Edit2, Trash2, Loader2 } from "lucide-react";
 
+interface BoardChip {
+  id: number;
+  code: string;
+  name: string;
+}
+
 interface ClassRow {
   id: number;
   name: string;
   sortOrder: number;
   isActive: boolean;
-  _count: { subjects: number; students: number; tests: number };
+  legacyId: number | null;
+  /** Boards that offer this class (tq_board_classes). */
+  boards: BoardChip[];
+  _count: { offerings: number };
 }
 
 export default function AdminClassesPage() {
@@ -84,7 +93,7 @@ export default function AdminClassesPage() {
   }
 
   async function remove(cls: ClassRow) {
-    if (!confirm(`Delete "${cls.name}"? This will affect ${cls._count.subjects} subjects and ${cls._count.students} students.`)) {
+    if (!confirm(`Hide "${cls.name}"? It has ${cls._count.offerings} offering(s). Content is not deleted.`)) {
       return;
     }
     const res = await fetch(`/api/admin/taxonomy/classes/${cls.id}`, { method: "DELETE" });
@@ -97,7 +106,7 @@ export default function AdminClassesPage() {
     <div className="p-6 lg:p-10">
       <AdminPageHeader
         title="Classes"
-        subtitle="Manage class levels (Class 6 to Class 12)"
+        subtitle="The shared class master. A class is board-agnostic — boards offer it."
         action={
           <Button onClick={openCreate}>
             <Plus className="h-4 w-4" />
@@ -119,9 +128,8 @@ export default function AdminClassesPage() {
               <TableRow>
                 <TableHead>Name</TableHead>
                 <TableHead>Sort order</TableHead>
-                <TableHead>Subjects</TableHead>
-                <TableHead>Students</TableHead>
-                <TableHead>Tests</TableHead>
+                <TableHead>Offered by</TableHead>
+                <TableHead>Offerings</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -131,9 +139,20 @@ export default function AdminClassesPage() {
                 <TableRow key={c.id}>
                   <TableCell className="font-medium">{c.name}</TableCell>
                   <TableCell>{c.sortOrder}</TableCell>
-                  <TableCell>{c._count.subjects}</TableCell>
-                  <TableCell>{c._count.students}</TableCell>
-                  <TableCell>{c._count.tests}</TableCell>
+                  <TableCell>
+                    {c.boards.length === 0 ? (
+                      <span className="text-xs text-muted-foreground">Not offered yet</span>
+                    ) : (
+                      <div className="flex flex-wrap gap-1">
+                        {c.boards.map((b) => (
+                          <Badge key={b.id} variant="secondary" className="text-[10px]" title={b.name}>
+                            {b.code}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                  </TableCell>
+                  <TableCell>{c._count.offerings}</TableCell>
                   <TableCell>
                     <Badge variant={c.isActive ? "success" : "secondary"}>
                       {c.isActive ? "Active" : "Hidden"}

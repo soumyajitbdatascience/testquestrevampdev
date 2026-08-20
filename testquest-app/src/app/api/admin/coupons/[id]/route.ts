@@ -2,19 +2,18 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { requireAuth } from "@/lib/auth";
 import { handleApiError, parseBody, success, error } from "@/lib/api-utils";
-import { findStudentsByIds } from "@/lib/legacy-lookups";
+import { findStudentsByIds } from "@/lib/commerce-lookups";
 
 type Params = { params: Promise<{ id: string }> };
 
 const updateSchema = z.object({
   code: z.string().min(1).max(50).transform((s) => s.toUpperCase()).optional(),
-  discountType: z.enum(["PERCENTAGE", "FLAT"]).optional(),
+  discountType: z.enum(["PERCENT", "FLAT"]).optional(),
   discountValue: z.number().positive().optional(),
-  maxDiscountCap: z.number().positive().nullable().optional(),
-  minOrderValue: z.number().min(0).optional(),
-  scope: z.enum(["ALL", "BUNDLE_ONLY", "FIRST_TIME"]).optional(),
-  bundleId: z.number().int().positive().nullable().optional(),
-  totalUsageLimit: z.number().int().positive().nullable().optional(),
+  maxDiscount: z.number().positive().nullable().optional(),
+  minOrder: z.number().min(0).optional(),
+  scope: z.enum(["ALL", "FIRST_TIME"]).optional(),
+  totalLimit: z.number().int().positive().nullable().optional(),
   perUserLimit: z.number().int().positive().optional(),
   validFrom: z.string().transform((s) => new Date(s)).optional(),
   validUntil: z.string().transform((s) => new Date(s)).optional(),
@@ -32,7 +31,7 @@ export async function GET(_request: Request, { params }: Params) {
           include: {
             order: { select: { id: true, finalAmount: true, createdAt: true } },
           },
-          orderBy: { usedAt: "desc" },
+          orderBy: { createdAt: "desc" },
           take: 50,
         },
         _count: { select: { usages: true } },

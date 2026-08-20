@@ -1,31 +1,32 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select } from "@/components/ui/select";
 import { Loader2, ArrowRight, ArrowLeft, CheckCircle2 } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { RotatingYantra } from "@/components/decor/rotating-yantra";
-
-interface ClassOption { id: number; name: string }
+import { safeNextPath } from "@/lib/next-param";
 
 export default function SignupPage() {
+  return (
+    <Suspense fallback={null}>
+      <SignupPageInner />
+    </Suspense>
+  );
+}
+
+function SignupPageInner() {
   const router = useRouter();
-  const [classes, setClasses] = useState<ClassOption[]>([]);
-  const [form, setForm] = useState({ name: "", email: "", mobile: "", password: "", classId: "", board: "CBSE" });
+  const searchParams = useSearchParams();
+  const next = safeNextPath(searchParams.get("next"), "/dashboard");
+  const [form, setForm] = useState({ name: "", email: "", mobile: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetch("/api/taxonomy").then((r) => r.json()).then((d) => {
-      if (d.ok) setClasses(d.data.map((c: ClassOption) => ({ id: c.id, name: c.name })));
-    });
-  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -37,12 +38,12 @@ export default function SignupPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: form.name, email: form.email, mobile: form.mobile || undefined,
-          password: form.password, classId: Number(form.classId), board: form.board,
+          password: form.password,
         }),
       });
       const data = await res.json();
       if (!data.ok) { setError(data.error || "Signup failed"); return; }
-      router.push("/tests");
+      router.push(next);
       router.refresh();
     } catch {
       setError("Something went wrong. Please try again.");
@@ -116,23 +117,6 @@ export default function SignupPage() {
               <Label htmlFor="mobile">Mobile <span className="text-muted-foreground font-normal">(optional)</span></Label>
               <Input id="mobile" type="tel" value={form.mobile} onChange={(e) => setForm({ ...form, mobile: e.target.value })} disabled={loading} placeholder="9876543210" className="h-11 bg-surface" />
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label htmlFor="classId">Class</Label>
-                <Select id="classId" value={form.classId} onChange={(e) => setForm({ ...form, classId: e.target.value })} required disabled={loading} className="h-11 bg-surface">
-                  <option value="" disabled>Select</option>
-                  {classes.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="board">Board</Label>
-                <Select id="board" value={form.board} onChange={(e) => setForm({ ...form, board: e.target.value })} disabled={loading} className="h-11 bg-surface">
-                  <option value="CBSE">CBSE</option>
-                  <option value="ICSE">ICSE</option>
-                  <option value="State">State Board</option>
-                </Select>
-              </div>
-            </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <Input id="password" type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required disabled={loading} minLength={6} placeholder="At least 6 characters" className="h-11 bg-surface" />
@@ -153,7 +137,7 @@ export default function SignupPage() {
 
           <p className="mt-8 text-center text-sm text-muted-foreground">
             Already have an account?{" "}
-            <Link href="/login" className="font-medium text-primary hover:underline underline-offset-4">Sign in</Link>
+            <Link href={next !== "/dashboard" ? `/login?next=${encodeURIComponent(next)}` : "/login"} className="font-medium text-primary hover:underline underline-offset-4">Sign in</Link>
           </p>
         </div>
       </main>

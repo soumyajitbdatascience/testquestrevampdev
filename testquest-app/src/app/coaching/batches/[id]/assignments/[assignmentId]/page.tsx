@@ -21,7 +21,7 @@ type Params = { params: Promise<{ id: string; assignmentId: string }> };
 export default async function MonitorPage({ params }: Params) {
   const session = await getSession();
   if (!session || !session.orgId) redirect("/coaching/login");
-  if (session.orgRole === "STUDENT") redirect("/tests");
+  if (session.orgRole === "STUDENT") redirect("/dashboard");
 
   const { id, assignmentId } = await params;
   const batchId = Number(id);

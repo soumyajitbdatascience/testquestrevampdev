@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,9 +10,20 @@ import { Loader2, ArrowRight, ArrowLeft, Sparkles, Star } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { RotatingYantra } from "@/components/decor/rotating-yantra";
+import { safeNextPath } from "@/lib/next-param";
 
 export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginPageInner />
+    </Suspense>
+  );
+}
+
+function LoginPageInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const next = safeNextPath(searchParams.get("next"), "/dashboard");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -30,7 +41,7 @@ export default function LoginPage() {
       });
       const data = await res.json();
       if (!data.ok) { setError(data.error || "Sign in failed"); return; }
-      router.push("/tests");
+      router.push(next);
       router.refresh();
     } catch {
       setError("Something went wrong. Please try again.");
@@ -130,7 +141,7 @@ export default function LoginPage() {
 
           <p className="mt-8 text-center text-sm text-muted-foreground">
             New to Testquest?{" "}
-            <Link href="/signup" className="font-medium text-primary hover:underline underline-offset-4">Create an account</Link>
+            <Link href={next !== "/dashboard" ? `/signup?next=${encodeURIComponent(next)}` : "/signup"} className="font-medium text-primary hover:underline underline-offset-4">Create an account</Link>
           </p>
         </div>
       </main>

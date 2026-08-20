@@ -39,7 +39,7 @@ Every journey is a chronological story: how the person first meets Testquest, wh
 
 **The journey**
 
-1. **Sign up.** They tap "Start free", enter their name, email, password, class, and board — or simply use "Sign in with Google". No payment details asked.
+1. **Sign up.** They tap "Start free", enter just their name, email, and password (mobile optional) — or simply use "Sign in with Google". No class or board is asked (they can set their class later on the profile page), and no payment details. A guest can also browse the whole catalogue first: tapping "Start test" or "Unlock test" while signed out opens a friendly prompt to create an account or sign in — and after signing in, the test starts (or checkout opens) automatically.
 2. **Dashboard.** They land on a personal dashboard: a welcome, their recent activity, and shortcuts into the test catalogue.
 3. **Browse tests.** The catalogue is filtered to their class; they narrow by subject. Every test card shows the question count, time limit, marks, and whether it's free or paid.
 4. **Take a free test.** One tap starts the exam: one question at a time, a countdown timer, and every answer saved the instant it's chosen — if the internet drops, nothing is lost. They can pause and come back later; the timer resumes where it stopped.

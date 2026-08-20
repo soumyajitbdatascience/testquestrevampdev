@@ -1,15 +1,14 @@
-import { getTaxonomyTree } from "@/lib/legacy-content";
+import { getTaxonomyTree } from "@/lib/student-content";
 import { handleApiError, success } from "@/lib/api-utils";
 
+/**
+ * Public class → subject tree. Re-pointed off the retired `vw_*` views onto
+ * the offering model; the response shape is unchanged, since student browse,
+ * profile, onboarding and two admin pickers all read it.
+ */
 export async function GET() {
   try {
-    const tree = await getTaxonomyTree();
-    // Shape matches the original Prisma-based response so frontends keep working
-    return success(tree.map(c => ({
-      id: c.id,
-      name: c.name,
-      subjects: c.subjects.map(s => ({ id: s.id, name: s.name, chapters: [] })),
-    })));
+    return success(await getTaxonomyTree());
   } catch (err) {
     return handleApiError(err);
   }

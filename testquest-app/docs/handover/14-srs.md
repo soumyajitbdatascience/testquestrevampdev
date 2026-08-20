@@ -57,13 +57,13 @@ Each requirement states delivered behaviour. Traceability: journey chapter (busi
 
 | ID | Requirement | Acceptance criteria | Status |
 |---|---|---|---|
-| FR-1.1 | Students shall register with name, email, password (min 6 chars), class (6–12), and board (CBSE/ICSE/State). | Duplicate email rejected; invalid class rejected; account usable immediately; same account works on the mobile app. | ✅ |
+| FR-1.1 | Students shall register with name, email, and password (min 6 chars); mobile optional. Class and board are not collected at signup (class can be set later on the profile page; the API still accepts them for older clients). | Duplicate email rejected; account usable immediately; same account works on the mobile app. | ✅ |
 | FR-1.2 | Students shall sign in with email+password or with Google. | Google sign-in verifies a Google-issued token; no password stored for Google-only users. | ✅ |
 | FR-1.3 | Sessions shall persist via a signed token in an httpOnly cookie; no server-side session store. | Logout clears the cookie; tampered tokens are rejected. | ✅ |
 | FR-1.4 | Login shall resolve the user's role: student, platform admin, or coaching member — and route accordingly. | An email present in the admin or coaching-membership records signs in with that role's permissions. | ✅ |
 | FR-1.5 | Users shall reset forgotten passwords via a time-limited email link (1 hour). | Used/expired tokens rejected; new password takes effect immediately. | ✅ |
 | FR-1.6 | Coaching staff shall be able to sign in with a one-time code (OTP) sent to their mobile, as an alternative to a password. | 6-digit code, single-use. 🟡 requires the SMS provider configured in production. | 🟡 |
-| FR-1.7 | Protected pages shall redirect signed-out visitors to the appropriate login screen. | Direct URL access to dashboards/admin/coaching without a session redirects to login. | ✅ |
+| FR-1.7 | Protected pages shall redirect signed-out visitors to the appropriate login screen, preserving the intended destination. | Direct URL access to dashboard/attempts/profile/checkout/admin/coaching without a session redirects to login with a return path; after signing in the user lands on the page they originally requested. | ✅ |
 
 ## FR-2 Content catalogue
 
@@ -73,7 +73,7 @@ Each requirement states delivered behaviour. Traceability: journey chapter (busi
 |---|---|---|---|
 | FR-2.1 | The platform shall present a class → subject taxonomy for browsing and signup. | Duplicate legacy subjects are de-duplicated; inactive entries hidden. | ✅ |
 | FR-2.2 | Students shall browse tests filtered to their class, further filterable by subject. | Each card shows name, subject, question count, duration, marks, free/paid. | ✅ |
-| FR-2.3 | Test detail shall show description and either Start (free/owned) or Buy (paid, not owned). | Access reflects purchases and coaching assignments. | ✅ |
+| FR-2.3 | Test detail shall show description and either Start (free/owned) or Buy (paid, not owned). Guests may browse; acting on Start/Buy while signed out shall open a sign-in/create-account prompt and, after authentication, continue automatically (free test starts; paid test opens checkout). | Access reflects purchases and coaching assignments; no raw error text is shown to guests. | ✅ |
 | FR-2.4 | Content shall be single-sourced: the same catalogue serves the website and the mobile app. | An admin edit appears on both without any sync step. | ✅ |
 | FR-2.5 | Content is English-only in this release. | — | ✅ (by design) |
 

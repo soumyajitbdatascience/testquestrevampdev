@@ -20,7 +20,7 @@ type Params = { params: Promise<{ id: string }> };
 export default async function BatchDetailPage({ params }: Params) {
   const session = await getSession();
   if (!session || !session.orgId) redirect("/coaching/login");
-  if (session.orgRole === "STUDENT") redirect("/tests");
+  if (session.orgRole === "STUDENT") redirect("/dashboard");
 
   const { id } = await params;
   const batchId = Number(id);

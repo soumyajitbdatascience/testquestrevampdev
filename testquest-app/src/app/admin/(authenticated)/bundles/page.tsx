@@ -113,7 +113,7 @@ export default function AdminBundlesPage() {
       setDialogOpen(false);
       load();
     } else {
-      alert(data.error);
+      alert(data.error || "Something went wrong");
     }
   }
 

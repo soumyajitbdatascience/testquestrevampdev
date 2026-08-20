@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { Suspense, useEffect, useState, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import { AdminPageHeader } from "@/components/admin/admin-sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -49,9 +50,19 @@ interface QuestionRow {
 interface ClassNode { id: number; name: string; subjects: { id: number; name: string; chapters: { id: number; name: string }[] }[] }
 
 export default function AdminQuestionsPage() {
+  return (
+    <Suspense fallback={null}>
+      <AdminQuestionsPageInner />
+    </Suspense>
+  );
+}
+
+function AdminQuestionsPageInner() {
+  const searchParams = useSearchParams();
   const [questions, setQuestions] = useState<QuestionRow[]>([]);
   const [classes, setClasses] = useState<ClassNode[]>([]);
-  const [filterSubjectId, setFilterSubjectId] = useState("");
+  // Drill-down entry point: /admin/questions?subjectId=Y preselects the subject
+  const [filterSubjectId, setFilterSubjectId] = useState(searchParams.get("subjectId") ?? "");
   const [filterType, setFilterType] = useState("");
   const [filterDifficulty, setFilterDifficulty] = useState("");
   const [searchInput, setSearchInput] = useState("");
@@ -113,9 +124,13 @@ export default function AdminQuestionsPage() {
 
   function openCreate() {
     setEditing(null);
+    // When a subject filter is active, default the new question to it
+    const presetClass = filterSubjectId
+      ? classes.find((c) => c.subjects.some((sub) => sub.id === Number(filterSubjectId)))
+      : undefined;
     setForm({
-      classId: "",
-      subjectId: "",
+      classId: presetClass ? String(presetClass.id) : "",
+      subjectId: presetClass ? filterSubjectId : "",
       type: "SINGLE_MCQ",
       difficulty: "MEDIUM",
       text: "",
@@ -241,7 +256,7 @@ export default function AdminQuestionsPage() {
       setImportResult(data.data);
       load();
     } else {
-      alert(data.error);
+      alert(data.error || "Something went wrong");
     }
   }
 

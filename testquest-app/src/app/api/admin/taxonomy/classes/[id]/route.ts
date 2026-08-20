@@ -2,7 +2,6 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { requireAuth } from "@/lib/auth";
 import { handleApiError, parseBody, success, error } from "@/lib/api-utils";
-import { updateClass, softDeleteClass } from "@/lib/legacy-admin";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -16,22 +15,45 @@ export async function GET(_request: Request, { params }: Params) {
   try {
     await requireAuth("admin");
     const { id } = await params;
-    const cid = Number(id);
-    const rows = await prisma.$queryRaw<Array<{ id: number; name: string; isActive: number | boolean; sortOrder: number }>>`
-      SELECT id, name, isActive, sortOrder FROM vw_classes WHERE id = ${cid} LIMIT 1
-    `;
-    if (!rows[0]) return error("Class not found", 404);
 
-    const subjects = await prisma.$queryRaw<Array<{ id: number; name: string; isActive: number | boolean }>>`
-      SELECT id, name, isActive FROM vw_subjects WHERE classId = ${cid} ORDER BY name
-    `;
+    const cls = await prisma.class.findUnique({
+      where: { id: Number(id) },
+      include: {
+        boardClasses: {
+          where: { isActive: true },
+          include: { board: { select: { id: true, code: true, name: true } } },
+          orderBy: { board: { sortOrder: "asc" } },
+        },
+        offerings: {
+          where: { isActive: true },
+          include: {
+            board: { select: { id: true, code: true } },
+            subject: { select: { id: true, name: true } },
+          },
+        },
+      },
+    });
+    if (!cls) return error("Class not found", 404);
 
     return success({
-      id: Number(rows[0].id),
-      name: rows[0].name,
-      isActive: !!rows[0].isActive,
-      sortOrder: Number(rows[0].sortOrder),
-      subjects: subjects.map(s => ({ id: Number(s.id), name: s.name, isActive: !!s.isActive })),
+      id: cls.id,
+      name: cls.name,
+      sortOrder: cls.sortOrder,
+      isActive: cls.isActive,
+      legacyId: cls.legacyId,
+      boards: cls.boardClasses.map((bc) => ({
+        id: bc.board.id,
+        code: bc.board.code,
+        name: bc.board.name,
+      })),
+      // Offerings replace the old "subjects of this class" list — the same
+      // subject can appear under several boards.
+      offerings: cls.offerings.map((o) => ({
+        id: o.id,
+        boardCode: o.board.code,
+        subjectId: o.subject.id,
+        subjectName: o.subject.name,
+      })),
     });
   } catch (err) {
     return handleApiError(err);
@@ -43,18 +65,19 @@ export async function PATCH(request: Request, { params }: Params) {
     await requireAuth("admin");
     const { id } = await params;
     const body = await parseBody(request, updateSchema);
-    await updateClass(Number(id), { name: body.name, isActive: body.isActive });
-    return success({ id: Number(id), ...body });
+    const updated = await prisma.class.update({ where: { id: Number(id) }, data: body });
+    return success(updated);
   } catch (err) {
     return handleApiError(err);
   }
 }
 
+/** Soft delete — isActive = false. Content stays reachable via its offerings. */
 export async function DELETE(_request: Request, { params }: Params) {
   try {
     await requireAuth("admin");
     const { id } = await params;
-    await softDeleteClass(Number(id));
+    await prisma.class.update({ where: { id: Number(id) }, data: { isActive: false } });
     return success({ deleted: true });
   } catch (err) {
     return handleApiError(err);

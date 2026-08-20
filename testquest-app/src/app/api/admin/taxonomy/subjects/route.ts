@@ -3,56 +3,48 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAuth } from "@/lib/auth";
 import { handleApiError, parseBody, success } from "@/lib/api-utils";
-import { createSubject } from "@/lib/legacy-admin";
 
+/**
+ * Subjects — the clean shared master (8 rows) from tq_subjects.
+ *
+ * A subject is NOT tied to a class: "Mathematics" exists once and is reused by
+ * every board and class through an Offering. This screen only names the shared
+ * subjects; nothing hangs off a subject directly except the question bank.
+ *
+ * (The old version read `vw_subjects`, which surfaced 817 legacy test-sets —
+ * "Class 9 English Set 1" — as if they were subjects. That is exactly what the
+ * migration removed.)
+ */
+// `.strict()` matters here: a subject is a pure master with no class of its
+// own, so a caller sending `classId` is working from the old flat model and
+// must be told, not silently obeyed. Without it Zod would strip the field and
+// the request would appear to succeed.
 const createSchema = z.object({
-  classId: z.number().int().positive(),
   name: z.string().min(1).max(200),
   sortOrder: z.number().int().optional(),
-});
+}).strict();
 
 export async function GET(request: NextRequest) {
   try {
     await requireAuth("admin");
-    const params = request.nextUrl.searchParams;
-    const classId = params.get("classId");
-    const search = params.get("search");
-    const page = Math.max(1, Number(params.get("page") || "1"));
-    const limit = Math.min(200, Math.max(1, Number(params.get("limit") || "50")));
-    const offset = (page - 1) * limit;
+    const search = request.nextUrl.searchParams.get("search");
 
-    const whereParts: string[] = [];
-    const args: (string | number)[] = [];
-    if (classId) { whereParts.push("s.classId = ?"); args.push(Number(classId)); }
-    if (search) { whereParts.push("s.name LIKE ?"); args.push(`%${search}%`); }
-    const whereClause = whereParts.length ? `WHERE ${whereParts.join(" AND ")}` : "";
+    const subjects = await prisma.subject.findMany({
+      where: search ? { name: { contains: search } } : undefined,
+      orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+      include: {
+        _count: { select: { offerings: true, questions: true } },
+      },
+    });
 
-    const rows = await prisma.$queryRawUnsafe<Array<{
-      id: number; name: string; classId: number | null; isActive: number | boolean;
-      className: string | null;
-      chapters: bigint; tests: bigint;
-    }>>(
-      `SELECT s.id, s.name, s.classId, s.isActive,
-              c.name AS className,
-              0 AS chapters,
-              (SELECT COUNT(*) FROM vw_tests t WHERE t.subjectId = s.id) AS tests
-       FROM vw_subjects s
-       LEFT JOIN vw_classes c ON c.id = s.classId
-       ${whereClause}
-       ORDER BY s.name
-       LIMIT ${limit} OFFSET ${offset}`,
-      ...args,
-    );
-    return success(rows.map(r => ({
-      id: Number(r.id),
-      name: r.name,
-      classId: r.classId !== null ? Number(r.classId) : null,
-      class: r.classId !== null ? { id: Number(r.classId), name: r.className || `Class ${r.classId}` } : null,
-      sortOrder: 0,
-      isActive: !!r.isActive,
+    return success(subjects.map((s) => ({
+      id: s.id,
+      name: s.name,
+      sortOrder: s.sortOrder,
+      isActive: s.isActive,
       _count: {
-        chapters: Number(r.chapters),
-        tests: Number(r.tests),
+        offerings: s._count.offerings,
+        questions: s._count.questions,
       },
     })));
   } catch (err) {
@@ -64,8 +56,19 @@ export async function POST(request: Request) {
   try {
     await requireAuth("admin");
     const body = await parseBody(request, createSchema);
-    const newId = await createSubject({ name: body.name, classId: body.classId });
-    return success({ id: newId, name: body.name, classId: body.classId, isActive: true }, 201);
+
+    const last = await prisma.subject.findFirst({ orderBy: { sortOrder: "desc" }, select: { sortOrder: true } });
+    const created = await prisma.subject.create({
+      data: { name: body.name, sortOrder: body.sortOrder ?? (last?.sortOrder ?? 0) + 1 },
+    });
+
+    return success({
+      id: created.id,
+      name: created.name,
+      sortOrder: created.sortOrder,
+      isActive: created.isActive,
+      _count: { offerings: 0, questions: 0 },
+    }, 201);
   } catch (err) {
     return handleApiError(err);
   }

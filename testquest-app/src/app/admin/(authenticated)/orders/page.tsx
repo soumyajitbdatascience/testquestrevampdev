@@ -68,7 +68,6 @@ export default function AdminOrdersPage() {
           <option value="PENDING">Pending</option>
           <option value="PAID">Paid</option>
           <option value="FAILED">Failed</option>
-          <option value="REFUNDED">Refunded</option>
         </Select>
       </div>
 
@@ -113,7 +112,7 @@ export default function AdminOrdersPage() {
                   </TableCell>
                   <TableCell>{o.couponCode ? <Badge variant="default" className="font-mono text-[10px]">{o.couponCode}</Badge> : <span className="text-muted-foreground">—</span>}</TableCell>
                   <TableCell>
-                    <Badge variant={o.status === "PAID" ? "success" : o.status === "FAILED" ? "destructive" : o.status === "REFUNDED" ? "warning" : "secondary"}>
+                    <Badge variant={o.status === "PAID" ? "success" : o.status === "FAILED" ? "destructive" : "secondary"}>
                       {o.status}
                     </Badge>
                   </TableCell>

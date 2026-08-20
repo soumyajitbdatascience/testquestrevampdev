@@ -209,7 +209,7 @@ export async function consumeLoginOtp(input: ConsumeLoginOtpInput): Promise<Cons
   const orgRole = account.bestMembership?.orgRole;
   const redirect = orgRole && (orgRole === "OWNER" || orgRole === "ADMIN" || orgRole === "TEACHER")
     ? "/coaching/dashboard"
-    : "/tests";
+    : "/dashboard";
 
   return {
     studentId: account.studentId,

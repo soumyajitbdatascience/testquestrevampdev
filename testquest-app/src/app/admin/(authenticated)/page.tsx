@@ -1,306 +1,236 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { AdminPageHeader } from "@/components/admin/admin-sidebar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Select } from "@/components/ui/select";
-import {
-  IndianRupee,
-  ShoppingCart,
-  Users,
-  Package,
-  TrendingUp,
-  Loader2,
-  ChevronRight,
-  Receipt,
-  ArrowUpRight,
-} from "lucide-react";
 import { cn } from "@/lib/utils";
+import { NeedsAttentionTray } from "@/components/admin/needs-attention-tray";
 import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-} from "recharts";
-import { AchievementPulseRings } from "@/components/decor/achievement-pulse-rings";
+  Loader2, Check, ArrowRight, BookOpen, HelpCircle, ClipboardList, Gift, BadgeIndianRupee,
+} from "lucide-react";
 
-interface RevenueData {
-  allTime: { revenue: number; orders: number };
-  period: { days: number; revenue: number; orders: number };
-  ordersByStatus: { status: string; count: number }[];
-  dailyRevenue: { date: string; revenue: number; orders: number }[];
-  topBundles: { id: number; name: string; price: number; orderCount: number }[];
-  couponStats: { code: string; discountType: string; discountValue: number; timesUsed: number }[];
-  totalStudents: number;
-}
-
-interface RecentOrder {
+/**
+ * Launch readiness — the admin home.
+ *
+ * One row per offering, five gates each, and every unmet gate is a one-click
+ * link into the exact tab that fixes it. The point is that opening the admin
+ * should answer "what do I do next?" without hunting.
+ */
+interface Check { done: boolean; count: number; tab: string | null; href: string }
+interface ReadinessRow {
   id: number;
-  itemType: string;
-  amount: string | number;
-  finalAmount: string | number;
-  status: string;
-  createdAt: string;
-  student: { id: number; name: string; email: string };
-  test: { id: number; name: string } | null;
-  bundle: { id: number; name: string } | null;
+  label: string;
+  board: { id: number; name: string; code: string };
+  class: { id: number; name: string };
+  subject: { id: number; name: string };
+  checks: { chapters: Check; questions: Check; tests: Check; freeSample: Check; plans: Check };
+  done: number;
+  total: number;
+  status: "READY" | "IN_PROGRESS" | "NOT_STARTED";
+  planDurations: number[];
+  defects: { unrenderableMath: number; deadImages: number; mojibake: number } | null;
 }
 
-export default function AdminDashboardPage() {
-  const [data, setData] = useState<RevenueData | null>(null);
-  const [orders, setOrders] = useState<RecentOrder[]>([]);
-  const [days, setDays] = useState(30);
+export interface TrayData {
+  noFreeSample: Array<{ offeringId: number; label: string }>;
+  noTests: Array<{ offeringId: number; label: string }>;
+  noChapters: Array<{ offeringId: number; label: string }>;
+  emptyTests: Array<{ testId: number; name: string; offeringId: number; label: string }>;
+  untaggedQuestions: Array<{ subjectId: number; subjectName: string; count: number }>;
+  contentDefects: Array<{ offeringId: number; label: string; unrenderableMath: number; deadImages: number; mojibake: number }>;
+  missingPlans: Array<{ boardId: number; classId: number; label: string; durations: number[] }>;
+}
+
+interface Payload {
+  summary: { total: number; ready: number; inProgress: number; notStarted: number };
+  offerings: ReadinessRow[];
+  tray: TrayData;
+}
+
+const CHECK_META = [
+  { key: "chapters" as const,   label: "Chapters",    icon: BookOpen },
+  { key: "questions" as const,  label: "Questions",   icon: HelpCircle },
+  { key: "tests" as const,      label: "Tests",       icon: ClipboardList },
+  { key: "freeSample" as const, label: "Free sample", icon: Gift },
+  { key: "plans" as const,      label: "Plan priced", icon: BadgeIndianRupee },
+];
+
+type Filter = "ALL" | "READY" | "IN_PROGRESS" | "NOT_STARTED";
+
+export default function AdminLaunchReadinessPage() {
+  const [data, setData] = useState<Payload | null>(null);
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<Filter>("ALL");
+
+  const load = useCallback(async (signal?: AbortSignal) => {
+    try {
+      // `no-store`: coming back from the pricing grid must recompute, never
+      // replay the counts from before the prices were saved.
+      const res = await fetch("/api/admin/launch-readiness", { signal, cache: "no-store" });
+      const d = await res.json();
+      if (signal?.aborted) return;
+      if (d.ok) setData(d.data);
+      setLoading(false);
+    } catch (err) {
+      if ((err as Error)?.name === "AbortError") return;
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    setLoading(true);
-    Promise.all([
-      fetch(`/api/admin/revenue?days=${days}`).then((r) => r.json()),
-      fetch("/api/admin/orders?limit=5").then((r) => r.json()),
-    ]).then(([rev, ord]) => {
-      if (rev.ok) setData(rev.data);
-      if (ord.ok) setOrders(ord.data.orders);
-      setLoading(false);
-    });
-  }, [days]);
+    const controller = new AbortController();
+    load(controller.signal);
+    return () => controller.abort();
+  }, [load]);
 
-  if (loading || !data) {
+  if (loading) {
+    return <div className="flex justify-center py-24"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;
+  }
+  if (!data) {
     return (
-      <div className="p-8 flex justify-center pt-24">
-        <Loader2 className="h-7 w-7 animate-spin text-muted-foreground" />
+      <div className="p-6 lg:p-10">
+        <div className="rounded-2xl border bg-card p-16 text-center text-muted-foreground">
+          Could not load launch readiness.
+        </div>
       </div>
     );
   }
 
+  const { summary, offerings, tray } = data;
+  const rows = filter === "ALL" ? offerings : offerings.filter((r) => r.status === filter);
+  const pct = summary.total > 0 ? Math.round((summary.ready / summary.total) * 100) : 0;
+
   return (
     <div className="p-6 lg:p-10">
       <AdminPageHeader
-        title="Dashboard"
-        subtitle="An at-a-glance view of your platform."
+        title="Launch readiness"
+        subtitle={`${summary.ready} of ${summary.total} offerings ready to sell`}
         action={
-          <Select value={String(days)} onChange={(e) => setDays(Number(e.target.value))} className="w-44 h-10">
-            <option value="7">Last 7 days</option>
-            <option value="30">Last 30 days</option>
-            <option value="90">Last 90 days</option>
-            <option value="365">Last year</option>
-          </Select>
+          <Button variant="outline" asChild>
+            <Link href="/admin/offerings">
+              All offerings
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </Button>
         }
       />
 
-      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4 mb-6">
-        <StatCard
-          icon={<IndianRupee className="h-4 w-4" />}
-          label={`Revenue · ${data.period.days}d`}
-          value={`₹${data.period.revenue.toLocaleString("en-IN")}`}
-          sub={`All-time ₹${data.allTime.revenue.toLocaleString("en-IN")}`}
-          highlight
-        />
-        <StatCard
-          icon={<ShoppingCart className="h-4 w-4" />}
-          label={`Orders · ${data.period.days}d`}
-          value={data.period.orders}
-          sub={`All-time ${data.allTime.orders}`}
-        />
-        <StatCard
-          icon={<Users className="h-4 w-4" />}
-          label="Students"
-          value={data.totalStudents}
-          sub="Active accounts"
-        />
-        <StatCard
-          icon={<TrendingUp className="h-4 w-4" />}
-          label="Avg order"
-          value={data.period.orders > 0 ? `₹${Math.round(data.period.revenue / data.period.orders)}` : "—"}
-          sub={`Over ${data.period.days} days`}
-        />
+      {/* Roll-up */}
+      <div className="mb-6 grid gap-3 sm:grid-cols-4">
+        <button
+          onClick={() => setFilter("ALL")}
+          className={cn(
+            "rounded-xl border bg-card p-4 text-left shadow-soft transition-colors",
+            filter === "ALL" ? "border-primary/50 bg-primary/5" : "hover:bg-surface-hi",
+          )}
+        >
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">All offerings</p>
+          <p className="mt-1 text-3xl font-medium tabular-nums">{summary.total}</p>
+          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
+            <div className="h-full rounded-full bg-primary transition-[width] duration-500" style={{ width: `${pct}%` }} />
+          </div>
+          <p className="mt-1 text-[11px] text-muted-foreground">{pct}% ready</p>
+        </button>
+        <StatCard label="Ready" value={summary.ready} tone="success" active={filter === "READY"} onClick={() => setFilter("READY")} />
+        <StatCard label="In progress" value={summary.inProgress} tone="warning" active={filter === "IN_PROGRESS"} onClick={() => setFilter("IN_PROGRESS")} />
+        <StatCard label="Not started" value={summary.notStarted} tone="muted" active={filter === "NOT_STARTED"} onClick={() => setFilter("NOT_STARTED")} />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2 rounded-2xl border bg-surface shadow-soft p-6">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="font-display text-2xl tracking-tight">Revenue trend</h2>
-              <p className="text-sm text-muted-foreground mt-0.5">Daily revenue over the last {data.period.days} days</p>
-            </div>
-          </div>
+      <NeedsAttentionTray tray={tray} />
 
-          {data.dailyRevenue.length === 0 ? (
-            <div className="flex items-center justify-center h-64 text-sm text-muted-foreground">
-              No data for this period
-            </div>
-          ) : (
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={data.dailyRevenue}>
-                  <defs>
-                    <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.35} />
-                      <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="oklch(0 0 0 / 0.06)" vertical={false} />
-                  <XAxis
-                    dataKey="date"
-                    tick={{ fontSize: 11, fill: "oklch(0.5 0 0)" }}
-                    axisLine={false}
-                    tickLine={false}
-                    tickFormatter={(d) => new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
-                  />
-                  <YAxis
-                    tick={{ fontSize: 11, fill: "oklch(0.5 0 0)" }}
-                    axisLine={false}
-                    tickLine={false}
-                    tickFormatter={(v) => `₹${v}`}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      background: "var(--color-background)",
-                      border: "1px solid var(--color-border)",
-                      borderRadius: "8px",
-                      fontSize: 12,
-                    }}
-                    formatter={(value, name) => name === "revenue" ? [`₹${value}`, "Revenue"] : [value, "Orders"]}
-                    labelFormatter={(label) => new Date(label).toLocaleDateString("en-IN", { dateStyle: "medium" })}
-                  />
-                  <Area type="monotone" dataKey="revenue" stroke="var(--color-primary)" strokeWidth={2} fill="url(#revenueGradient)" />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          )}
-        </div>
-
-        <div className="rounded-2xl border bg-surface shadow-soft p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="font-display text-2xl tracking-tight">Top bundles</h2>
-              <p className="text-sm text-muted-foreground mt-0.5">Best sellers</p>
-            </div>
-            <Package className="h-4 w-4 text-muted-foreground" />
-          </div>
-
-          {data.topBundles.length === 0 ? (
-            <div className="py-10 text-center text-sm text-muted-foreground">
-              No bundles sold yet
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {data.topBundles.slice(0, 5).map((b, i) => (
-                <div key={b.id} className="flex items-center gap-3">
-                  <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-primary-dim text-primary text-xs font-mono">
-                    {i + 1}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium truncate">{b.name}</p>
-                    <p className="text-xs text-muted-foreground">₹{b.price}</p>
-                  </div>
-                  <span className="text-sm font-medium">{b.orderCount}</span>
-                </div>
+      {/* Per-offering checklist */}
+      <div className="mt-6 overflow-hidden rounded-2xl border bg-card shadow-soft">
+        <table className="w-full text-[13px]">
+          <thead className="border-b bg-surface-hi/50 text-left text-muted-foreground">
+            <tr>
+              <th className="px-3 py-2 font-medium">Offering</th>
+              {CHECK_META.map((c) => (
+                <th key={c.key} className="w-28 px-2 py-2 font-medium">{c.label}</th>
               ))}
-            </div>
-          )}
-        </div>
-
-        <div className="lg:col-span-3 rounded-2xl border bg-surface shadow-soft overflow-hidden">
-          <div className="flex items-center justify-between p-6 border-b">
-            <div>
-              <h2 className="font-display text-2xl tracking-tight flex items-center gap-2">
-                <Receipt className="h-5 w-5" />
-                Recent orders
-              </h2>
-              <p className="text-sm text-muted-foreground mt-0.5">Latest transactions</p>
-            </div>
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/admin/orders">
-                View all
-                <ChevronRight className="h-4 w-4" />
-              </Link>
-            </Button>
-          </div>
-          {orders.length === 0 ? (
-            <div className="p-16 text-center">
-              <Receipt className="mx-auto h-10 w-10 text-muted-foreground/40" />
-              <p className="mt-3 font-display text-xl tracking-tight">No orders yet</p>
-              <p className="text-sm text-muted-foreground mt-1">Orders will appear once students start purchasing</p>
-            </div>
-          ) : (
-            <div className="divide-y">
-              {orders.map((o) => (
-                <div key={o.id} className="flex items-center gap-4 p-5 hover:bg-white/[0.02] transition-colors">
-                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-primary-dim text-primary font-medium text-sm">
-                    {o.student.name[0]}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-medium truncate">{o.test?.name || o.bundle?.name || "—"}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5 truncate">
-                      {o.student.name} · {o.student.email}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-display text-lg tracking-tight">₹{o.finalAmount}</p>
-                    <span className={cn(
-                      "text-[10px] font-medium",
-                      o.status === "PAID" ? "text-emerald-600" :
-                      o.status === "FAILED" ? "text-red-600" :
-                      "text-muted-foreground"
-                    )}>
-                      {o.status}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+              <th className="w-28 px-3 py-2 font-medium">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="px-3 py-12 text-center text-muted-foreground">
+                  No offerings in this state.
+                </td>
+              </tr>
+            ) : rows.map((r) => (
+              <tr key={r.id} className="border-b last:border-0 hover:bg-surface-hi/40">
+                <td className="px-3 py-2">
+                  <Link href={`/admin/offerings/${r.id}`} className="font-medium hover:text-primary hover:underline">
+                    {r.label}
+                  </Link>
+                  <span className="ml-2 text-[11px] text-muted-foreground tabular-nums">{r.done}/{r.total}</span>
+                </td>
+                {CHECK_META.map(({ key }) => {
+                  const check = r.checks[key];
+                  return (
+                    <td key={key} className="px-2 py-2">
+                      {/* The gate owns its own target — computed once in
+                          `@/lib/readiness` and unit-tested there, so the link
+                          cannot drift from the check it belongs to. */}
+                      <Link
+                        href={check.href}
+                        className={cn(
+                          "inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs transition-colors",
+                          check.done
+                            ? "text-green-700 hover:bg-green-50 dark:text-green-500 dark:hover:bg-green-950/40"
+                            : "text-amber-700 hover:bg-amber-50 dark:text-amber-500 dark:hover:bg-amber-950/40",
+                        )}
+                        title={check.done ? "Done — open anyway" : "Not set up — click to fix"}
+                      >
+                        {check.done
+                          ? <Check className="h-3 w-3 flex-shrink-0" />
+                          : <span className="text-sm leading-none">·</span>}
+                        {key === "plans"
+                          ? (check.done ? "3/6/12" : r.planDurations.length ? `${r.planDurations.join("/")}mo` : "none")
+                          : check.count > 0 ? check.count.toLocaleString() : "none"}
+                      </Link>
+                    </td>
+                  );
+                })}
+                <td className="px-3 py-2">
+                  <StatusPill status={r.status} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
 }
 
 function StatCard({
-  icon,
-  label,
-  value,
-  sub,
-  highlight,
+  label, value, tone, active, onClick,
 }: {
-  icon: React.ReactNode;
-  label: string;
-  value: string | number;
-  sub: string;
-  highlight?: boolean;
+  label: string; value: number; tone: "success" | "warning" | "muted"; active: boolean; onClick: () => void;
 }) {
+  const toneClass =
+    tone === "success" ? "text-green-600 dark:text-green-500"
+    : tone === "warning" ? "text-amber-600 dark:text-amber-500"
+    : "text-muted-foreground";
   return (
-    <div className={cn(
-      "rounded-2xl border shadow-soft p-5 relative overflow-hidden",
-      highlight ? "bg-primary text-primary-foreground shadow-gold border-transparent" : "bg-surface"
-    )}>
-      {highlight && (
-        <AchievementPulseRings
-          color="var(--primary-foreground)"
-          anchor="bottom-right"
-          ringCount={2}
-          duration={3.2}
-          size={40}
-        />
+    <button
+      onClick={onClick}
+      className={cn(
+        "rounded-xl border bg-card p-4 text-left shadow-soft transition-colors",
+        active ? "border-primary/50 bg-primary/5" : "hover:bg-surface-hi",
       )}
-      <div className="relative flex items-center justify-between">
-        <span className={cn("text-xs", highlight ? "text-background/70" : "text-muted-foreground")}>{label}</span>
-        <div className={cn(
-          "flex h-7 w-7 items-center justify-center rounded-lg",
-          highlight ? "bg-primary-foreground/15 text-primary-foreground" : "bg-primary-dim text-primary"
-        )}>
-          {icon}
-        </div>
-      </div>
-      <p className="mt-4 font-display text-3xl tracking-tight">{value}</p>
-      <p className={cn("mt-1 text-xs flex items-center gap-1", highlight ? "text-primary-foreground/70" : "text-muted-foreground")}>
-        <ArrowUpRight className="h-3 w-3" />
-        {sub}
-      </p>
-    </div>
+    >
+      <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
+      <p className={cn("mt-1 text-3xl font-medium tabular-nums", toneClass)}>{value}</p>
+    </button>
   );
+}
+
+function StatusPill({ status }: { status: ReadinessRow["status"] }) {
+  if (status === "READY") return <Badge variant="success" className="text-[10px]">Ready</Badge>;
+  if (status === "NOT_STARTED") return <Badge variant="secondary" className="text-[10px]">Not started</Badge>;
+  return <Badge variant="warning" className="text-[10px]">In progress</Badge>;
 }

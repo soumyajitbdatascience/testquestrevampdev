@@ -41,7 +41,7 @@ export async function POST(req: Request, { params }: Params) {
       batchName: context.batchName,
       alreadyEnrolled: result.alreadyEnrolled,
       alreadyMember: result.alreadyMember,
-      redirect: "/tests",
+      redirect: "/dashboard",
     });
     response.cookies.set("token", jwt, {
       httpOnly: true,

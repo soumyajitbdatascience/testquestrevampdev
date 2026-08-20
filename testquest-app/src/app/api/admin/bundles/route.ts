@@ -67,12 +67,10 @@ export async function GET(request: NextRequest) {
     const limit = Number(request.nextUrl.searchParams.get("limit") || "20");
 
     const [bundles, total] = await Promise.all([
+      // Bundles are retired in the decoupled model (no tq_bundles table here);
+      // the class and order relations no longer exist on the model.
       prisma.bundle.findMany({
-        include: {
-          class: { select: { id: true, name: true } },
-          tests: true,
-          _count: { select: { orders: true } },
-        },
+        include: { tests: true },
         orderBy: { createdAt: "desc" },
         skip: (page - 1) * limit,
         take: limit,
