@@ -1,37 +1,30 @@
 import { z } from "zod";
+import { prisma } from "@/lib/db";
 import { requireAuth } from "@/lib/auth";
 import { handleApiError, parseBody, success, error } from "@/lib/api-utils";
-import { getAttemptStatus, saveAnswer, decodeTestId } from "@/lib/legacy-attempts";
-import { prisma } from "@/lib/db";
+import { saveAnswer } from "@/lib/attempts";
 
 type Params = { params: Promise<{ id: string }> };
 
+/**
+ * The client contract is unchanged: option **ids**, single or multiple.
+ *
+ * What changed is underneath — the legacy engine converted these ids into
+ * 1-based positions and stored a CSV (`",,3,,,"`) because the legacy tables had
+ * no room for anything else. `tq_attempt_answers.selectedOptionIds` takes a
+ * JSON id array directly, so that translation layer is gone.
+ */
 const answerSchema = z.object({
   questionId: z.number().int().positive(),
-  // For SINGLE_MCQ — option id chosen
+  /** SINGLE_MCQ — the one option chosen (null clears it). */
   selectedOptionId: z.number().int().positive().nullable().optional(),
-  // For MULTI_MCQ — list of option ids
+  /** MULTI_MCQ — every option chosen. */
   selectedOptionIds: z.array(z.number().int().positive()).optional(),
-  // For FILL_IN_BLANK
+  /** FILL_IN_BLANK — no such question exists in the bank yet; accepted, unused. */
   fillAnswer: z.string().nullable().optional(),
-  // Reserved (legacy doesn't store this; frontend keeps it local)
+  /** Flags live client-side; there is no column for them. */
   isFlagged: z.boolean().optional(),
 });
-
-/**
- * Resolve a list of option IDs back to 1-based positions by looking them up
- * in vw_question_options for this question.
- */
-async function optionIdsToPositions(questionId: number, ids: number[]): Promise<number[]> {
-  if (ids.length === 0) return [];
-  const placeholders = ids.map(() => "?").join(",");
-  const rows = await prisma.$queryRawUnsafe<Array<{ id: number; sortOrder: number }>>(
-    `SELECT id, sortOrder FROM vw_question_options
-     WHERE questionId = ? AND id IN (${placeholders})`,
-    questionId, ...ids
-  );
-  return rows.map(r => Number(r.sortOrder)).filter(n => Number.isFinite(n));
-}
 
 export async function POST(request: Request, { params }: Params) {
   try {
@@ -40,39 +33,23 @@ export async function POST(request: Request, { params }: Params) {
     const attemptId = Number(id);
     if (!Number.isFinite(attemptId)) return error("Invalid attempt id", 400);
 
-    const status = await getAttemptStatus(attemptId);
-    if (!status || status.studentId !== session.id) return error("Attempt not found", 404);
-    if (status.status === 2) return error("This attempt has been submitted", 400);
+    const attempt = await prisma.attempt.findFirst({
+      where: { id: attemptId, studentId: session.id },
+      select: { id: true, status: true },
+    });
+    if (!attempt) return error("Attempt not found", 404);
+    if (attempt.status === "COMPLETED") return error("This attempt has been submitted", 400);
 
     const body = await parseBody(request, answerSchema);
 
-    // Resolve to 1-based positions
-    let positions: number[] = [];
-    if (body.selectedOptionIds && body.selectedOptionIds.length > 0) {
-      positions = await optionIdsToPositions(body.questionId, body.selectedOptionIds);
-    } else if (body.selectedOptionId) {
-      positions = await optionIdsToPositions(body.questionId, [body.selectedOptionId]);
-    } else if (body.fillAnswer && body.fillAnswer.trim()) {
-      // For FILL_IN_BLANK, store the user's text directly (legacy doesn't have
-      // a dedicated column — we put the trimmed answer into user_answer).
-      // This won't match the position-based correct_answer, so grading will
-      // treat it as wrong. A follow-up improvement: store fillAnswer raw and
-      // grade against q.correctText. For MVP, count attempt only.
-      positions = [];
-    }
+    // Either shape collapses to the same list; `selectedOptionIds` wins when
+    // both are sent, and an empty list clears the answer.
+    const ids = body.selectedOptionIds
+      ?? (body.selectedOptionId != null ? [body.selectedOptionId] : []);
 
-    // Get exam db id for the underlying table reference
-    const { kind, dbId: examDbId } = decodeTestId(status.testId);
-
-    await saveAnswer({
-      kind,
-      examDbId,
-      studentId: session.id,
-      questionId: body.questionId,
-      positions,
-      token: status.token,
-      attemptDbId: status.dbId,
-    });
+    const saved = await saveAnswer({ attemptId, questionId: body.questionId, selectedOptionIds: ids });
+    // A question that isn't on this attempt's pinned paper cannot be answered.
+    if (!saved) return error("That question isn't part of this attempt", 400);
 
     return success({ saved: true });
   } catch (err) {

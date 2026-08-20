@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { paiseToRupees } from "@/lib/money";
 import { prisma } from "@/lib/db";
 import { requireAuth } from "@/lib/auth";
 import { handleApiError, success } from "@/lib/api-utils";
@@ -16,7 +17,7 @@ export async function GET(request: NextRequest) {
       periodRevenue,
       orderCount,
       dailyRevenue,
-      topBundles,
+      topPlans,
       couponStats,
       studentCount,
     ] = await Promise.all([
@@ -52,12 +53,15 @@ export async function GET(request: NextRequest) {
         ORDER BY date ASC
       `,
 
-      // Top selling bundles
-      prisma.bundle.findMany({
+      // Top selling plans (bundles are retired in the decoupled model — the
+      // only sellable item is a Board+Class pass).
+      prisma.b2cPlan.findMany({
         where: { orders: { some: { status: "PAID" } } },
         select: {
           id: true,
-          name: true,
+          boardId: true,
+          classId: true,
+          durationMonths: true,
           price: true,
           _count: { select: { orders: { where: { status: "PAID" } } } },
         },
@@ -79,21 +83,25 @@ export async function GET(request: NextRequest) {
         take: 10,
       }),
 
-      // Total students — legacy `student` table is the source of truth (shared w/ mobile).
-      // The tq_students table is unused.
-      prisma.$queryRaw<Array<{ cnt: bigint }>>`
-        SELECT COUNT(*) AS cnt FROM vw_students WHERE isActive = 1
-      `,
+      // Total students — tq_students is the source of truth on the new DB
+      // (it starts empty; signups fill it).
+      prisma.student.count({ where: { isActive: true } }),
+    ]);
+
+    // Plan labels for the "top selling" list
+    const [boardMap, classMap] = await Promise.all([
+      prisma.board.findMany({ select: { id: true, code: true } }).then((r) => new Map(r.map((b) => [b.id, b.code]))),
+      prisma.class.findMany({ select: { id: true, name: true } }).then((r) => new Map(r.map((c) => [c.id, c.name]))),
     ]);
 
     return success({
       allTime: {
-        revenue: Number(totalRevenue._sum.finalAmount || 0),
+        revenue: paiseToRupees(Number(totalRevenue._sum.finalAmount || 0)),
         orders: totalRevenue._count,
       },
       period: {
         days,
-        revenue: Number(periodRevenue._sum.finalAmount || 0),
+        revenue: paiseToRupees(Number(periodRevenue._sum.finalAmount || 0)),
         orders: periodRevenue._count,
       },
       ordersByStatus: orderCount.map((o) => ({
@@ -102,14 +110,14 @@ export async function GET(request: NextRequest) {
       })),
       dailyRevenue: dailyRevenue.map((d) => ({
         date: d.date,
-        revenue: Number(d.revenue),
+        revenue: paiseToRupees(Number(d.revenue)),
         orders: Number(d.orders),
       })),
-      topBundles: topBundles.map((b) => ({
-        id: b.id,
-        name: b.name,
-        price: Number(b.price),
-        orderCount: b._count.orders,
+      topPlans: topPlans.map((p) => ({
+        id: p.id,
+        name: `${boardMap.get(p.boardId) ?? "—"} ${classMap.get(p.classId) ?? `Class ${p.classId}`} · ${p.durationMonths}mo`,
+        price: Number(p.price),
+        orderCount: p._count.orders,
       })),
       couponStats: couponStats.map((c) => ({
         code: c.code,
@@ -117,7 +125,7 @@ export async function GET(request: NextRequest) {
         discountValue: Number(c.discountValue),
         timesUsed: c._count.usages,
       })),
-      totalStudents: Number(studentCount[0]?.cnt ?? 0),
+      totalStudents: studentCount,
     });
   } catch (err) {
     return handleApiError(err);

@@ -14,7 +14,7 @@ import { Plus, Edit2, Trash2, Loader2 } from "lucide-react";
 interface CouponRow {
   id: number;
   code: string;
-  discountType: "PERCENTAGE" | "FLAT";
+  discountType: "PERCENT" | "FLAT";
   discountValue: string | number;
   maxDiscountCap: string | number | null;
   minOrderValue: string | number;
@@ -36,7 +36,7 @@ export default function AdminCouponsPage() {
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     code: "",
-    discountType: "PERCENTAGE" as "PERCENTAGE" | "FLAT",
+    discountType: "PERCENT" as "PERCENT" | "FLAT",
     discountValue: 10,
     maxDiscountCap: 0,
     minOrderValue: 0,
@@ -63,7 +63,7 @@ export default function AdminCouponsPage() {
     const future = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
     setForm({
       code: "",
-      discountType: "PERCENTAGE",
+      discountType: "PERCENT",
       discountValue: 10,
       maxDiscountCap: 0,
       minOrderValue: 0,
@@ -121,7 +121,7 @@ export default function AdminCouponsPage() {
       setDialogOpen(false);
       load();
     } else {
-      alert(data.error);
+      alert(data.error || "Something went wrong");
     }
   }
 
@@ -179,8 +179,8 @@ export default function AdminCouponsPage() {
                   <TableRow key={c.id}>
                     <TableCell className="font-mono font-medium">{c.code}</TableCell>
                     <TableCell>
-                      {c.discountType === "PERCENTAGE" ? `${c.discountValue}%` : `₹${c.discountValue}`}
-                      {c.maxDiscountCap && c.discountType === "PERCENTAGE" && (
+                      {c.discountType === "PERCENT" ? `${c.discountValue}%` : `₹${c.discountValue}`}
+                      {c.maxDiscountCap && c.discountType === "PERCENT" && (
                         <span className="text-xs text-muted-foreground"> (max ₹{c.maxDiscountCap})</span>
                       )}
                     </TableCell>
@@ -227,8 +227,8 @@ export default function AdminCouponsPage() {
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label>Type</Label>
-                <Select value={form.discountType} onChange={(e) => setForm({ ...form, discountType: e.target.value as "PERCENTAGE" | "FLAT" })}>
-                  <option value="PERCENTAGE">Percentage off</option>
+                <Select value={form.discountType} onChange={(e) => setForm({ ...form, discountType: e.target.value as "PERCENT" | "FLAT" })}>
+                  <option value="PERCENT">Percentage off</option>
                   <option value="FLAT">Flat amount off</option>
                 </Select>
               </div>
@@ -238,7 +238,7 @@ export default function AdminCouponsPage() {
               </div>
             </div>
 
-            {form.discountType === "PERCENTAGE" && (
+            {form.discountType === "PERCENT" && (
               <div className="space-y-2">
                 <Label>Max discount cap (₹, optional)</Label>
                 <Input type="number" min="0" value={form.maxDiscountCap} onChange={(e) => setForm({ ...form, maxDiscountCap: Number(e.target.value) })} placeholder="0 for no cap" />

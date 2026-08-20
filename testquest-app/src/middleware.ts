@@ -12,6 +12,11 @@ import type { NextRequest } from "next/server";
  * /admin/*     → handled inside the route group's layout (existing pattern).
  *                Not touched by middleware to avoid double-guarding.
  *
+ * /dashboard, /my-attempts, /profile, /checkout, /attempts/* →
+ *                require any valid session token; logged-out visitors are
+ *                redirected to /login?next=<original>. Role-specific rules
+ *                stay in the API routes.
+ *
  * NOTE: middleware runs on the Edge runtime, so we can't reuse the Node
  * `jsonwebtoken` library that src/lib/auth.ts uses to issue tokens. The
  * `verifyHS256` helper below uses Web Crypto's HMAC-SHA256 — the same
@@ -63,30 +68,57 @@ async function verifyHS256(token: string, secret: string): Promise<Record<string
   }
 }
 
+// Student pages that require a signed-in session. Logged-out visitors are
+// redirected to /login?next=<original> instead of hitting APIs that 401 and
+// leave the page blank or showing a raw "Unauthorized" string.
+const STUDENT_PROTECTED_PREFIXES = ["/dashboard", "/my-attempts", "/profile", "/checkout", "/attempts", "/onboarding", "/my-subscriptions", "/pass", "/progress"];
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (!pathname.startsWith("/coaching")) return NextResponse.next();
-  if (COACHING_PUBLIC.has(pathname)) return NextResponse.next();
-  if (COACHING_PUBLIC_PREFIXES.some((p) => pathname.startsWith(p))) return NextResponse.next();
+  if (pathname.startsWith("/coaching")) {
+    if (COACHING_PUBLIC.has(pathname)) return NextResponse.next();
+    if (COACHING_PUBLIC_PREFIXES.some((p) => pathname.startsWith(p))) return NextResponse.next();
 
-  const token = request.cookies.get("token")?.value;
-  if (!token) return redirectToLogin(request);
+    const token = request.cookies.get("token")?.value;
+    if (!token) return redirectToLogin(request, "/coaching/login");
 
-  const payload = await verifyHS256(token, process.env.JWT_SECRET ?? "");
-  if (!payload || payload.orgId == null) return redirectToLogin(request);
+    const payload = await verifyHS256(token, process.env.JWT_SECRET ?? "");
+    if (!payload || payload.orgId == null) return redirectToLogin(request, "/coaching/login");
+
+    return NextResponse.next();
+  }
+
+  if (STUDENT_PROTECTED_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"))) {
+    const token = request.cookies.get("token")?.value;
+    if (!token) return redirectToLogin(request, "/login");
+
+    const payload = await verifyHS256(token, process.env.JWT_SECRET ?? "");
+    if (!payload) return redirectToLogin(request, "/login");
+  }
 
   return NextResponse.next();
 }
 
-function redirectToLogin(request: NextRequest) {
+function redirectToLogin(request: NextRequest, loginPath: string) {
   const url = request.nextUrl.clone();
-  url.pathname = "/coaching/login";
+  url.pathname = loginPath;
   url.search = `?next=${encodeURIComponent(request.nextUrl.pathname + request.nextUrl.search)}`;
   return NextResponse.redirect(url);
 }
 
 export const config = {
-  // Only run on /coaching/* paths. API routes have their own auth checks.
-  matcher: ["/coaching/:path*"],
+  // Coaching portal + signed-in-only student pages. API routes have their own auth checks.
+  matcher: [
+    "/coaching/:path*",
+    "/dashboard/:path*", "/dashboard",
+    "/my-attempts/:path*", "/my-attempts",
+    "/profile/:path*", "/profile",
+    "/checkout/:path*", "/checkout",
+    "/attempts/:path*",
+    "/onboarding/:path*", "/onboarding",
+    "/my-subscriptions/:path*", "/my-subscriptions",
+    "/pass/:path*",
+    "/progress/:path*", "/progress",
+  ],
 };

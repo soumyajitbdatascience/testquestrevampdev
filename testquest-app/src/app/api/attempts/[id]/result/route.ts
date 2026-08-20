@@ -1,10 +1,23 @@
 import { requireAuth } from "@/lib/auth";
 import { handleApiError, success, error } from "@/lib/api-utils";
-import { getTest, getTestQuestions } from "@/lib/legacy-content";
-import { getAttemptStatus, getAttemptAnswers } from "@/lib/legacy-attempts";
+import { resolveTestAccess } from "@/lib/access";
+import { parseSelectedIds } from "@/lib/attempts";
+import { prisma } from "@/lib/db";
 
 type Params = { params: Promise<{ id: string }> };
 
+/**
+ * The review screen for a submitted attempt.
+ *
+ * Two variants, decided server-side. A student holding a pass sees full
+ * solutions. A free-sample sitter sees their own answers and score, but the
+ * correct options and the explanation **never leave the server** — the locked
+ * payload carries flattened options and placeholder text, so no amount of
+ * poking at the response reveals the answer key.
+ *
+ * The paper comes from the attempt's own pinned rows, so review shows exactly
+ * the questions that were sat, in the order they were sat.
+ */
 export async function GET(_request: Request, { params }: Params) {
   try {
     const session = await requireAuth("student");
@@ -12,34 +25,68 @@ export async function GET(_request: Request, { params }: Params) {
     const attemptId = Number(id);
     if (!Number.isFinite(attemptId)) return error("Invalid attempt id", 400);
 
-    const status = await getAttemptStatus(attemptId);
-    if (!status || status.studentId !== session.id) return error("Attempt not found", 404);
-    if (status.status !== 2) return error("This attempt hasn't been submitted yet", 400);
+    const attempt = await prisma.attempt.findFirst({
+      where: { id: attemptId, studentId: session.id },
+      select: {
+        id: true, testId: true, status: true, score: true, totalMarks: true,
+        correctCount: true, wrongCount: true, unansweredCount: true,
+        startedAt: true, finishedAt: true, timeSpentSeconds: true,
+        test: {
+          select: {
+            id: true, name: true, durationMinutes: true, isPractice: true,
+            offering: {
+              select: {
+                boardId: true, classId: true,
+                subject: { select: { id: true, name: true } },
+                class: { select: { id: true, name: true } },
+              },
+            },
+          },
+        },
+        answers: {
+          orderBy: { id: "asc" },
+          select: {
+            selectedOptionIds: true, isCorrect: true, marksAwarded: true,
+            question: {
+              select: {
+                id: true, type: true, text: true, marks: true, explanation: true,
+                chapter: { select: { id: true, name: true } },
+                options: {
+                  orderBy: [{ sortOrder: "asc" }, { id: "asc" }],
+                  select: { id: true, label: true, text: true, isCorrect: true },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+    if (!attempt) return error("Attempt not found", 404);
+    if (attempt.status !== "COMPLETED") return error("This attempt hasn't been submitted yet", 400);
 
-    const test = await getTest(status.testId);
-    if (!test) return error("Test not found", 404);
+    const { reason } = await resolveTestAccess(session.id, attempt.testId);
+    const showSolutions = reason === "CLASS_PASS";
 
-    const allQuestions = await getTestQuestions(status.testId);
-    const answers = await getAttemptAnswers(status.kind, status.token);
-    const answerByQ = new Map(answers.map(a => [a.questionId, a]));
+    const offering = attempt.test.offering;
 
-    // Free tests show score only; paid show full solutions
-    const showSolutions = !test.isFree;
+    // Upsell scope for the locked variant's paywall CTA.
+    let upsell: { boardId: number; classId: number; minPrice: number | null } | null = null;
+    if (!showSolutions) {
+      const plans = await prisma.b2cPlan.findMany({
+        where: { boardId: offering.boardId, classId: offering.classId, subjectId: null, isActive: true },
+        select: { price: true },
+      });
+      upsell = {
+        boardId: offering.boardId,
+        classId: offering.classId,
+        minPrice: plans.length ? Math.min(...plans.map((p) => Number(p.price))) : null,
+      };
+    }
 
-    let correct = 0, incorrect = 0, skipped = 0;
-    const questionResults = allQuestions.map((q, idx) => {
-      const a = answerByQ.get(q.id);
-      const optsSorted = q.options.sort((x, y) =>
-        x.label > y.label ? 1 : x.label < y.label ? -1 : 0);
-
-      const userPositions = a?.userAnswerPositions ?? [];
-      const userOptionIds = userPositions.map(p => optsSorted[p - 1]?.id).filter((x): x is number => typeof x === "number");
-      const isAnswered = userPositions.length > 0;
-      const isCorrect = (a?.result ?? 0) === 1;
-      const marksAwarded = isCorrect ? (a?.marks ?? 0) : 0;
-      if (!isAnswered) skipped++;
-      else if (isCorrect) correct++;
-      else incorrect++;
+    const questionResults = attempt.answers.map((a, idx) => {
+      const q = a.question;
+      const selectedIds = parseSelectedIds(a.selectedOptionIds);
+      const skipped = selectedIds.length === 0;
 
       const base = {
         index: idx + 1,
@@ -47,55 +94,67 @@ export async function GET(_request: Request, { params }: Params) {
         type: q.type,
         text: q.text,
         marks: q.marks,
-        chapter: { id: 0, name: "" },
-        isCorrect,
-        marksAwarded,
-        skipped: !isAnswered,
+        chapter: q.chapter ?? { id: 0, name: "" },
+        isCorrect: a.isCorrect === true,
+        marksAwarded: a.marksAwarded,
+        skipped,
         studentAnswer: {
-          selectedOptionId: userOptionIds[0] ?? null,
-          selectedOption: userOptionIds[0] ? optsSorted.find(o => o.id === userOptionIds[0]) ?? null : null,
+          selectedOptionId: selectedIds[0] ?? null,
+          selectedOptionIds: selectedIds,
+          selectedOption: selectedIds[0]
+            ? q.options.find((o) => o.id === selectedIds[0]) ?? null
+            : null,
           fillAnswer: null as string | null,
         },
       };
 
-      if (!showSolutions) return base;
+      if (!showSolutions) {
+        // Correctness flags stripped and the explanation replaced — the answer
+        // key is the product, so it stays server-side.
+        return {
+          ...base,
+          allOptions: q.options.map((o) => ({ id: o.id, label: o.label, text: o.text, isCorrect: false })),
+          explanation:
+            "Step-by-step solutions are included in the class pass. Unlock to see exactly where you went wrong and how to fix it.",
+          solutionLocked: true,
+        };
+      }
 
       return {
         ...base,
+        allOptions: q.options,
         explanation: q.explanation,
-        allOptions: optsSorted,
-        correctAnswer: {
-          options: optsSorted.filter(o => o.isCorrect),
-          correctText: null,
-        },
+        correctAnswer: { options: q.options.filter((o) => o.isCorrect), correctText: null },
       };
     });
 
-    const percentage = status.totalMarks > 0
-      ? Number(((status.userScore / status.totalMarks) * 100).toFixed(2))
+    const percentage = attempt.totalMarks > 0
+      ? Number(((attempt.score / attempt.totalMarks) * 100).toFixed(2))
       : 0;
 
     return success({
-      id: status.attemptId,
+      id: attempt.id,
       test: {
-        id: test.id,
-        name: test.name,
-        durationMinutes: test.durationMinutes,
-        totalMarks: status.totalMarks,
-        isFree: test.isFree,
-        isPractice: test.isPractice,
-        subject: test.subjectId ? { id: test.subjectId, name: test.subjectName } : { id: 0, name: "" },
-        class: test.classId ? { id: test.classId, name: test.className } : { id: 0, name: "" },
+        id: attempt.test.id,
+        name: attempt.test.name,
+        durationMinutes: attempt.test.durationMinutes,
+        totalMarks: attempt.totalMarks,
+        isPractice: attempt.test.isPractice,
+        subject: offering.subject,
+        class: offering.class,
       },
-      status: "LEGACY_COMPLETED",
-      score: status.userScore,
-      totalMarks: status.totalMarks,
+      status: "COMPLETED",
+      score: attempt.score,
+      totalMarks: attempt.totalMarks,
       percentage,
-      timeSpentSeconds: status.timeSpentSeconds,
-      startedAt: status.startedAt,
-      finishedAt: status.finishedAt,
-      summary: { total: allQuestions.length, correct, incorrect, skipped },
-      showSolutions,
+      correctCount: attempt.correctCount,
+      wrongCount: attempt.wrongCount,
+      unansweredCount: attempt.unansweredCount,
+      startedAt: attempt.startedAt,
+      finishedAt: attempt.finishedAt,
+      timeSpentSeconds: attempt.timeSpentSeconds,
+      solutionsLocked: !showSolutions,
+      upsell,
       questions: questionResults,
     });
   } catch (err) {

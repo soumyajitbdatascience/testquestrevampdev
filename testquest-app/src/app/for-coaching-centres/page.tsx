@@ -312,7 +312,7 @@ export default function ForCoachingCentresPage() {
           </div>
           {[
             { title: "Product",   items: [["Pricing", "#pricing"], ["FAQ", "#faq"], ["Help centre", "/help"], ["Book a demo", "/coaching/demo"]] },
-            { title: "For students", items: [["Browse tests", "/tests"], ["Sign up", "/signup"], ["Sign in", "/login"]] },
+            { title: "For students", items: [["Browse tests", "/dashboard"], ["Sign up", "/signup"], ["Sign in", "/login"]] },
             { title: "Legal",     items: [["Privacy", "/privacy"], ["Terms", "/terms"], ["Refunds", "/refund"]] },
           ].map((col) => (
             <div key={col.title}>

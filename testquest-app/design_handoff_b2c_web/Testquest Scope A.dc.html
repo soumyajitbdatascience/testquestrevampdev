@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>body{margin:0;background:#EFEDF7;font-family:Manrope,system-ui,sans-serif}a{color:#642CC8}a:hover{color:#6134EB}.dv-turn{padding:40px 44px 32px;scroll-margin-top:16px}.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 8px}.dv-tid{font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#140C3D;color:#fff;border-radius:4px;text-decoration:none}.dv-tname{font:600 13px/1.2 Manrope,sans-serif;color:#140C3D}.dv-opt{scroll-margin-top:16px;margin:0 0 44px}.dv-oid{font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(20,12,61,.08);color:#140C3D;border-radius:5px;text-decoration:none}.dv-olabel{display:flex;align-items:baseline;gap:8px;font:600 13px/1.3 Manrope,sans-serif;color:#140C3D;margin:0 0 14px}.dv-row{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start}.dv-frame{display:flex;flex-direction:column;gap:7px}.dv-cap{font:500 11px Manrope,sans-serif;color:#837CA3}.dv-card{background:#fff;border:1px solid rgba(20,12,61,.1);border-radius:14px;box-shadow:0 2px 8px rgba(20,12,61,.07);overflow:hidden}.dv-opt:target .dv-oid{background:#6134EB;color:#fff}.dv-next{margin:10px 0 0;font:12px/1.5 Manrope,sans-serif;color:rgba(20,12,61,.55)}</style>
+</helmet>
+<section class="dv-turn" id="t3">
+<div class="dv-thd"><a class="dv-tid" href="#t3">3</a><span class="dv-tname">Student journey optimization + coupons on the class pass (grounded in the web codebase)</span></div>
+<div style="max-width:780px;background:#fff;border:1px solid #E6E1F5;border-radius:14px;padding:14px 20px;margin:0 0 30px;font:500 12.5px/1.6 Manrope,sans-serif;color:#4B426E">
+<strong style="color:#140C3D">What the codebase told me:</strong> free-test results hide solutions (score only) — that's the highest-intent moment in the funnel, currently a dead end; coupons already exist (<code style="font-size:11px">tq_coupons</code>: %/flat, cap, min order, scope, limits + validate API) so pass-level coupons are additive, not new machinery; resume-attempt detection exists but is buried on the test detail page. Palette unchanged.
+</div>
+
+<div class="dv-opt" id="3a">
+<div class="dv-olabel"><a class="dv-oid" href="#3a">3a</a>The optimized funnel — every step hands intent to the next</div>
+<div class="dv-frame"><div class="dv-card" style="width:1240px;background:#fff;padding:22px 24px">
+<div style="display:flex;align-items:stretch;gap:0">
+<div style="flex:1;border:1px solid #E6E1F5;border-radius:12px;padding:12px 14px"><div style="font:700 10px Manrope;color:#837CA3;letter-spacing:.06em">STEP 1</div><div style="font:700 13px Sora;color:#140C3D;margin-top:3px">Signup</div><div style="font:600 11px/1.5 Manrope;color:#4B426E;margin-top:5px">Name, email, password only — board/class moves to onboarding</div></div>
+<div style="display:flex;align-items:center;padding:0 6px;color:#A790EA;font:700 14px Sora">→</div>
+<div style="flex:1;border:1px solid #E6E1F5;border-radius:12px;padding:12px 14px"><div style="font:700 10px Manrope;color:#837CA3;letter-spacing:.06em">STEP 2 · <a href="#1a">1a</a></div><div style="font:700 13px Sora;color:#140C3D;margin-top:3px">Onboarding ~20s</div><div style="font:600 11px/1.5 Manrope;color:#4B426E;margin-top:5px">Board → class → home. No detours, skippable second class</div></div>
+<div style="display:flex;align-items:center;padding:0 6px;color:#A790EA;font:700 14px Sora">→</div>
+<div style="flex:1;border:1px solid #E6E1F5;border-radius:12px;padding:12px 14px"><div style="font:700 10px Manrope;color:#837CA3;letter-spacing:.06em">STEP 3 · <a href="#1b">1b</a></div><div style="font:700 13px Sora;color:#140C3D;margin-top:3px">Home → free sample</div><div style="font:600 11px/1.5 Manrope;color:#4B426E;margin-top:5px">"Try your free Maths test" is the only loud CTA per subject</div></div>
+<div style="display:flex;align-items:center;padding:0 6px;color:#A790EA;font:700 14px Sora">→</div>
+<div style="flex:1.15;border:2px solid #6134EB;border-radius:12px;padding:12px 14px;background:#F4F0FE"><div style="font:700 10px Manrope;color:#642CC8;letter-spacing:.06em">STEP 4 · NEW · <a href="#3b">3b</a></div><div style="font:700 13px Sora;color:#140C3D;margin-top:3px">Result = the sell</div><div style="font:600 11px/1.5 Manrope;color:#4B426E;margin-top:5px">Score shown free; solutions visibly locked at peak curiosity → paywall</div></div>
+<div style="display:flex;align-items:center;padding:0 6px;color:#A790EA;font:700 14px Sora">→</div>
+<div style="flex:1;border:1px solid #E6E1F5;border-radius:12px;padding:12px 14px"><div style="font:700 10px Manrope;color:#837CA3;letter-spacing:.06em">STEP 5 · <a href="#3c">3c</a></div><div style="font:700 13px Sora;color:#140C3D;margin-top:3px">Paywall + coupon</div><div style="font:600 11px/1.5 Manrope;color:#4B426E;margin-top:5px">Duration cards; coupon applies to pass value via existing validate API</div></div>
+<div style="display:flex;align-items:center;padding:0 6px;color:#A790EA;font:700 14px Sora">→</div>
+<div style="flex:1;border:1px solid #E6E1F5;border-radius:12px;padding:12px 14px"><div style="font:700 10px Manrope;color:#837CA3;letter-spacing:.06em">STEP 6 · <a href="#1e">1e</a></div><div style="font:700 13px Sora;color:#140C3D;margin-top:3px">Unlock → return</div><div style="font:600 11px/1.5 Manrope;color:#4B426E;margin-top:5px">Back to the exact solutions page they were denied — instant payoff</div></div>
+</div>
+<div style="display:flex;gap:14px;margin-top:14px">
+<div style="flex:1;border:1px dashed #E6E1F5;border-radius:12px;padding:11px 14px;background:#FBFAFE"><span style="font:700 11px Manrope;color:#642CC8">RETURNING LOOP · <a href="#3d">3d</a></span><span style="font:600 11.5px Manrope;color:#4B426E;margin-left:8px">Home leads with Resume (in-progress attempt surfaces on home, not buried in test detail) → next suggested test → weak-chapter practice</span></div>
+<div style="flex:1;border:1px dashed #E6E1F5;border-radius:12px;padding:11px 14px;background:#FBFAFE"><span style="font:700 11px Manrope;color:#642CC8">EXPIRY LOOP</span><span style="font:600 11.5px Manrope;color:#4B426E;margin-left:8px">T-7 / T-1 emails → My subscriptions (<a href="#1f">1f</a>) → renew extends from expiry; win-back email may carry a coupon (<a href="#3e">3e</a>)</span></div>
+</div>
+</div><span class="dv-cap">Funnel: the two structural changes are step 4 (result sells) and coupons at step 5</span></div>
+</div>
+
+<div class="dv-opt" id="3b">
+<div class="dv-olabel"><a class="dv-oid" href="#3b">3b</a>Sample-test result — score free, solutions sell</div>
+<div class="dv-row">
+<div class="dv-frame"><div class="dv-card" style="width:375px;background:#fff">
+<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid #E6E1F5"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#140C3D" stroke-width="2.5"><path d="M15 18l-6-6 6-6"></path></svg><div><div style="font:700 14px Sora;color:#140C3D">Result · Test 1</div><div style="font:600 11px Manrope;color:#837CA3">Basics of real numbers · Free sample</div></div></div>
+<div style="display:flex;flex-direction:column;align-items:center;padding:22px 16px 6px">
+<svg width="120" height="120" viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="none" stroke="#F4F0FE" stroke-width="10"></circle><circle cx="60" cy="60" r="52" fill="none" stroke="#6134EB" stroke-width="10" stroke-dasharray="268 327" stroke-linecap="round" transform="rotate(-90 60 60)"></circle><text x="60" y="57" text-anchor="middle" font-family="Sora" font-size="26" font-weight="800" fill="#140C3D">82%</text><text x="60" y="76" text-anchor="middle" font-family="Manrope" font-size="10" font-weight="600" fill="#837CA3">20 of 24 correct</text></svg>
+<div style="font:700 12.5px Manrope;color:#1B8A5A;margin-top:8px">Better than 68% of Class 10 students on this test</div></div>
+<div style="display:flex;gap:8px;padding:12px 16px">
+<div style="flex:1;border:1px solid #E6E1F5;border-radius:12px;padding:9px 0;text-align:center"><div style="font:800 16px Sora;color:#1B8A5A">20</div><div style="font:600 10.5px Manrope;color:#837CA3">Correct</div></div>
+<div style="flex:1;border:1px solid #E6E1F5;border-radius:12px;padding:9px 0;text-align:center"><div style="font:800 16px Sora;color:#D92D20">3</div><div style="font:600 10.5px Manrope;color:#837CA3">Wrong</div></div>
+<div style="flex:1;border:1px solid #E6E1F5;border-radius:12px;padding:9px 0;text-align:center"><div style="font:800 16px Sora;color:#837CA3">1</div><div style="font:600 10.5px Manrope;color:#837CA3">Skipped</div></div></div>
+<div style="margin:4px 16px 0;border:1px solid #E6E1F5;border-radius:16px;overflow:hidden">
+<div style="display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid #E6E1F5"><span style="width:22px;height:22px;border-radius:50%;background:#FCEEE9;color:#D92D20;font:800 11px Sora;display:flex;align-items:center;justify-content:center">✗</span><div style="flex:1"><div style="font:700 12.5px Manrope;color:#140C3D">Q7 · HCF of 96 and 404 is…</div><div style="font:600 11px Manrope;color:#D92D20">You answered 8 · correct answer hidden</div></div></div>
+<div style="position:relative;padding:12px 14px 14px;background:#FBFAFE">
+<div style="filter:blur(4px);user-select:none;font:600 12px/1.6 Manrope;color:#4B426E">Step 1: 404 = 96 × 4 + 20. Step 2: 96 = 20 × 4 + 16. Step 3: apply Euclid's algorithm again…</div>
+<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6134EB" stroke-width="2.2"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg><span style="font:700 12px Manrope;color:#140C3D">Step-by-step solutions are in the class pass</span></div></div></div>
+<p style="margin:10px 16px 0;font:600 11.5px/1.5 Manrope;color:#4B426E;text-align:center">Solutions for all 24 questions — plus 141 more tests and 56 videos.</p>
+<div style="padding:10px 16px 18px;display:flex;flex-direction:column;gap:8px">
+<button style="min-height:48px;border:none;border-radius:12px;background:#6134EB;color:#fff;font:700 14.5px Manrope;cursor:pointer;box-shadow:0 6px 18px rgba(97,52,235,.35)">See where you went wrong — from ₹499</button>
+<button style="min-height:44px;border:1px solid #E6E1F5;border-radius:12px;background:#fff;color:#4B426E;font:700 13px Manrope;cursor:pointer">Retake test</button></div>
+</div><span class="dv-cap">375 · light — the locked-solution tease replaces the old score-only dead end</span></div>
+
+<div class="dv-frame"><div class="dv-card" style="width:375px;background:#130C36;border-color:#332A6B">
+<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid #332A6B"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F1EDFF" stroke-width="2.5"><path d="M15 18l-6-6 6-6"></path></svg><div><div style="font:700 14px Sora;color:#F1EDFF">Result · Test 1</div><div style="font:600 11px Manrope;color:#948BC4">Basics of real numbers · Free sample</div></div></div>
+<div style="display:flex;flex-direction:column;align-items:center;padding:22px 16px 6px">
+<svg width="120" height="120" viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="none" stroke="#251C5E" stroke-width="10"></circle><circle cx="60" cy="60" r="52" fill="none" stroke="#815FE9" stroke-width="10" stroke-dasharray="268 327" stroke-linecap="round" transform="rotate(-90 60 60)"></circle><text x="60" y="57" text-anchor="middle" font-family="Sora" font-size="26" font-weight="800" fill="#F1EDFF">82%</text><text x="60" y="76" text-anchor="middle" font-family="Manrope" font-size="10" font-weight="600" fill="#948BC4">20 of 24 correct</text></svg>
+<div style="font:700 12.5px Manrope;color:#45C990;margin-top:8px">Better than 68% of Class 10 students on this test</div></div>
+<div style="margin:12px 16px 0;border:1px solid #332A6B;border-radius:16px;overflow:hidden;background:#1D1550">
+<div style="position:relative;padding:12px 14px 14px">
+<div style="filter:blur(4px);user-select:none;font:600 12px/1.6 Manrope;color:#C0B5EA">Step 1: 404 = 96 × 4 + 20. Step 2: 96 = 20 × 4 + 16. Step 3: apply Euclid's algorithm again…</div>
+<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A790EA" stroke-width="2.2"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg><span style="font:700 12px Manrope;color:#F1EDFF">Step-by-step solutions are in the class pass</span></div></div></div>
+<div style="padding:12px 16px 18px"><button style="width:100%;min-height:48px;border:none;border-radius:12px;background:#815FE9;color:#fff;font:700 14.5px Manrope;cursor:pointer">See where you went wrong — from ₹499</button></div>
+</div><span class="dv-cap">375 · dark</span></div>
+</div>
+</div>
+<div class="dv-opt" id="3c">
+<div class="dv-olabel"><a class="dv-oid" href="#3c">3c</a>Paywall with coupon on the pass — evolves <a class="dv-oid" href="#1d">1d</a></div>
+<div class="dv-row">
+<div class="dv-frame"><div class="dv-card" style="width:375px;height:720px;background:#140C3D;position:relative">
+<div style="position:absolute;inset:0;background:rgba(20,12,61,.55)"></div>
+<div style="position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:20px 20px 0 0;padding:10px 20px 18px">
+<div style="width:40px;height:4px;border-radius:2px;background:#E6E1F5;margin:0 auto 14px"></div>
+<h2 style="margin:0;font:700 20px/1.2 Sora;color:#140C3D">Unlock CBSE · Class 10</h2>
+<p style="margin:6px 0 0;font:600 13px/1.5 Manrope;color:#4B426E">All 5 subjects · 142 chapter-wise tests · 56 video lessons</p>
+<div style="display:flex;flex-direction:column;gap:10px;margin:16px 0 0">
+<div style="display:flex;align-items:center;gap:12px;min-height:52px;padding:0 16px;border:1px solid #E6E1F5;border-radius:14px">
+<div style="width:20px;height:20px;border-radius:50%;border:2px solid #E6E1F5"></div>
+<div style="flex:1"><div style="font:700 14px Manrope;color:#140C3D">3 months</div></div><span style="font:800 15px Sora;color:#140C3D">₹499</span></div>
+<div style="display:flex;align-items:center;gap:12px;min-height:52px;padding:0 16px;border:1px solid #E6E1F5;border-radius:14px">
+<div style="width:20px;height:20px;border-radius:50%;border:2px solid #E6E1F5"></div>
+<div style="flex:1"><div style="font:700 14px Manrope;color:#140C3D">6 months</div></div><span style="padding:3px 8px;border-radius:999px;background:#EAF7F0;color:#1B8A5A;font:700 10.5px Manrope">Save 20%</span><span style="font:800 15px Sora;color:#140C3D">₹799</span></div>
+<div style="position:relative;display:flex;align-items:center;gap:12px;min-height:58px;padding:0 16px;border:2px solid #6134EB;border-radius:14px;background:#F4F0FE">
+<span style="position:absolute;top:-9px;left:14px;padding:2px 9px;border-radius:999px;background:#6134EB;color:#fff;font:700 10px Manrope">Best value</span>
+<div style="width:20px;height:20px;border-radius:50%;background:#6134EB;display:flex;align-items:center;justify-content:center"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M20 6 9 17l-5-5"></path></svg></div>
+<div style="flex:1"><div style="font:800 14px Manrope;color:#140C3D">12 months</div><div style="font:600 11.5px Manrope;color:#642CC8">now ₹81/month</div></div>
+<span style="font:800 17px Sora;color:#140C3D">₹1,299</span></div>
+</div>
+<div style="margin:12px 0 0;border:1px solid #1B8A5A;border-radius:12px;background:#EAF7F0;padding:11px 14px">
+<div style="display:flex;align-items:center;gap:8px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1B8A5A" stroke-width="2.2"><path d="M20 6 9 17l-5-5"></path></svg><span style="flex:1;font:700 12.5px Manrope;color:#140C3D">Coupon <span style="font:800;letter-spacing:.04em">WELCOME25</span> applied</span><span style="font:700 11.5px Manrope;color:#642CC8">Remove</span></div>
+<div style="display:flex;justify-content:space-between;font:600 12px Manrope;color:#4B426E;margin-top:8px"><span>12-month pass</span><span>₹1,299</span></div>
+<div style="display:flex;justify-content:space-between;font:700 12px Manrope;color:#1B8A5A;margin-top:3px"><span>25% off (max ₹325)</span><span>− ₹325</span></div>
+<div style="display:flex;justify-content:space-between;font:800 13.5px Sora;color:#140C3D;margin-top:6px;padding-top:6px;border-top:1px solid rgba(27,138,90,.25)"><span>You pay</span><span>₹974</span></div></div>
+<div style="display:flex;align-items:center;gap:9px;margin:10px 0 0;padding:10px 14px;border-radius:12px;background:#FBFAFE;border:1px solid #E6E1F5">
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1B8A5A" stroke-width="2.2"><path d="M12 22s8-3.6 8-10V5l-8-3-8 3v7c0 6.4 8 10 8 10z"></path><path d="M9 12l2 2 4-4"></path></svg>
+<span style="font:700 11.5px/1.45 Manrope;color:#140C3D">One-time payment. Valid until 28 Jul 2027. <span style="color:#1B8A5A">No auto-renewal.</span></span></div>
+<button style="width:100%;min-height:50px;border:none;border-radius:13px;background:#6134EB;color:#fff;font:700 15px Manrope;cursor:pointer;margin-top:12px;box-shadow:0 6px 18px rgba(97,52,235,.35)">Pay ₹974</button>
+<div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:9px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#837CA3" stroke-width="2.2"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg><span style="font:600 11px Manrope;color:#837CA3">Secured by Razorpay · UPI, cards, netbanking</span></div>
+</div>
+</div><span class="dv-cap">375 · light — coupon applied: line-item math, pay button updates, savings never oversold</span></div>
+
+<div class="dv-frame"><div class="dv-card" style="width:375px;background:#fff;padding:16px 18px">
+<div style="font:700 12px Manrope;color:#837CA3;letter-spacing:.05em;text-transform:uppercase;margin-bottom:10px">Coupon field states (validate via existing <span style="font-family:ui-monospace;font-size:10.5px">POST /api/coupons/validate</span>)</div>
+<div style="display:flex;flex-direction:column;gap:12px">
+<div><div style="font:600 10.5px Manrope;color:#837CA3;margin-bottom:5px">1 · Resting — one quiet line, no field until tapped</div>
+<div style="padding:10px 2px;font:700 12.5px Manrope;color:#642CC8">Have a coupon code?</div></div>
+<div><div style="font:600 10.5px Manrope;color:#837CA3;margin-bottom:5px">2 · Open — uppercase entry, applies to the selected duration</div>
+<div style="display:flex;gap:8px"><div style="flex:1;display:flex;align-items:center;min-height:44px;padding:0 12px;border:2px solid #6134EB;border-radius:11px;font:800 13px Manrope;color:#140C3D;letter-spacing:.06em">WELCOME25<span style="width:2px;height:16px;background:#6134EB;margin-left:2px"></span></div><button style="min-height:44px;padding:0 16px;border:none;border-radius:11px;background:#6134EB;color:#fff;font:700 13px Manrope;cursor:pointer">Apply</button></div></div>
+<div><div style="font:600 10.5px Manrope;color:#837CA3;margin-bottom:5px">3 · Invalid / expired — names the problem, keeps the code editable</div>
+<div style="display:flex;gap:8px"><div style="flex:1;display:flex;align-items:center;min-height:44px;padding:0 12px;border:2px solid #D92D20;border-radius:11px;font:800 13px Manrope;color:#140C3D;letter-spacing:.06em">DIWALI24</div><button style="min-height:44px;padding:0 16px;border:none;border-radius:11px;background:#6134EB;color:#fff;font:700 13px Manrope;cursor:pointer">Apply</button></div>
+<div style="font:600 11px Manrope;color:#D92D20;margin-top:5px">This code expired on 31 Oct. Try another?</div></div>
+<div><div style="font:600 10.5px Manrope;color:#837CA3;margin-bottom:5px">4 · Below minimum — coupon steers upward, never blocks silently</div>
+<div style="padding:9px 12px;border-radius:10px;background:#FDF3E7;font:600 11.5px/1.5 Manrope;color:#B45309">SAVE300 needs a minimum of ₹799 — pick the 6 or 12-month pass to use it.</div></div>
+</div>
+</div><span class="dv-cap">Coupon micro-states — 4 of them, all inline in the sheet</span></div>
+</div>
+</div>
+
+<div class="dv-opt" id="3d">
+<div class="dv-olabel"><a class="dv-oid" href="#3d">3d</a>Returning-user home — resume surfaces first, evolves <a class="dv-oid" href="#1b">1b</a></div>
+<div class="dv-row">
+<div class="dv-frame"><div class="dv-card" style="width:375px;background:#fff">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #E6E1F5">
+<img src="uploads/logo-mark.png" alt="Test Quest" style="width:28px;height:28px">
+<button style="display:flex;align-items:center;gap:7px;min-height:40px;padding:0 14px;border:1px solid #E6E1F5;border-radius:999px;background:#F4F0FE;font:700 13px Manrope;color:#140C3D;cursor:pointer"><span style="width:7px;height:7px;border-radius:50%;background:#1B8A5A"></span>CBSE · Class 10 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#642CC8" stroke-width="2.5"><path d="M6 9l6 6 6-6"></path></svg></button>
+<div style="width:32px;height:32px;border-radius:50%;background:#A790EA;color:#fff;font:700 13px Manrope;display:flex;align-items:center;justify-content:center">A</div></div>
+<div style="margin:14px 16px 0;border:2px solid #6134EB;border-radius:18px;padding:14px 16px;background:#F4F0FE">
+<div style="display:flex;align-items:center;gap:12px"><div style="width:40px;height:40px;border-radius:50%;background:#6134EB;display:flex;align-items:center;justify-content:center;flex:none"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"></path></svg></div>
+<div style="flex:1"><div style="font:700 14px Sora;color:#140C3D">Resume Test 2 · Euclid's division lemma</div><div style="font:600 11.5px Manrope;color:#642CC8">Question 8 of 18 · 14 min left on the clock</div></div></div>
+<button style="width:100%;min-height:44px;border:none;border-radius:11px;background:#6134EB;color:#fff;font:700 13.5px Manrope;cursor:pointer;margin-top:12px">Pick up where you left off</button></div>
+<div style="margin:12px 16px 0;display:flex;align-items:center;gap:10px;border:1px solid #E6E1F5;border-radius:14px;padding:11px 14px;background:#FDF3E7">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B45309" stroke-width="2.2"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 3"></path></svg>
+<span style="flex:1;font:600 11.5px/1.5 Manrope;color:#140C3D">Your pass ends in <strong>7 days</strong>. Renew now — days add on after 4 Aug, never lost.</span>
+<span style="font:700 12px Manrope;color:#642CC8">Renew</span></div>
+<div style="display:flex;align-items:baseline;justify-content:space-between;padding:16px 16px 10px"><h3 style="margin:0;font:700 15px Sora;color:#140C3D">Keep going</h3><span style="font:600 11.5px Manrope;color:#837CA3">Based on your last results</span></div>
+<div style="display:flex;flex-direction:column;gap:10px;padding:0 16px 18px">
+<div style="display:flex;align-items:center;gap:12px;border:1px solid #E6E1F5;border-radius:14px;padding:12px 14px"><div style="width:36px;height:36px;border-radius:11px;background:#FDF3E7;color:#B45309;font:800 14px Sora;display:flex;align-items:center;justify-content:center">41%</div><div style="flex:1"><div style="font:700 13px Manrope;color:#140C3D">Shore up Triangles</div><div style="font:600 11px Manrope;color:#837CA3">Ch 7 · 2 tests + 1 video on your weak spots</div></div><span style="font:700 12px Manrope;color:#642CC8">Go</span></div>
+<div style="display:flex;align-items:center;gap:12px;border:1px solid #E6E1F5;border-radius:14px;padding:12px 14px"><div style="width:36px;height:36px;border-radius:11px;background:#F4F0FE;color:#815FE9;font:800 16px Sora;display:flex;align-items:center;justify-content:center">π</div><div style="flex:1"><div style="font:700 13px Manrope;color:#140C3D">Next in Mathematics</div><div style="font:600 11px Manrope;color:#837CA3">Ch 10 · Circles — Test 2 · 40 min</div></div><span style="font:700 12px Manrope;color:#642CC8">Start</span></div>
+<div style="display:flex;align-items:center;gap:12px;border:1px solid #E6E1F5;border-radius:14px;padding:12px 14px"><div style="width:36px;height:36px;border-radius:11px;background:#F4F0FE;display:flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 24 24" fill="#815FE9"><path d="M8 5v14l11-7z"></path></svg></div><div style="flex:1"><div style="font:700 13px Manrope;color:#140C3D">Finish the chapter video</div><div style="font:600 11px Manrope;color:#837CA3">HCF &amp; LCM shortcuts · 7:20 left</div></div><span style="font:700 12px Manrope;color:#642CC8">Play</span></div>
+</div>
+</div><span class="dv-cap">375 · light · subscribed returner — resume card + T-7 renew strip + next best actions</span></div>
+</div>
+</div>
+
+<div class="dv-opt" id="3e">
+<div class="dv-olabel"><a class="dv-oid" href="#3e">3e</a>Admin coupons — pass scope (extends the existing tq_coupons editor)</div>
+<div class="dv-row">
+<div class="dv-frame"><div class="dv-card" style="width:700px;background:#fff;padding:18px 22px">
+<div style="font:700 15px Sora;color:#140C3D">Edit coupon · WELCOME25</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px">
+<div><div style="font:700 11px Manrope;color:#837CA3;margin-bottom:5px">TYPE &amp; VALUE</div><div style="display:flex;gap:8px"><span style="min-height:36px;display:flex;align-items:center;padding:0 12px;border:1px solid #E6E1F5;border-radius:9px;font:600 12px Manrope;color:#140C3D">Percentage ▾</span><span style="min-height:36px;display:flex;align-items:center;padding:0 12px;border:1px solid #E6E1F5;border-radius:9px;font:600 12px Manrope;color:#140C3D">25%</span><span style="min-height:36px;display:flex;align-items:center;padding:0 12px;border:1px solid #E6E1F5;border-radius:9px;font:600 12px Manrope;color:#140C3D">Cap ₹325</span></div></div>
+<div><div style="font:700 11px Manrope;color:#837CA3;margin-bottom:5px">MIN ORDER</div><span style="display:inline-flex;min-height:36px;align-items:center;padding:0 12px;border:1px solid #E6E1F5;border-radius:9px;font:600 12px Manrope;color:#140C3D">₹499</span></div>
+<div style="grid-column:1/-1"><div style="font:700 11px Manrope;color:#837CA3;margin-bottom:5px">APPLIES TO <span style="color:#642CC8">— new scope</span></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<span style="min-height:34px;display:flex;align-items:center;padding:0 12px;border:2px solid #6134EB;border-radius:999px;background:#F4F0FE;font:700 12px Manrope;color:#6134EB">Class passes — all</span>
+<span style="min-height:34px;display:flex;align-items:center;padding:0 12px;border:1px solid #E6E1F5;border-radius:999px;font:600 12px Manrope;color:#4B426E">Specific board+class…</span>
+<span style="min-height:34px;display:flex;align-items:center;padding:0 12px;border:1px solid #E6E1F5;border-radius:999px;font:600 12px Manrope;color:#4B426E">Specific durations…</span>
+<span style="min-height:34px;display:flex;align-items:center;padding:0 12px;border:1px solid #E6E1F5;border-radius:999px;font:600 12px Manrope;color:#837CA3">Legacy: tests &amp; bundles</span></div></div>
+</div>
+<div style="margin-top:14px;padding:10px 14px;border-radius:10px;background:#FBFAFE;border:1px solid #E6E1F5;font:600 11.5px/1.5 Manrope;color:#4B426E">Discount applies to the pass price at the paywall (<a href="#3c">3c</a>) and can ride along win-back emails as a renewal incentive. Usage limits and validity dates unchanged from the existing editor.</div>
+</div><span class="dv-cap">700 · light — scope chips extend the existing coupon editor; everything else stays</span></div>
+</div>
+</div>
+<p class="dv-next">Try next: "wire 3c coupon states into one interactive sheet" · "dark versions of 3d" · "apply the resume-first pattern to the subject page"</p>
+</section>
+
+<section class="dv-turn" id="t2">
+<div class="dv-thd"><a class="dv-tid" href="#t2">2</a><span class="dv-tname">Admin — content-ops cockpit (admin brief v1.0) · real logos now embedded across <a class="dv-oid" href="#t1">turn 1</a></span></div>
+<div style="max-width:760px;background:#fff;border:1px solid #E6E1F5;border-radius:14px;padding:14px 20px;margin:0 0 30px;font:500 12.5px/1.6 Manrope,sans-serif;color:#4B426E">
+<strong style="color:#140C3D">Admin assumptions:</strong> desktop-first at 1280px; density over whitespace (13px body, compact rows); grouped sidebar per §2 with legacy badges; the curriculum context bar is one shared component reused on every Curriculum screen. Light shown for all screens + dark for the tagging workhorse; other darks derive 1:1.
+</div>
+
+<div class="dv-opt" id="2a">
+<div class="dv-olabel"><a class="dv-oid" href="#2a">2a</a>Revised IA — grouped sidebar + dashboard B2C tiles</div>
+<div class="dv-row">
+<div class="dv-frame"><div class="dv-card" style="width:1280px;background:#FBFAFE;display:flex">
+<div style="width:216px;flex:none;background:#fff;border-right:1px solid #E6E1F5;padding:14px 0 18px">
+<div style="padding:2px 16px 14px"><img src="uploads/logo-lockup.png" alt="Test Quest" style="height:24px;width:auto"></div>
+<div style="padding:8px 16px 4px;font:700 10px Manrope;color:#837CA3;letter-spacing:.08em;text-transform:uppercase">Overview</div>
+<div style="display:flex;align-items:center;gap:10px;min-height:34px;margin:0 8px;padding:0 10px;border-radius:8px;background:#F4F0FE;font:700 13px Manrope;color:#6134EB">Dashboard</div>
+<div style="display:flex;align-items:center;gap:10px;min-height:34px;margin:0 8px;padding:0 10px;border-radius:8px;font:600 13px Manrope;color:#4B426E">Launch readiness<span style="margin-left:auto;padding:1px 7px;border-radius:999px;background:#F4F0FE;color:#642CC8;font:700 10px Manrope">New</span></div>
+<div style="padding:14px 16px 4px;font:700 10px Manrope;color:#837CA3;letter-spacing:.08em;text-transform:uppercase">Content</div>
+<div style="display:flex;align-items:center;min-height:34px;margin:0 8px;padding:0 10px;font:600 13px Manrope;color:#4B426E">Classes</div>
+<div style="display:flex;align-items:center;min-height:34px;margin:0 8px;padding:0 10px;font:600 13px Manrope;color:#4B426E">Subjects</div>
+<div style="display:flex;align-items:center;min-height:34px;margin:0 8px;padding:0 10px;font:600 13px Manrope;color:#4B426E">Questions</div>
+<div style="display:flex;align-items:center;min-height:34px;margin:0 8px;padding:0 10px;font:600 13px Manrope;color:#4B426E">Tests</div>
+<div style="padding:14px 16px 4px;font:700 10px Manrope;color:#837CA3;letter-spacing:.08em;text-transform:uppercase">Curriculum</div>
+<div style="display:flex;align-items:center;min-height:34px;margin:0 8px;padding:0 10px;font:600 13px Manrope;color:#4B426E">Boards</div>
+<div style="display:flex;align-items:center;min-height:34px;margin:0 8px;padding:0 10px;font:600 13px Manrope;color:#4B426E">Chapters &amp; tagging</div>
+<div style="display:flex;align-items:center;min-height:34px;margin:0 8px;padding:0 10px;font:600 13px Manrope;color:#4B426E">Videos</div>
+<div style="display:flex;align-items:center;min-height:34px;margin:0 8px;padding:0 10px;font:600 13px Manrope;color:#4B426E">Free samples</div>
+<div style="padding:14px 16px 4px;font:700 10px Manrope;color:#837CA3;letter-spacing:.08em;text-transform:uppercase">Commerce</div>
+<div style="display:flex;align-items:center;min-height:34px;margin:0 8px;padding:0 10px;font:600 13px Manrope;color:#4B426E">Plans &amp; pricing</div>
+<div style="display:flex;align-items:center;min-height:34px;margin:0 8px;padding:0 10px;font:600 13px Manrope;color:#4B426E">Subscriptions</div>
+<div style="display:flex;align-items:center;min-height:34px;margin:0 8px;padding:0 10px;font:600 13px Manrope;color:#4B426E">Orders</div>
+<div style="display:flex;align-items:center;min-height:34px;margin:0 8px;padding:0 10px;font:600 13px Manrope;color:#4B426E">Bundles<span style="margin-left:auto;padding:1px 7px;border-radius:999px;border:1px solid #E6E1F5;color:#837CA3;font:700 10px Manrope">Legacy</span></div>
+<div style="display:flex;align-items:center;min-height:34px;margin:0 8px;padding:0 10px;font:600 13px Manrope;color:#4B426E">Coupons<span style="margin-left:auto;padding:1px 7px;border-radius:999px;border:1px solid #E6E1F5;color:#837CA3;font:700 10px Manrope">Legacy</span></div>
+<div style="padding:14px 16px 4px;font:700 10px Manrope;color:#837CA3;letter-spacing:.08em;text-transform:uppercase">People</div>
+<div style="display:flex;align-items:center;min-height:34px;margin:0 8px;padding:0 10px;font:600 13px Manrope;color:#4B426E">Students</div>
+<div style="display:flex;align-items:center;min-height:34px;margin:0 8px;padding:0 10px;font:600 13px Manrope;color:#4B426E">Organizations</div>
+</div>
+<div style="flex:1;padding:20px 24px 26px">
+<div style="font:700 19px Sora;color:#140C3D">Dashboard</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px;margin:16px 0 0">
+<div style="background:#fff;border:1px solid #E6E1F5;border-radius:14px;padding:14px 16px"><div style="font:600 11.5px Manrope;color:#837CA3">Active passes</div><div style="font:800 24px Sora;color:#140C3D;margin-top:4px">1,284</div><div style="font:600 11px Manrope;color:#1B8A5A;margin-top:2px">+86 this month</div></div>
+<div style="background:#fff;border:1px solid #E6E1F5;border-radius:14px;padding:14px 16px"><div style="font:600 11.5px Manrope;color:#837CA3">Revenue this month</div><div style="font:800 24px Sora;color:#140C3D;margin-top:4px">₹4.16L</div><div style="font:600 11px Manrope;color:#837CA3;margin-top:2px">62% from 12-month plans</div></div>
+<div style="background:#fff;border:1px solid #E6E1F5;border-radius:14px;padding:14px 16px"><div style="font:600 11.5px Manrope;color:#837CA3">Tagging progress</div><div style="font:800 24px Sora;color:#140C3D;margin-top:4px">76%</div><div style="height:5px;border-radius:3px;background:#F4F0FE;margin-top:8px"><div style="width:76%;height:5px;border-radius:3px;background:#6134EB"></div></div></div>
+<div style="background:#fff;border:1px solid #E6E1F5;border-radius:14px;padding:14px 16px"><div style="font:600 11.5px Manrope;color:#837CA3">Expiring in 7 days</div><div style="font:800 24px Sora;color:#B45309;margin-top:4px">43</div><div style="font:600 11px Manrope;color:#642CC8;margin-top:2px">View upcoming expiries →</div></div>
+</div>
+<div style="margin-top:18px;border:1px dashed #E6E1F5;border-radius:14px;background:#fff;padding:26px;text-align:center;font:600 12.5px Manrope;color:#837CA3">Existing dashboard modules — unchanged (out of scope beyond token alignment)</div>
+</div>
+</div><span class="dv-cap">1280 · light — grouped sidebar (§2), legacy badges, four B2C tiles (§3.9)</span></div>
+</div>
+</div>
+<div class="dv-opt" id="2b">
+<div class="dv-olabel"><a class="dv-oid" href="#2b">2b</a>Chapters &amp; tagging — the workhorse (§3.3) with shared context bar (§3.2)</div>
+<div class="dv-row">
+<div class="dv-frame"><div class="dv-card" style="width:1280px;background:#FBFAFE;display:flex;position:relative">
+<div style="width:216px;flex:none;background:#fff;border-right:1px solid #E6E1F5;padding:14px 0 18px">
+<div style="padding:2px 16px 14px"><img src="uploads/logo-lockup.png" alt="Test Quest" style="height:24px;width:auto"></div>
+<div style="padding:8px 16px 4px;font:700 10px Manrope;color:#837CA3;letter-spacing:.08em;text-transform:uppercase">Curriculum</div>
+<div style="display:flex;align-items:center;min-height:34px;margin:0 8px;padding:0 10px;font:600 13px Manrope;color:#4B426E">Boards</div>
+<div style="display:flex;align-items:center;min-height:34px;margin:0 8px;padding:0 10px;border-radius:8px;background:#F4F0FE;font:700 13px Manrope;color:#6134EB">Chapters &amp; tagging</div>
+<div style="display:flex;align-items:center;min-height:34px;margin:0 8px;padding:0 10px;font:600 13px Manrope;color:#4B426E">Videos</div>
+<div style="display:flex;align-items:center;min-height:34px;margin:0 8px;padding:0 10px;font:600 13px Manrope;color:#4B426E">Free samples</div>
+<div style="margin:10px 16px 0;border-top:1px solid #E6E1F5;padding-top:10px;font:600 11px Manrope;color:#837CA3">Other sections collapsed for clarity</div>
+</div>
+<div style="flex:1;min-width:0">
+<div style="display:flex;align-items:center;gap:10px;padding:12px 20px;background:#F4F0FE;border-bottom:2px solid #6134EB">
+<span style="font:700 10.5px Manrope;color:#642CC8;letter-spacing:.08em;text-transform:uppercase">Working in</span>
+<button style="display:flex;align-items:center;gap:6px;min-height:34px;padding:0 12px;border:1px solid #E6E1F5;border-radius:9px;background:#fff;font:700 12.5px Manrope;color:#140C3D;cursor:pointer">CBSE <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#642CC8" stroke-width="2.5"><path d="M6 9l6 6 6-6"></path></svg></button>
+<button style="display:flex;align-items:center;gap:6px;min-height:34px;padding:0 12px;border:1px solid #E6E1F5;border-radius:9px;background:#fff;font:700 12.5px Manrope;color:#140C3D;cursor:pointer">Class 10 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#642CC8" stroke-width="2.5"><path d="M6 9l6 6 6-6"></path></svg></button>
+<button style="display:flex;align-items:center;gap:6px;min-height:34px;padding:0 12px;border:1px solid #E6E1F5;border-radius:9px;background:#fff;font:700 12.5px Manrope;color:#140C3D;cursor:pointer">Mathematics <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#642CC8" stroke-width="2.5"><path d="M6 9l6 6 6-6"></path></svg></button>
+<span style="margin-left:auto;font:600 12px Manrope;color:#4B426E">14 chapters · <strong style="color:#140C3D">312/412 tests tagged</strong> · 18 videos · sample ✓</span></div>
+<div style="display:grid;grid-template-columns:270px 1fr;gap:0">
+<div style="border-right:1px solid #E6E1F5;background:#fff;padding:12px 0 16px">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:0 14px 8px"><span style="font:700 13px Sora;color:#140C3D">Chapters</span><span style="font:700 12px Manrope;color:#642CC8">+ Add</span></div>
+<div style="display:flex;align-items:center;gap:8px;min-height:38px;padding:0 14px;background:#F4F0FE;border-left:3px solid #6134EB"><span style="color:#A790EA;font:600 12px">⋮⋮</span><span style="flex:1;font:700 12.5px Manrope;color:#140C3D">01 · Real Numbers</span><span style="font:600 11px Manrope;color:#837CA3">3t · 2v</span></div>
+<div style="display:flex;align-items:center;gap:8px;min-height:38px;padding:0 14px"><span style="color:#E6E1F5;font:600 12px">⋮⋮</span><span style="flex:1;font:600 12.5px Manrope;color:#4B426E">02 · Polynomials</span><span style="font:600 11px Manrope;color:#837CA3">3t · 1v</span></div>
+<div style="display:flex;align-items:center;gap:8px;min-height:38px;padding:0 14px"><span style="color:#E6E1F5;font:600 12px">⋮⋮</span><span style="flex:1;font:600 12.5px Manrope;color:#4B426E">03 · Linear Equations</span><span style="font:600 11px Manrope;color:#837CA3">4t · 2v</span></div>
+<div style="display:flex;align-items:center;gap:8px;min-height:38px;padding:0 14px"><span style="color:#E6E1F5;font:600 12px">⋮⋮</span><span style="flex:1;font:600 12.5px Manrope;color:#4B426E">04 · Quadratic Equations</span><span style="font:600 11px Manrope;color:#837CA3">3t · 1v</span></div>
+<div style="display:flex;align-items:center;gap:8px;min-height:38px;padding:0 14px"><span style="color:#E6E1F5;font:600 12px">⋮⋮</span><span style="flex:1;font:600 12.5px Manrope;color:#4B426E">05 · Arithmetic Progressions</span><span style="font:600 11px Manrope;color:#837CA3">2t · 2v</span></div>
+<div style="display:flex;align-items:center;gap:8px;min-height:38px;padding:0 14px"><span style="color:#E6E1F5;font:600 12px">⋮⋮</span><span style="flex:1;font:600 12.5px Manrope;color:#4B426E">06 · Triangles</span><span style="font:600 11px Manrope;color:#837CA3">4t · 3v</span></div>
+<div style="margin:10px 14px 0;display:flex;align-items:center;gap:8px;min-height:36px;padding:0 10px;border:1px dashed #E6E1F5;border-radius:9px;font:600 12px Manrope;color:#837CA3">Type a chapter name… <span style="margin-left:auto;font:600 10.5px Manrope">↵ to add</span></div>
+</div>
+<div style="background:#FBFAFE;min-width:0">
+<div style="display:flex;gap:2px;padding:12px 20px 0;border-bottom:1px solid #E6E1F5;background:#fff">
+<span style="padding:9px 14px;font:700 12.5px Manrope;color:#4B426E">In chapter <span style="color:#837CA3">(3)</span></span>
+<span style="padding:9px 14px;font:700 12.5px Manrope;color:#6134EB;border-bottom:2px solid #6134EB">Untagged <span style="display:inline-block;padding:0 7px;border-radius:999px;background:#6134EB;color:#fff;font:700 11px Manrope">100</span></span></div>
+<div style="display:flex;align-items:center;gap:10px;padding:12px 20px">
+<div style="display:flex;align-items:center;gap:8px;min-height:34px;padding:0 12px;border:1px solid #E6E1F5;border-radius:9px;background:#fff;flex:1;max-width:280px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#837CA3" stroke-width="2.2"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4-4"></path></svg><span style="font:600 12px Manrope;color:#837CA3">Search tests… <span style="border:1px solid #E6E1F5;border-radius:4px;padding:0 4px;font:600 10px ui-monospace">/</span></span></div>
+<span style="min-height:34px;display:flex;align-items:center;padding:0 12px;border:1px solid #E6E1F5;border-radius:9px;background:#fff;font:600 12px Manrope;color:#4B426E">Free/paid ▾</span>
+<span style="min-height:34px;display:flex;align-items:center;padding:0 12px;border:1px solid #E6E1F5;border-radius:9px;background:#fff;font:600 12px Manrope;color:#4B426E">Tagged elsewhere ▾</span>
+<span style="margin-left:auto;font:700 12px Manrope;color:#140C3D">37 selected <span style="font:600;color:#837CA3">of 100 filtered</span></span>
+<button style="min-height:36px;padding:0 16px;border:none;border-radius:9px;background:#6134EB;color:#fff;font:700 12.5px Manrope;cursor:pointer">Move to chapter →</button></div>
+<div style="margin:0 20px;border:1px solid #E6E1F5;border-radius:12px;background:#fff;overflow:hidden">
+<div style="display:grid;grid-template-columns:36px 1fr 70px 80px 70px 150px 40px;gap:0;align-items:center;min-height:34px;padding:0 12px;background:#FBFAFE;border-bottom:1px solid #E6E1F5;font:700 10.5px Manrope;color:#837CA3;letter-spacing:.05em;text-transform:uppercase"><span><input type="checkbox" checked></span><span>Test</span><span>Qs</span><span>Duration</span><span>Type</span><span>Also tagged in</span><span></span></div>
+<div style="display:grid;grid-template-columns:36px 1fr 70px 80px 70px 150px 40px;align-items:center;min-height:38px;padding:0 12px;border-bottom:1px solid #E6E1F5;background:#F4F0FE"><span><input type="checkbox" checked></span><span style="font:600 12.5px Manrope;color:#140C3D">Surface Areas — Mixed practice 1</span><span style="font:600 12px Manrope;color:#4B426E">24</span><span style="font:600 12px Manrope;color:#4B426E">45 min</span><span style="font:700 10.5px Manrope;color:#B45309">Paid</span><span><span style="padding:1px 8px;border-radius:999px;background:#F4F0FE;border:1px solid #E6E1F5;color:#642CC8;font:700 10px Manrope">ICSE ·10</span></span><span style="font:700 11px Manrope;color:#642CC8">→</span></div>
+<div style="display:grid;grid-template-columns:36px 1fr 70px 80px 70px 150px 40px;align-items:center;min-height:38px;padding:0 12px;border-bottom:1px solid #E6E1F5;background:#F4F0FE"><span><input type="checkbox" checked></span><span style="font:600 12.5px Manrope;color:#140C3D">Trigonometric ratios — Basics</span><span style="font:600 12px Manrope;color:#4B426E">18</span><span style="font:600 12px Manrope;color:#4B426E">30 min</span><span style="font:700 10.5px Manrope;color:#B45309">Paid</span><span></span><span style="font:700 11px Manrope;color:#642CC8">→</span></div>
+<div style="display:grid;grid-template-columns:36px 1fr 70px 80px 70px 150px 40px;align-items:center;min-height:38px;padding:0 12px;border-bottom:1px solid #E6E1F5"><span><input type="checkbox"></span><span style="font:600 12.5px Manrope;color:#140C3D">Heights and distances — Word problems</span><span style="font:600 12px Manrope;color:#4B426E">20</span><span style="font:600 12px Manrope;color:#4B426E">40 min</span><span style="font:700 10.5px Manrope;color:#1B8A5A">Free</span><span></span><span style="font:700 11px Manrope;color:#642CC8">→</span></div>
+<div style="display:grid;grid-template-columns:36px 1fr 70px 80px 70px 150px 40px;align-items:center;min-height:38px;padding:0 12px;border-bottom:1px solid #E6E1F5"><span><input type="checkbox"></span><span style="font:600 12.5px Manrope;color:#140C3D">Probability — Single events</span><span style="font:600 12px Manrope;color:#4B426E">15</span><span style="font:600 12px Manrope;color:#4B426E">25 min</span><span style="font:700 10.5px Manrope;color:#B45309">Paid</span><span><span style="padding:1px 8px;border-radius:999px;background:#F4F0FE;border:1px solid #E6E1F5;color:#642CC8;font:700 10px Manrope">MH ·10</span></span><span style="font:700 11px Manrope;color:#642CC8">→</span></div>
+<div style="display:grid;grid-template-columns:36px 1fr 70px 80px 70px 150px 40px;align-items:center;min-height:38px;padding:0 12px"><span><input type="checkbox"></span><span style="font:600 12.5px Manrope;color:#140C3D">Statistics — Mean, median, mode</span><span style="font:600 12px Manrope;color:#4B426E">22</span><span style="font:600 12px Manrope;color:#4B426E">40 min</span><span style="font:700 10.5px Manrope;color:#B45309">Paid</span><span></span><span style="font:700 11px Manrope;color:#642CC8">→</span></div>
+</div>
+<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 20px 16px"><span style="font:600 11.5px Manrope;color:#837CA3">Select all 100 filtered · server-paginated</span><span style="font:600 11.5px Manrope;color:#4B426E">1–50 of 100 · <strong style="color:#6134EB">100 left in this subject</strong></span></div>
+</div></div>
+<div style="position:absolute;left:50%;bottom:16px;transform:translateX(-50%);display:flex;align-items:center;gap:12px;background:#140C3D;color:#fff;border-radius:12px;padding:10px 16px;box-shadow:0 10px 30px rgba(20,12,61,.35)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#45C990" stroke-width="3"><path d="M20 6 9 17l-5-5"></path></svg><span style="font:600 12.5px Manrope">Moved 37 tests to "Trigonometry"</span><span style="font:700 12.5px Manrope;color:#A790EA">Undo</span></div>
+</div>
+</div><span class="dv-cap">1280 · light — context bar, two panes, Untagged work queue, bulk move + undo toast</span></div>
+
+<div class="dv-frame"><div class="dv-card" style="width:1280px;background:#130C36;display:flex;border-color:#332A6B">
+<div style="width:216px;flex:none;background:#181040;border-right:1px solid #332A6B;padding:14px 0 18px">
+<div style="display:flex;align-items:center;gap:8px;padding:2px 16px 14px"><img src="uploads/logo-mark.png" alt="" style="width:24px;height:24px"><span style="font:700 14px Sora;color:#F1EDFF">Test Quest</span></div>
+<div style="padding:8px 16px 4px;font:700 10px Manrope;color:#948BC4;letter-spacing:.08em;text-transform:uppercase">Curriculum</div>
+<div style="display:flex;align-items:center;min-height:34px;margin:0 8px;padding:0 10px;font:600 13px Manrope;color:#C0B5EA">Boards</div>
+<div style="display:flex;align-items:center;min-height:34px;margin:0 8px;padding:0 10px;border-radius:8px;background:rgba(129,95,233,.18);font:700 13px Manrope;color:#A790EA">Chapters &amp; tagging</div>
+<div style="display:flex;align-items:center;min-height:34px;margin:0 8px;padding:0 10px;font:600 13px Manrope;color:#C0B5EA">Videos</div>
+<div style="display:flex;align-items:center;min-height:34px;margin:0 8px;padding:0 10px;font:600 13px Manrope;color:#C0B5EA">Free samples</div>
+</div>
+<div style="flex:1;min-width:0">
+<div style="display:flex;align-items:center;gap:10px;padding:12px 20px;background:#251C5E;border-bottom:2px solid #815FE9">
+<span style="font:700 10.5px Manrope;color:#A790EA;letter-spacing:.08em;text-transform:uppercase">Working in</span>
+<span style="display:flex;align-items:center;gap:6px;min-height:34px;padding:0 12px;border:1px solid #332A6B;border-radius:9px;background:#1D1550;font:700 12.5px Manrope;color:#F1EDFF">CBSE ▾</span>
+<span style="display:flex;align-items:center;gap:6px;min-height:34px;padding:0 12px;border:1px solid #332A6B;border-radius:9px;background:#1D1550;font:700 12.5px Manrope;color:#F1EDFF">Class 10 ▾</span>
+<span style="display:flex;align-items:center;gap:6px;min-height:34px;padding:0 12px;border:1px solid #332A6B;border-radius:9px;background:#1D1550;font:700 12.5px Manrope;color:#F1EDFF">Mathematics ▾</span>
+<span style="margin-left:auto;font:600 12px Manrope;color:#C0B5EA">14 chapters · <strong style="color:#F1EDFF">312/412 tagged</strong> · 18 videos · sample ✓</span></div>
+<div style="display:grid;grid-template-columns:270px 1fr">
+<div style="border-right:1px solid #332A6B;background:#181040;padding:12px 0 16px">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:0 14px 8px"><span style="font:700 13px Sora;color:#F1EDFF">Chapters</span><span style="font:700 12px Manrope;color:#A790EA">+ Add</span></div>
+<div style="display:flex;align-items:center;gap:8px;min-height:38px;padding:0 14px;background:rgba(129,95,233,.16);border-left:3px solid #815FE9"><span style="flex:1;font:700 12.5px Manrope;color:#F1EDFF">01 · Real Numbers</span><span style="font:600 11px Manrope;color:#948BC4">3t · 2v</span></div>
+<div style="display:flex;align-items:center;gap:8px;min-height:38px;padding:0 14px"><span style="flex:1;font:600 12.5px Manrope;color:#C0B5EA">02 · Polynomials</span><span style="font:600 11px Manrope;color:#948BC4">3t · 1v</span></div>
+<div style="display:flex;align-items:center;gap:8px;min-height:38px;padding:0 14px"><span style="flex:1;font:600 12.5px Manrope;color:#C0B5EA">03 · Linear Equations</span><span style="font:600 11px Manrope;color:#948BC4">4t · 2v</span></div>
+</div>
+<div style="background:#130C36;min-width:0">
+<div style="display:flex;gap:2px;padding:12px 20px 0;border-bottom:1px solid #332A6B;background:#181040">
+<span style="padding:9px 14px;font:700 12.5px Manrope;color:#C0B5EA">In chapter <span style="color:#948BC4">(3)</span></span>
+<span style="padding:9px 14px;font:700 12.5px Manrope;color:#A790EA;border-bottom:2px solid #815FE9">Untagged <span style="display:inline-block;padding:0 7px;border-radius:999px;background:#815FE9;color:#fff;font:700 11px Manrope">100</span></span></div>
+<div style="margin:14px 20px;border:1px solid #332A6B;border-radius:12px;background:#1D1550;overflow:hidden">
+<div style="display:grid;grid-template-columns:36px 1fr 70px 80px 70px;align-items:center;min-height:38px;padding:0 12px;border-bottom:1px solid #332A6B;background:rgba(129,95,233,.14)"><span><input type="checkbox" checked></span><span style="font:600 12.5px Manrope;color:#F1EDFF">Surface Areas — Mixed practice 1</span><span style="font:600 12px Manrope;color:#C0B5EA">24</span><span style="font:600 12px Manrope;color:#C0B5EA">45 min</span><span style="font:700 10.5px Manrope;color:#E1A03C">Paid</span></div>
+<div style="display:grid;grid-template-columns:36px 1fr 70px 80px 70px;align-items:center;min-height:38px;padding:0 12px;border-bottom:1px solid #332A6B"><span><input type="checkbox"></span><span style="font:600 12.5px Manrope;color:#F1EDFF">Heights and distances — Word problems</span><span style="font:600 12px Manrope;color:#C0B5EA">20</span><span style="font:600 12px Manrope;color:#C0B5EA">40 min</span><span style="font:700 10.5px Manrope;color:#45C990">Free</span></div>
+<div style="display:grid;grid-template-columns:36px 1fr 70px 80px 70px;align-items:center;min-height:38px;padding:0 12px"><span><input type="checkbox"></span><span style="font:600 12.5px Manrope;color:#F1EDFF">Statistics — Mean, median, mode</span><span style="font:600 12px Manrope;color:#C0B5EA">22</span><span style="font:600 12px Manrope;color:#C0B5EA">40 min</span><span style="font:700 10.5px Manrope;color:#E1A03C">Paid</span></div>
+</div>
+</div></div>
+</div>
+</div><span class="dv-cap">1280 · dark — same workhorse, dark tokens (owner works at night)</span></div>
+</div>
+</div>
+<div class="dv-opt" id="2c">
+<div class="dv-olabel"><a class="dv-oid" href="#2c">2c</a>Video manager — URL-paste validation states (§3.4)</div>
+<div class="dv-row">
+<div class="dv-frame"><div class="dv-card" style="width:900px;background:#fff">
+<div style="padding:16px 22px 0"><span style="font:700 16px Sora;color:#140C3D">Videos · Real Numbers</span><span style="font:600 12px Manrope;color:#837CA3;margin-left:10px">CBSE · Class 10 · Mathematics (content pane within the admin shell + context bar)</span></div>
+<div style="margin:14px 22px 0;border:1px solid #E6E1F5;border-radius:12px;padding:14px 16px">
+<div style="font:700 12px Manrope;color:#837CA3;letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px">Add video — paste a YouTube URL (must be Unlisted, embedding allowed)</div>
+<div style="display:flex;gap:10px"><div style="flex:1;display:flex;align-items:center;min-height:38px;padding:0 12px;border:1px solid #6134EB;border-radius:9px;font:600 12.5px Manrope;color:#140C3D">https://youtu.be/dQw4…<span style="margin-left:auto;font:600 11px Manrope;color:#642CC8">Extracting id…</span></div><button style="min-height:38px;padding:0 16px;border:none;border-radius:9px;background:#E6E1F5;color:#837CA3;font:700 12.5px Manrope">Add</button></div>
+<div style="display:flex;gap:12px;margin-top:12px;align-items:center;border:1px solid #E6E1F5;border-radius:10px;padding:10px;background:#FBFAFE">
+<div style="width:120px;height:68px;border-radius:8px;background:linear-gradient(135deg,#251C5E,#6134EB);flex:none;display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"></path></svg></div>
+<div style="flex:1"><div style="font:700 12.5px Manrope;color:#140C3D">Fetched: "Why √2 is irrational — Class 10 CBSE" <span style="font:600 10.5px Manrope;color:#1B8A5A">✓ oEmbed OK · embedding allowed</span></div>
+<div style="display:flex;gap:8px;margin-top:8px"><span style="flex:1;min-height:32px;display:flex;align-items:center;padding:0 10px;border:1px solid #E6E1F5;border-radius:8px;background:#fff;font:600 12px Manrope;color:#140C3D">Why √2 is irrational</span><span style="min-height:32px;display:flex;align-items:center;padding:0 10px;border:1px solid #E6E1F5;border-radius:8px;background:#fff;font:600 12px Manrope;color:#140C3D">08:12</span><span style="min-height:32px;display:flex;align-items:center;padding:0 10px;border:1px solid #E6E1F5;border-radius:8px;background:#fff;font:600 12px Manrope;color:#140C3D">Ch 1 · Real Numbers ▾</span><button style="min-height:32px;padding:0 14px;border:none;border-radius:8px;background:#6134EB;color:#fff;font:700 12px Manrope;cursor:pointer">Save video</button></div>
+<div style="font:600 10.5px Manrope;color:#837CA3;margin-top:6px">Thumbnail visible to admin only — students get the branded placeholder until unlocked.</div></div></div>
+<div style="display:flex;flex-direction:column;gap:6px;margin-top:12px">
+<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:9px;background:#FCEEE9;font:600 11.5px Manrope;color:#D92D20"><strong>Invalid URL</strong> — that's not a YouTube link. Paste the full watch or share URL.</div>
+<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:9px;background:#FCEEE9;font:600 11.5px Manrope;color:#D92D20"><strong>Video is Private</strong> — set it to <strong>Unlisted</strong> on the brand channel, then paste again.</div>
+<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:9px;background:#FDF3E7;font:600 11.5px Manrope;color:#B45309"><strong>Embedding disabled</strong> — enable "Allow embedding" in YouTube Studio → Details → Advanced.</div></div>
+</div>
+<div style="margin:14px 22px 20px;border:1px solid #E6E1F5;border-radius:12px;overflow:hidden">
+<div style="display:grid;grid-template-columns:30px 1fr 70px 110px 70px;align-items:center;min-height:34px;padding:0 12px;background:#FBFAFE;border-bottom:1px solid #E6E1F5;font:700 10.5px Manrope;color:#837CA3;text-transform:uppercase;letter-spacing:.05em"><span></span><span>Video</span><span>Length</span><span>Order</span><span>Active</span></div>
+<div style="display:grid;grid-template-columns:30px 1fr 70px 110px 70px;align-items:center;min-height:38px;padding:0 12px;border-bottom:1px solid #E6E1F5"><span style="color:#E6E1F5">⋮⋮</span><span style="font:600 12.5px Manrope;color:#140C3D">Why √2 is irrational</span><span style="font:600 12px Manrope;color:#4B426E">08:12</span><span style="font:600 12px Manrope;color:#4B426E">1 · drag</span><span><span style="display:inline-block;width:30px;height:17px;border-radius:9px;background:#1B8A5A;position:relative"><span style="position:absolute;right:2px;top:2px;width:13px;height:13px;border-radius:50%;background:#fff"></span></span></span></div>
+<div style="display:grid;grid-template-columns:30px 1fr 70px 110px 70px;align-items:center;min-height:38px;padding:0 12px"><span style="color:#E6E1F5">⋮⋮</span><span style="font:600 12.5px Manrope;color:#140C3D">HCF &amp; LCM shortcuts</span><span style="font:600 12px Manrope;color:#4B426E">12:40</span><span style="font:600 12px Manrope;color:#4B426E">2 · drag</span><span><span style="display:inline-block;width:30px;height:17px;border-radius:9px;background:#1B8A5A;position:relative"><span style="position:absolute;right:2px;top:2px;width:13px;height:13px;border-radius:50%;background:#fff"></span></span></span></div>
+</div>
+</div><span class="dv-cap">900 · light — paste → extracting → fetched preview → error variants, list mirrors test list</span></div>
+</div>
+</div>
+
+<div class="dv-opt" id="2d">
+<div class="dv-olabel"><a class="dv-oid" href="#2d">2d</a>Free-sample picker (§3.5) — one slot per subject</div>
+<div class="dv-row">
+<div class="dv-frame"><div class="dv-card" style="width:900px;background:#FBFAFE;padding:18px 22px 22px">
+<span style="font:700 16px Sora;color:#140C3D">Free samples · CBSE · Class 10</span>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px">
+<div style="background:#fff;border:1px solid #E6E1F5;border-radius:14px;padding:14px 16px"><div style="display:flex;align-items:center;justify-content:space-between"><span style="font:700 13.5px Sora;color:#140C3D">Mathematics</span><span style="padding:3px 9px;border-radius:999px;background:#EAF7F0;color:#1B8A5A;font:700 10.5px Manrope">Sample set ✓</span></div>
+<div style="display:flex;align-items:center;gap:10px;margin-top:10px;padding:10px 12px;border:1px solid #E6E1F5;border-radius:10px"><div style="flex:1"><div style="font:600 12.5px Manrope;color:#140C3D">Test 1 · Basics of real numbers</div><div style="font:600 11px Manrope;color:#837CA3">24 questions · active · tagged Ch 1</div></div><button style="min-height:32px;padding:0 12px;border:1px solid #E6E1F5;border-radius:8px;background:#fff;color:#642CC8;font:700 12px Manrope;cursor:pointer">Change</button></div></div>
+<div style="background:#fff;border:2px solid #B45309;border-radius:14px;padding:14px 16px"><div style="display:flex;align-items:center;justify-content:space-between"><span style="font:700 13.5px Sora;color:#140C3D">Science</span><span style="padding:3px 9px;border-radius:999px;background:#FDF3E7;color:#B45309;font:700 10.5px Manrope">No sample</span></div>
+<div style="margin-top:10px;padding:12px;border:1px dashed #E6E1F5;border-radius:10px;font:600 12px/1.5 Manrope;color:#B45309">No free sample set — students see no try-free test for this subject.<div style="margin-top:8px"><button style="min-height:34px;padding:0 14px;border:none;border-radius:8px;background:#6134EB;color:#fff;font:700 12px Manrope;cursor:pointer">Pick a sample test</button></div></div></div>
+</div>
+<div style="font:600 11px Manrope;color:#837CA3;margin-top:10px">Picker searches only this context's active, tagged tests — archived or empty tests can't be chosen.</div>
+</div><span class="dv-cap">900 · light — set vs empty (empty is loud: it blocks selling)</span></div>
+</div>
+</div>
+
+<div class="dv-opt" id="2e">
+<div class="dv-olabel"><a class="dv-oid" href="#2e">2e</a>Plans &amp; pricing (§3.6) — grid + live student-paywall preview</div>
+<div class="dv-row">
+<div class="dv-frame"><div class="dv-card" style="width:1280px;background:#FBFAFE;padding:18px 22px 22px">
+<div style="display:flex;align-items:center;justify-content:space-between"><span style="font:700 16px Sora;color:#140C3D">Plans &amp; pricing</span><span style="font:600 12px Manrope;color:#642CC8">Copy this row's pricing to… ▾</span></div>
+<div style="display:grid;grid-template-columns:1fr 360px;gap:18px;margin-top:14px;align-items:start">
+<div style="background:#fff;border:1px solid #E6E1F5;border-radius:12px;overflow:hidden">
+<div style="display:grid;grid-template-columns:24px 1fr 150px 150px 150px 90px;align-items:center;min-height:36px;padding:0 14px;background:#FBFAFE;border-bottom:1px solid #E6E1F5;font:700 10.5px Manrope;color:#837CA3;text-transform:uppercase;letter-spacing:.05em"><span></span><span>Board + class</span><span>3 months</span><span>6 months</span><span>12 months</span><span>Status</span></div>
+<div style="display:grid;grid-template-columns:24px 1fr 150px 150px 150px 90px;align-items:center;min-height:46px;padding:0 14px;border-bottom:1px solid #E6E1F5;background:#F4F0FE"><span style="color:#642CC8;font:700 11px">▸</span><span style="font:700 12.5px Manrope;color:#140C3D">CBSE · Class 10</span><span><span style="display:inline-flex;align-items:center;min-height:32px;padding:0 10px;border:1px solid #E6E1F5;border-radius:8px;background:#fff;font:600 12px Manrope;color:#140C3D">₹ 499</span></span><span><span style="display:inline-flex;align-items:center;min-height:32px;padding:0 10px;border:1px solid #E6E1F5;border-radius:8px;background:#fff;font:600 12px Manrope;color:#140C3D">₹ 799</span></span><span><span style="display:inline-flex;align-items:center;min-height:32px;padding:0 10px;border:1px solid #E6E1F5;border-radius:8px;background:#fff;font:600 12px Manrope;color:#140C3D">₹ 1,299</span></span><span><span style="padding:3px 9px;border-radius:999px;background:#EAF7F0;color:#1B8A5A;font:700 10.5px Manrope">Active</span></span></div>
+<div style="display:grid;grid-template-columns:24px 1fr 150px 150px 150px 90px;align-items:center;min-height:46px;padding:0 14px;border-bottom:1px solid #E6E1F5"><span style="color:#837CA3;font:700 11px">▸</span><span style="font:700 12.5px Manrope;color:#140C3D">CBSE · Class 12</span><span><span style="display:inline-flex;align-items:center;min-height:32px;padding:0 10px;border:1px solid #E6E1F5;border-radius:8px;font:600 12px Manrope;color:#140C3D">₹ 599</span></span><span><span style="display:inline-flex;align-items:center;min-height:32px;padding:0 10px;border:1px solid #E6E1F5;border-radius:8px;font:600 12px Manrope;color:#140C3D">₹ 999</span></span><span><span style="display:inline-flex;align-items:center;min-height:32px;padding:0 10px;border:2px solid #D92D20;border-radius:8px;font:600 12px Manrope;color:#D92D20">₹ 0</span></span><span><span style="padding:3px 9px;border-radius:999px;background:#FCEEE9;color:#D92D20;font:700 10.5px Manrope">Blocked</span></span></div>
+<div style="display:grid;grid-template-columns:24px 1fr 150px 150px 150px 90px;align-items:center;min-height:46px;padding:0 14px;opacity:.55"><span></span><span style="font:700 12.5px Manrope;color:#837CA3">ICSE · Class 7 <span style="font:600 10.5px">— no content yet</span></span><span style="font:600 12px Manrope;color:#837CA3">—</span><span style="font:600 12px Manrope;color:#837CA3">—</span><span style="font:600 12px Manrope;color:#837CA3">—</span><span></span></div>
+</div>
+<div style="background:#fff;border:1px solid #E6E1F5;border-radius:16px;padding:16px 18px">
+<div style="font:700 11px Manrope;color:#837CA3;letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px">Student sees — CBSE · Class 10</div>
+<div style="font:700 15px Sora;color:#140C3D">Unlock CBSE · Class 10</div>
+<div style="font:600 11px Manrope;color:#4B426E;margin:3px 0 10px">All 5 subjects · 142 tests · 56 videos</div>
+<div style="display:flex;flex-direction:column;gap:7px">
+<div style="display:flex;justify-content:space-between;min-height:38px;align-items:center;padding:0 12px;border:1px solid #E6E1F5;border-radius:10px;font:600 12px Manrope;color:#140C3D"><span>3 months</span><span style="font:700">₹499</span></div>
+<div style="display:flex;justify-content:space-between;min-height:38px;align-items:center;padding:0 12px;border:1px solid #E6E1F5;border-radius:10px;font:600 12px Manrope;color:#140C3D"><span>6 months</span><span style="font:700">₹799</span></div>
+<div style="display:flex;justify-content:space-between;min-height:40px;align-items:center;padding:0 12px;border:2px solid #6134EB;border-radius:10px;background:#F4F0FE;font:700 12px Manrope;color:#140C3D"><span>12 months · Best value</span><span style="font:800">₹1,299</span></div></div>
+<button style="width:100%;min-height:38px;border:none;border-radius:10px;background:#6134EB;color:#fff;font:700 12.5px Manrope;cursor:pointer;margin-top:10px">Pay ₹1,299</button>
+<div style="font:600 10px Manrope;color:#837CA3;margin-top:8px;text-align:center">Live preview of <a href="#1d">1d</a> for the selected row</div></div>
+</div>
+<div style="font:600 11px Manrope;color:#837CA3;margin-top:10px">Rows expand (▸) — reserved for future per-subject plans. Zero/empty price can't be activated.</div>
+</div><span class="dv-cap">1280 · light — pricing grid + inline validation + paywall preview</span></div>
+</div>
+</div>
+
+<div class="dv-opt" id="2f">
+<div class="dv-olabel"><a class="dv-oid" href="#2f">2f</a>Launch readiness (§3.7) — "can we launch CBSE Class 10 yet?"</div>
+<div class="dv-row">
+<div class="dv-frame"><div class="dv-card" style="width:1280px;background:#FBFAFE;padding:18px 22px 22px">
+<span style="font:700 16px Sora;color:#140C3D">Launch readiness</span><span style="font:600 12px Manrope;color:#837CA3;margin-left:10px">Every deficit deep-links into its curriculum context</span>
+<div style="background:#fff;border:1px solid #E6E1F5;border-radius:12px;overflow:hidden;margin-top:14px">
+<div style="display:grid;grid-template-columns:1fr 130px 170px 100px 120px 130px 110px;align-items:center;min-height:36px;padding:0 16px;background:#FBFAFE;border-bottom:1px solid #E6E1F5;font:700 10.5px Manrope;color:#837CA3;text-transform:uppercase;letter-spacing:.05em"><span>Board + class</span><span>Chapters</span><span>Tests tagged</span><span>Videos</span><span>Samples</span><span>Plans</span><span>Status</span></div>
+<div style="display:grid;grid-template-columns:1fr 130px 170px 100px 120px 130px 110px;align-items:center;min-height:48px;padding:0 16px;border-bottom:1px solid #E6E1F5"><span style="font:700 13px Manrope;color:#140C3D">CBSE · Class 10</span><span style="font:600 12px Manrope;color:#1B8A5A">5/5 subjects</span><span><span style="display:inline-block;width:90px;height:6px;border-radius:3px;background:#F4F0FE;vertical-align:middle"><span style="display:block;width:76%;height:6px;border-radius:3px;background:#6134EB"></span></span> <span style="font:700 11px Manrope;color:#140C3D">76%</span></span><span style="font:600 12px Manrope;color:#140C3D">56</span><span style="font:600 12px Manrope;color:#B45309">4/5 set</span><span style="font:600 12px Manrope;color:#1B8A5A">Priced ✓</span><span><span style="padding:3px 10px;border-radius:999px;background:#F4F0FE;color:#642CC8;font:700 11px Manrope">In progress</span></span></div>
+<div style="display:grid;grid-template-columns:1fr 130px 170px 100px 120px 130px 110px;align-items:center;min-height:48px;padding:0 16px;border-bottom:1px solid #E6E1F5"><span style="font:700 13px Manrope;color:#140C3D">CBSE · Class 12</span><span style="font:600 12px Manrope;color:#1B8A5A">5/5 subjects</span><span><span style="display:inline-block;width:90px;height:6px;border-radius:3px;background:#F4F0FE;vertical-align:middle"><span style="display:block;width:100%;height:6px;border-radius:3px;background:#1B8A5A"></span></span> <span style="font:700 11px Manrope;color:#140C3D">100%</span></span><span style="font:600 12px Manrope;color:#140C3D">64</span><span style="font:600 12px Manrope;color:#1B8A5A">5/5 set</span><span style="font:600 12px Manrope;color:#D92D20">1 price missing</span><span><span style="padding:3px 10px;border-radius:999px;background:#F4F0FE;color:#642CC8;font:700 11px Manrope">In progress</span></span></div>
+<div style="display:grid;grid-template-columns:1fr 130px 170px 100px 120px 130px 110px;align-items:center;min-height:48px;padding:0 16px;border-bottom:1px solid #E6E1F5"><span style="font:700 13px Manrope;color:#140C3D">CBSE · Class 9</span><span style="font:600 12px Manrope;color:#1B8A5A">5/5 subjects</span><span><span style="display:inline-block;width:90px;height:6px;border-radius:3px;background:#F4F0FE;vertical-align:middle"><span style="display:block;width:100%;height:6px;border-radius:3px;background:#1B8A5A"></span></span> <span style="font:700 11px Manrope;color:#140C3D">100%</span></span><span style="font:600 12px Manrope;color:#140C3D">41</span><span style="font:600 12px Manrope;color:#1B8A5A">5/5 set</span><span style="font:600 12px Manrope;color:#1B8A5A">Priced ✓</span><span><span style="padding:3px 10px;border-radius:999px;background:#EAF7F0;color:#1B8A5A;font:700 11px Manrope">Ready</span></span></div>
+<div style="display:grid;grid-template-columns:1fr 130px 170px 100px 120px 130px 110px;align-items:center;min-height:48px;padding:0 16px"><span style="font:700 13px Manrope;color:#140C3D">ICSE · Class 10</span><span style="font:600 12px Manrope;color:#B45309">2/5 subjects</span><span><span style="display:inline-block;width:90px;height:6px;border-radius:3px;background:#F4F0FE;vertical-align:middle"><span style="display:block;width:12%;height:6px;border-radius:3px;background:#A790EA"></span></span> <span style="font:700 11px Manrope;color:#140C3D">12%</span></span><span style="font:600 12px Manrope;color:#140C3D">0</span><span style="font:600 12px Manrope;color:#837CA3">0/5</span><span style="font:600 12px Manrope;color:#837CA3">—</span><span><span style="padding:3px 10px;border-radius:999px;border:1px solid #E6E1F5;color:#837CA3;font:700 11px Manrope">Not started</span></span></div>
+</div>
+</div><span class="dv-cap">1280 · light — checklist meters per board+class, honest launch answer</span></div>
+</div>
+</div>
+
+<div class="dv-opt" id="2g">
+<div class="dv-olabel"><a class="dv-oid" href="#2g">2g</a>Subscriptions — B2C revenue (§3.8) &amp; board manager guard (§3.1)</div>
+<div class="dv-row">
+<div class="dv-frame"><div class="dv-card" style="width:1280px;background:#FBFAFE;padding:18px 22px 22px">
+<div style="display:flex;align-items:center;justify-content:space-between"><span style="font:700 16px Sora;color:#140C3D">Subscriptions</span><button style="min-height:34px;padding:0 14px;border:1px solid #E6E1F5;border-radius:9px;background:#fff;color:#4B426E;font:700 12px Manrope;cursor:pointer">Export CSV</button></div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px;margin:14px 0">
+<div style="background:#fff;border:1px solid #E6E1F5;border-radius:14px;padding:12px 16px"><div style="font:600 11.5px Manrope;color:#837CA3">Active passes</div><div style="font:800 22px Sora;color:#140C3D">1,284</div></div>
+<div style="background:#fff;border:1px solid #E6E1F5;border-radius:14px;padding:12px 16px"><div style="font:600 11.5px Manrope;color:#837CA3">Revenue this month</div><div style="font:800 22px Sora;color:#140C3D">₹4.16L</div></div>
+<div style="background:#fff;border:1px solid #E6E1F5;border-radius:14px;padding:12px 16px"><div style="font:600 11.5px Manrope;color:#837CA3">Expiring in 7 days</div><div style="font:800 22px Sora;color:#B45309">43</div></div>
+<div style="background:#fff;border:1px solid #E6E1F5;border-radius:14px;padding:12px 16px"><div style="font:600 11.5px Manrope;color:#837CA3">Renewal rate</div><div style="font:800 22px Sora;color:#140C3D">38%</div></div>
+</div>
+<div style="display:flex;gap:8px;margin-bottom:10px"><span style="min-height:32px;display:flex;align-items:center;padding:0 12px;border:1px solid #E6E1F5;border-radius:9px;background:#fff;font:600 12px Manrope;color:#4B426E">Board ▾</span><span style="min-height:32px;display:flex;align-items:center;padding:0 12px;border:1px solid #E6E1F5;border-radius:9px;background:#fff;font:600 12px Manrope;color:#4B426E">Class ▾</span><span style="min-height:32px;display:flex;align-items:center;padding:0 12px;border:1px solid #E6E1F5;border-radius:9px;background:#fff;font:600 12px Manrope;color:#4B426E">Duration ▾</span><span style="min-height:32px;display:flex;align-items:center;padding:0 12px;border:1px solid #E6E1F5;border-radius:9px;background:#fff;font:600 12px Manrope;color:#4B426E">Status ▾</span><span style="min-height:32px;display:flex;align-items:center;padding:0 12px;border:none;border-radius:9px;background:#F4F0FE;font:700 12px Manrope;color:#642CC8">Expiring soon</span></div>
+<div style="background:#fff;border:1px solid #E6E1F5;border-radius:12px;overflow:hidden">
+<div style="display:grid;grid-template-columns:1fr 160px 100px 120px 120px 90px 90px;align-items:center;min-height:34px;padding:0 16px;background:#FBFAFE;border-bottom:1px solid #E6E1F5;font:700 10.5px Manrope;color:#837CA3;text-transform:uppercase;letter-spacing:.05em"><span>Student</span><span>Board + class</span><span>Duration</span><span>Purchased</span><span>Expires</span><span>Amount</span><span>Status</span></div>
+<div style="display:grid;grid-template-columns:1fr 160px 100px 120px 120px 90px 90px;align-items:center;min-height:42px;padding:0 16px;border-bottom:1px solid #E6E1F5"><span style="font:600 12.5px Manrope;color:#140C3D">Aarav Sharma</span><span style="font:600 12px Manrope;color:#4B426E">CBSE · Class 10</span><span style="font:600 12px Manrope;color:#4B426E">12 months</span><span style="font:600 12px Manrope;color:#4B426E">12 Jan 2026</span><span style="font:600 12px Manrope;color:#4B426E">12 Jan 2027</span><span style="font:600 12px Manrope;color:#140C3D">₹1,299</span><span><span style="padding:2px 9px;border-radius:999px;background:#EAF7F0;color:#1B8A5A;font:700 10.5px Manrope">Active</span></span></div>
+<div style="display:grid;grid-template-columns:1fr 160px 100px 120px 120px 90px 90px;align-items:center;min-height:42px;padding:0 16px;border-bottom:1px solid #E6E1F5"><span style="font:600 12.5px Manrope;color:#140C3D">Diya Patel</span><span style="font:600 12px Manrope;color:#4B426E">CBSE · Class 12</span><span style="font:600 12px Manrope;color:#4B426E">6 months</span><span style="font:600 12px Manrope;color:#4B426E">4 Feb 2026</span><span style="font:600 12px Manrope;color:#B45309">4 Aug 2026 · 7d</span><span style="font:600 12px Manrope;color:#140C3D">₹999</span><span><span style="padding:2px 9px;border-radius:999px;background:#FDF3E7;color:#B45309;font:700 10.5px Manrope">Expiring</span></span></div>
+<div style="display:grid;grid-template-columns:1fr 160px 100px 120px 120px 90px 90px;align-items:center;min-height:42px;padding:0 16px"><span style="font:600 12.5px Manrope;color:#140C3D">Rohan Gupta</span><span style="font:600 12px Manrope;color:#4B426E">ICSE · Class 8</span><span style="font:600 12px Manrope;color:#4B426E">3 months</span><span style="font:600 12px Manrope;color:#4B426E">3 Feb 2026</span><span style="font:600 12px Manrope;color:#4B426E">3 May 2026</span><span style="font:600 12px Manrope;color:#140C3D">₹399</span><span><span style="padding:2px 9px;border-radius:999px;background:#FCEEE9;color:#D92D20;font:700 10.5px Manrope">Expired</span></span></div>
+</div>
+</div><span class="dv-cap">1280 · light — stat tiles, filters + expiring-soon preset, passes table</span></div>
+
+<div class="dv-frame"><div class="dv-card" style="width:560px;height:420px;background:#140C3D;position:relative">
+<div style="position:absolute;inset:0;background:rgba(20,12,61,.5)"></div>
+<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:420px;background:#fff;border-radius:16px;padding:20px 22px;box-shadow:0 20px 50px rgba(5,3,18,.45)">
+<div style="font:700 16px Sora;color:#140C3D">Deactivate ICSE board?</div>
+<p style="margin:8px 0 0;font:600 12.5px/1.6 Manrope;color:#4B426E">ICSE has <strong style="color:#140C3D">212 active student passes</strong>. Deactivating it:</p>
+<ul style="margin:8px 0 0;padding-left:18px;font:600 12.5px/1.7 Manrope;color:#4B426E"><li>keeps existing passes working until expiry</li><li>removes ICSE from onboarding and the storefront</li><li>hides its plans from new purchases</li></ul>
+<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px"><button style="min-height:38px;padding:0 16px;border:1px solid #E6E1F5;border-radius:10px;background:#fff;color:#4B426E;font:700 12.5px Manrope;cursor:pointer">Cancel</button><button style="min-height:38px;padding:0 16px;border:none;border-radius:10px;background:#B45309;color:#fff;font:700 12.5px Manrope;cursor:pointer">Deactivate board</button></div>
+</div>
+</div><span class="dv-cap">Board manager guard dialog (§3.1) — consequences named, never "delete"</span></div>
+</div>
+</div>
+<p class="dv-next">Try next: "dark versions of every admin screen" · "spec the bulk-tagging interaction states" · "tweak the palette — bluer / deeper / warmer"</p>
+</section>
+
+<section class="dv-turn" id="t1">
+<div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">Scope A — student subscription experience (brief v1.2)</span></div>
+<div style="max-width:760px;background:#fff;border:1px solid #E6E1F5;border-radius:14px;padding:16px 20px;margin:0 0 30px;font:500 12.5px/1.6 Manrope,sans-serif;color:#4B426E">
+<strong style="color:#140C3D">Assumptions:</strong> example context CBSE · Class 10 (5 subjects · 142 tests · 56 videos); plan prices ₹499 / ₹799 / ₹1,299 stand in for admin-set values; display font Sora + body Manrope stand in for the existing display font; desktop shown in light (dark desktop derives 1:1 from the mobile dark tokens — say the word and I'll add them). Tokens per brief §2; every lock is a doorway with a price on it.
+</div>
+
+<div class="dv-opt" id="1a">
+<div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>Onboarding — board → class → optional second class (~20s)</div>
+<div class="dv-row">
+<div class="dv-frame"><div class="dv-card" style="width:375px;background:#fff;position:relative">
+<div style="position:absolute;top:70px;right:18px;font:600 15px Sora;color:#A790EA;opacity:.35;transform:rotate(8deg)">a²+b²=c²</div>
+<div style="position:absolute;bottom:150px;left:14px;font:600 13px Sora;color:#A790EA;opacity:.3;transform:rotate(-7deg)">Δ=b²−4ac</div>
+<div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px 4px">
+<img src="uploads/logo-lockup.png" alt="Test Quest" style="height:26px;width:auto">
+<span style="font:600 12px Manrope;color:#837CA3">Step 1 of 3</span></div>
+<div style="display:flex;gap:6px;padding:12px 20px 0"><div style="height:4px;flex:1;border-radius:2px;background:#6134EB"></div><div style="height:4px;flex:1;border-radius:2px;background:#E6E1F5"></div><div style="height:4px;flex:1;border-radius:2px;background:#E6E1F5"></div></div>
+<div style="padding:26px 20px 8px"><h1 style="margin:0;font:700 24px/1.2 Sora;color:#140C3D">Which board are you on?</h1><p style="margin:8px 0 0;font:500 14px/1.5 Manrope;color:#4B426E">You can add more classes and boards later.</p></div>
+<div style="display:flex;flex-direction:column;gap:10px;padding:14px 20px 8px">
+<div style="display:flex;align-items:center;justify-content:space-between;min-height:52px;padding:0 16px;border:2px solid #6134EB;border-radius:14px;background:#F4F0FE"><span style="font:700 15px Manrope;color:#140C3D">CBSE</span><div style="width:22px;height:22px;border-radius:50%;background:#6134EB;display:flex;align-items:center;justify-content:center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M20 6 9 17l-5-5"></path></svg></div></div>
+<div style="display:flex;align-items:center;justify-content:space-between;min-height:52px;padding:0 16px;border:1px solid #E6E1F5;border-radius:14px"><span style="font:600 15px Manrope;color:#140C3D">ICSE</span><div style="width:22px;height:22px;border-radius:50%;border:2px solid #E6E1F5"></div></div>
+<div style="display:flex;align-items:center;justify-content:space-between;min-height:52px;padding:0 16px;border:1px solid #E6E1F5;border-radius:14px"><span style="font:600 15px Manrope;color:#140C3D">Maharashtra State Board</span><div style="width:22px;height:22px;border-radius:50%;border:2px solid #E6E1F5"></div></div>
+<div style="display:flex;align-items:center;justify-content:space-between;min-height:52px;padding:0 16px;border:1px solid #E6E1F5;border-radius:14px"><span style="font:600 15px Manrope;color:#140C3D">Tamil Nadu State Board</span><div style="width:22px;height:22px;border-radius:50%;border:2px solid #E6E1F5"></div></div>
+<div style="display:flex;align-items:center;justify-content:space-between;min-height:52px;padding:0 16px;border:1px solid #E6E1F5;border-radius:14px"><span style="font:600 15px Manrope;color:#140C3D">Karnataka State Board</span><div style="width:22px;height:22px;border-radius:50%;border:2px solid #E6E1F5"></div></div>
+</div>
+<div style="padding:14px 20px 20px"><button style="width:100%;min-height:48px;border:none;border-radius:12px;background:#6134EB;color:#fff;font:700 15px Manrope;cursor:pointer">Continue</button><p style="margin:10px 0 0;text-align:center;font:500 12px Manrope;color:#837CA3">Takes about 20 seconds</p></div>
+</div><span class="dv-cap">375 · light · step 1 — board</span></div>
+
+<div class="dv-frame"><div class="dv-card" style="width:375px;background:#130C36;border-color:#332A6B">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px 4px">
+<div style="display:flex;align-items:center;gap:8px"><img src="uploads/logo-mark.png" alt="" style="width:26px;height:26px"><span style="font:700 15px Sora;color:#F1EDFF">Test Quest</span></div>
+<span style="font:600 12px Manrope;color:#948BC4">Step 2 of 3</span></div>
+<div style="display:flex;gap:6px;padding:12px 20px 0"><div style="height:4px;flex:1;border-radius:2px;background:#815FE9"></div><div style="height:4px;flex:1;border-radius:2px;background:#815FE9"></div><div style="height:4px;flex:1;border-radius:2px;background:#332A6B"></div></div>
+<div style="padding:26px 20px 8px"><h1 style="margin:0;font:700 24px/1.2 Sora;color:#F1EDFF">Which class?</h1><p style="margin:8px 0 0;font:500 14px/1.5 Manrope;color:#C0B5EA">CBSE · pick the class you're preparing for.</p></div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding:14px 20px 8px">
+<div style="min-height:56px;display:flex;align-items:center;justify-content:center;border:1px solid #332A6B;border-radius:14px;font:700 16px Manrope;color:#F1EDFF">Class 6</div>
+<div style="min-height:56px;display:flex;align-items:center;justify-content:center;border:1px solid #332A6B;border-radius:14px;font:700 16px Manrope;color:#F1EDFF">Class 7</div>
+<div style="min-height:56px;display:flex;align-items:center;justify-content:center;border:1px solid #332A6B;border-radius:14px;font:700 16px Manrope;color:#F1EDFF">Class 8</div>
+<div style="min-height:56px;display:flex;align-items:center;justify-content:center;border:1px solid #332A6B;border-radius:14px;font:700 16px Manrope;color:#F1EDFF">Class 9</div>
+<div style="min-height:56px;display:flex;align-items:center;justify-content:center;border:2px solid #815FE9;border-radius:14px;background:rgba(129,95,233,.18);font:800 16px Manrope;color:#fff">Class 10</div>
+<div style="min-height:56px;display:flex;align-items:center;justify-content:center;border:1px solid #332A6B;border-radius:14px;font:700 16px Manrope;color:#F1EDFF">Class 11</div>
+<div style="min-height:56px;display:flex;align-items:center;justify-content:center;border:1px solid #332A6B;border-radius:14px;font:700 16px Manrope;color:#F1EDFF">Class 12</div>
+</div>
+<div style="padding:14px 20px 20px"><button style="width:100%;min-height:48px;border:none;border-radius:12px;background:#815FE9;color:#fff;font:700 15px Manrope;cursor:pointer">Continue</button></div>
+</div><span class="dv-cap">375 · dark · step 2 — class</span></div>
+
+<div class="dv-frame"><div class="dv-card" style="width:760px;background:#F4F0FE;position:relative">
+<div style="position:absolute;top:76px;right:44px;font:600 16px Sora;color:#A790EA;opacity:.4;transform:rotate(6deg)">∫ x dx = x²/2</div>
+<div style="display:flex;align-items:center;justify-content:space-between;padding:18px 28px 0">
+<img src="uploads/logo-lockup.png" alt="Test Quest" style="height:26px;width:auto">
+<span style="font:600 12px Manrope;color:#837CA3">Step 3 of 3</span></div>
+<div style="max-width:520px;margin:28px auto 36px;background:#fff;border:1px solid #E6E1F5;border-radius:18px;padding:28px 28px 24px;box-shadow:0 4px 16px rgba(20,12,61,.06)">
+<h1 style="margin:0;font:700 22px/1.25 Sora;color:#140C3D">Add a second class?</h1>
+<p style="margin:8px 0 0;font:500 13.5px/1.5 Manrope;color:#4B426E">Preparing for two classes at once? Add it now — or skip, you can add classes anytime.</p>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 4px">
+<div style="min-height:44px;padding:0 18px;display:flex;align-items:center;border:1px solid #E6E1F5;border-radius:999px;font:700 14px Manrope;color:#140C3D">Class 6</div>
+<div style="min-height:44px;padding:0 18px;display:flex;align-items:center;border:1px solid #E6E1F5;border-radius:999px;font:700 14px Manrope;color:#140C3D">Class 7</div>
+<div style="min-height:44px;padding:0 18px;display:flex;align-items:center;border:1px solid #E6E1F5;border-radius:999px;font:700 14px Manrope;color:#140C3D">Class 8</div>
+<div style="min-height:44px;padding:0 18px;display:flex;align-items:center;border:1px solid #E6E1F5;border-radius:999px;font:700 14px Manrope;color:#140C3D">Class 9</div>
+<div style="min-height:44px;padding:0 18px;display:flex;align-items:center;border:2px solid #6134EB;border-radius:999px;background:#F4F0FE;font:800 14px Manrope;color:#6134EB">Class 12</div>
+</div>
+<p style="margin:10px 0 0;font:500 12px Manrope;color:#837CA3">Your Class 10 is set. Edit contexts anytime from the header.</p>
+<div style="display:flex;gap:10px;margin-top:20px"><button style="flex:1;min-height:46px;border:1px solid #E6E1F5;border-radius:12px;background:#fff;color:#4B426E;font:700 14px Manrope;cursor:pointer">Skip for now</button><button style="flex:1.4;min-height:46px;border:none;border-radius:12px;background:#6134EB;color:#fff;font:700 14px Manrope;cursor:pointer">Finish setup</button></div>
+</div>
+</div><span class="dv-cap">760 · light · step 3 — optional second class (also the once-only prompt for legacy accounts)</span></div>
+</div>
+</div>
+<div class="dv-opt" id="1b">
+<div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a>Home — context toggle, subject cards (subscribed vs unsubscribed)</div>
+<div class="dv-row">
+<div class="dv-frame"><div class="dv-card" style="width:375px;background:#fff">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #E6E1F5">
+<img src="uploads/logo-mark.png" alt="Test Quest" style="width:28px;height:28px">
+<button style="display:flex;align-items:center;gap:7px;min-height:40px;padding:0 14px;border:1px solid #E6E1F5;border-radius:999px;background:#F4F0FE;font:700 13px Manrope;color:#140C3D;cursor:pointer">CBSE · Class 10 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#642CC8" stroke-width="2.5"><path d="M6 9l6 6 6-6"></path></svg></button>
+<div style="width:32px;height:32px;border-radius:50%;background:#A790EA;color:#fff;font:700 13px Manrope;display:flex;align-items:center;justify-content:center">A</div></div>
+<div style="margin:16px;padding:18px;border-radius:18px;background:#6134EB;position:relative;overflow:hidden">
+<div style="position:absolute;right:-18px;top:-18px;width:110px;height:110px;border-radius:50%;background:rgba(167,144,234,.3)"></div>
+<h2 style="margin:0;font:700 19px/1.25 Sora;color:#fff;position:relative">Unlock all of Class 10</h2>
+<p style="margin:6px 0 0;font:600 12.5px/1.5 Manrope;color:#DCD2FA;position:relative">All 5 subjects · 142 chapter-wise tests · 56 video lessons</p>
+<div style="display:flex;align-items:center;justify-content:space-between;margin-top:14px;position:relative">
+<div><span style="font:800 17px Sora;color:#fff">From ₹499</span><span style="display:block;font:600 10.5px Manrope;color:#DCD2FA">One-time payment · no auto-renewal</span></div>
+<button style="min-height:40px;padding:0 16px;border:none;border-radius:10px;background:#fff;color:#6134EB;font:700 13px Manrope;cursor:pointer">See plans</button></div></div>
+<div style="display:flex;align-items:baseline;justify-content:space-between;padding:2px 16px 10px"><h3 style="margin:0;font:700 15px Sora;color:#140C3D">Your subjects</h3><span style="font:600 11.5px Manrope;color:#837CA3">1 free test each</span></div>
+<div style="display:flex;flex-direction:column;gap:12px;padding:0 16px 18px">
+<div style="border:1px solid #E6E1F5;border-radius:18px;overflow:hidden"><div style="height:4px;background:#815FE9"></div><div style="padding:14px 16px">
+<div style="display:flex;align-items:center;gap:12px"><div style="width:40px;height:40px;border-radius:12px;background:#F4F0FE;color:#815FE9;font:800 17px Sora;display:flex;align-items:center;justify-content:center">π</div><div><div style="font:700 15px Sora;color:#140C3D">Mathematics</div><div style="font:600 12px Manrope;color:#837CA3">38 chapter-wise tests · 14 video lessons</div></div></div>
+<div style="display:flex;align-items:center;gap:10px;margin-top:12px"><button style="flex:1;min-height:44px;border:none;border-radius:11px;background:#F4F0FE;color:#642CC8;font:700 13.5px Manrope;cursor:pointer">Try your free Maths test</button><span style="display:flex;align-items:center;gap:5px;font:700 11px Manrope;color:#837CA3"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>37 in pass</span></div></div></div>
+<div style="border:1px solid #E6E1F5;border-radius:18px;overflow:hidden"><div style="height:4px;background:#815FE9"></div><div style="padding:14px 16px">
+<div style="display:flex;align-items:center;gap:12px"><div style="width:40px;height:40px;border-radius:12px;background:#F4F0FE;color:#815FE9;font:800 17px Sora;display:flex;align-items:center;justify-content:center">Δ</div><div><div style="font:700 15px Sora;color:#140C3D">Science</div><div style="font:600 12px Manrope;color:#837CA3">34 chapter-wise tests · 16 video lessons</div></div></div>
+<div style="display:flex;align-items:center;gap:10px;margin-top:12px"><button style="flex:1;min-height:44px;border:none;border-radius:11px;background:#F4F0FE;color:#642CC8;font:700 13.5px Manrope;cursor:pointer">Try your free Science test</button><span style="display:flex;align-items:center;gap:5px;font:700 11px Manrope;color:#837CA3"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>33 in pass</span></div></div></div>
+<div style="border:1px solid #E6E1F5;border-radius:18px;overflow:hidden"><div style="height:4px;background:#815FE9"></div><div style="padding:14px 16px">
+<div style="display:flex;align-items:center;gap:12px"><div style="width:40px;height:40px;border-radius:12px;background:#F4F0FE;color:#815FE9;font:800 15px Sora;display:flex;align-items:center;justify-content:center">SS</div><div><div style="font:700 15px Sora;color:#140C3D">Social Science</div><div style="font:600 12px Manrope;color:#837CA3">30 chapter-wise tests · 12 video lessons</div></div></div>
+<div style="display:flex;align-items:center;gap:10px;margin-top:12px"><button style="flex:1;min-height:44px;border:none;border-radius:11px;background:#F4F0FE;color:#642CC8;font:700 13.5px Manrope;cursor:pointer">Try your free SST test</button><span style="display:flex;align-items:center;gap:5px;font:700 11px Manrope;color:#837CA3"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>29 in pass</span></div></div></div>
+</div>
+</div><span class="dv-cap">375 · light · unsubscribed — Try free + single class-pass banner</span></div>
+
+<div class="dv-frame"><div class="dv-card" style="width:375px;background:#130C36;border-color:#332A6B">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #332A6B">
+<img src="uploads/logo-mark.png" alt="Test Quest" style="width:28px;height:28px">
+<button style="display:flex;align-items:center;gap:7px;min-height:40px;padding:0 14px;border:1px solid #332A6B;border-radius:999px;background:#1D1550;font:700 13px Manrope;color:#F1EDFF;cursor:pointer"><span style="width:7px;height:7px;border-radius:50%;background:#45C990"></span>CBSE · Class 10 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#A790EA" stroke-width="2.5"><path d="M6 9l6 6 6-6"></path></svg></button>
+<div style="width:32px;height:32px;border-radius:50%;background:#815FE9;color:#fff;font:700 13px Manrope;display:flex;align-items:center;justify-content:center">A</div></div>
+<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px 4px"><h3 style="margin:0;font:700 15px Sora;color:#F1EDFF">Your subjects</h3><span style="font:700 11px Manrope;color:#45C990">Pass valid till 12 Jan 2027</span></div>
+<div style="display:flex;flex-direction:column;gap:12px;padding:10px 16px 18px">
+<div style="border:1px solid #332A6B;border-radius:18px;background:#1D1550;overflow:hidden"><div style="height:4px;background:#815FE9"></div><div style="padding:14px 16px">
+<div style="display:flex;align-items:center;gap:12px"><div style="width:40px;height:40px;border-radius:12px;background:#251C5E;color:#A790EA;font:800 17px Sora;display:flex;align-items:center;justify-content:center">π</div><div style="flex:1"><div style="font:700 15px Sora;color:#F1EDFF">Mathematics</div><div style="font:600 12px Manrope;color:#948BC4">9 of 15 chapters attempted</div></div><span style="font:800 13px Sora;color:#A790EA">60%</span></div>
+<div style="height:6px;border-radius:3px;background:#251C5E;margin:12px 0"><div style="width:60%;height:6px;border-radius:3px;background:#815FE9"></div></div>
+<button style="width:100%;min-height:44px;border:none;border-radius:11px;background:#815FE9;color:#fff;font:700 13.5px Manrope;cursor:pointer">Continue · Ch 10 Circles — Test 2</button></div></div>
+<div style="border:1px solid #332A6B;border-radius:18px;background:#1D1550;overflow:hidden"><div style="height:4px;background:#815FE9"></div><div style="padding:14px 16px">
+<div style="display:flex;align-items:center;gap:12px"><div style="width:40px;height:40px;border-radius:12px;background:#251C5E;color:#A790EA;font:800 17px Sora;display:flex;align-items:center;justify-content:center">Δ</div><div style="flex:1"><div style="font:700 15px Sora;color:#F1EDFF">Science</div><div style="font:600 12px Manrope;color:#948BC4">4 of 16 chapters attempted</div></div><span style="font:800 13px Sora;color:#A790EA">25%</span></div>
+<div style="height:6px;border-radius:3px;background:#251C5E;margin:12px 0"><div style="width:25%;height:6px;border-radius:3px;background:#815FE9"></div></div>
+<button style="width:100%;min-height:44px;border:none;border-radius:11px;background:#251C5E;color:#DCD2FA;font:700 13.5px Manrope;cursor:pointer">Next: Ch 5 · Periodic Classification — Test 1</button></div></div>
+<div style="border:1px solid #332A6B;border-radius:18px;background:#1D1550;overflow:hidden"><div style="height:4px;background:#815FE9"></div><div style="padding:14px 16px">
+<div style="display:flex;align-items:center;gap:12px"><div style="width:40px;height:40px;border-radius:12px;background:#251C5E;color:#A790EA;font:800 15px Sora;display:flex;align-items:center;justify-content:center">SS</div><div style="flex:1"><div style="font:700 15px Sora;color:#F1EDFF">Social Science</div><div style="font:600 12px Manrope;color:#948BC4">Not started yet</div></div></div>
+<button style="width:100%;min-height:44px;border:none;border-radius:11px;background:#251C5E;color:#DCD2FA;font:700 13.5px Manrope;cursor:pointer;margin-top:12px">Start · Ch 1 · Nationalism in Europe</button></div></div>
+</div>
+</div><span class="dv-cap">375 · dark · subscribed — progress + next-test CTA</span></div>
+
+<div class="dv-frame"><div class="dv-card" style="width:375px;background:#fff;position:relative;height:480px">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #E6E1F5">
+<img src="uploads/logo-mark.png" alt="Test Quest" style="width:28px;height:28px">
+<button style="display:flex;align-items:center;gap:7px;min-height:40px;padding:0 14px;border:2px solid #6134EB;border-radius:999px;background:#F4F0FE;font:700 13px Manrope;color:#140C3D;cursor:pointer">CBSE · Class 10 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#642CC8" stroke-width="2.5"><path d="M18 15l-6-6-6 6"></path></svg></button>
+<div style="width:32px;height:32px;border-radius:50%;background:#A790EA;color:#fff;font:700 13px Manrope;display:flex;align-items:center;justify-content:center">A</div></div>
+<div style="position:absolute;inset:57px 0 0;background:rgba(20,12,61,.45)"></div>
+<div style="position:absolute;top:64px;left:16px;right:16px;background:#fff;border:1px solid #E6E1F5;border-radius:18px;box-shadow:0 12px 32px rgba(20,12,61,.22);overflow:hidden">
+<div style="padding:12px 16px 8px;font:700 11px Manrope;color:#837CA3;letter-spacing:.06em;text-transform:uppercase">Your classes</div>
+<div style="display:flex;align-items:center;gap:12px;min-height:56px;padding:0 16px;background:#F4F0FE">
+<div style="width:8px;height:8px;border-radius:50%;background:#1B8A5A"></div><div style="flex:1"><div style="font:700 14px Manrope;color:#140C3D">CBSE · Class 10</div><div style="font:600 11.5px Manrope;color:#1B8A5A">Subscribed — till 12 Jan 2027</div></div><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6134EB" stroke-width="3"><path d="M20 6 9 17l-5-5"></path></svg></div>
+<div style="display:flex;align-items:center;gap:12px;min-height:56px;padding:0 16px;border-top:1px solid #E6E1F5">
+<div style="width:8px;height:8px;border-radius:50%;background:#E6E1F5"></div><div style="flex:1"><div style="font:700 14px Manrope;color:#140C3D">CBSE · Class 12</div><div style="font:600 11.5px Manrope;color:#837CA3">Free browsing · 1 free test per subject</div></div></div>
+<div style="display:flex;align-items:center;gap:10px;min-height:52px;padding:0 16px;border-top:1px solid #E6E1F5;color:#642CC8;font:700 13.5px Manrope"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"></path></svg>Add a class</div>
+<div style="display:flex;align-items:center;justify-content:center;min-height:44px;border-top:1px solid #E6E1F5;background:#FBFAFE;font:700 12.5px Manrope;color:#837CA3">Edit contexts</div>
+</div>
+</div><span class="dv-cap">375 · light · context switcher open — calm at 1, scales to 4–5</span></div>
+
+<div class="dv-frame"><div class="dv-card" style="width:1100px;background:#FBFAFE">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 28px;border-bottom:1px solid #E6E1F5;background:#fff">
+<div style="display:flex;align-items:center;gap:26px"><img src="uploads/logo-lockup.png" alt="Test Quest" style="height:28px;width:auto">
+<nav style="display:flex;gap:22px;font:700 13.5px Manrope"><span style="color:#6134EB">Home</span><span style="color:#4B426E">My progress</span><span style="color:#4B426E">My subscriptions</span></nav></div>
+<div style="display:flex;align-items:center;gap:14px">
+<button style="display:flex;align-items:center;gap:7px;min-height:40px;padding:0 14px;border:1px solid #E6E1F5;border-radius:999px;background:#F4F0FE;font:700 13px Manrope;color:#140C3D;cursor:pointer">CBSE · Class 10 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#642CC8" stroke-width="2.5"><path d="M6 9l6 6 6-6"></path></svg></button>
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4B426E" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg>
+<div style="width:34px;height:34px;border-radius:50%;background:#A790EA;color:#fff;font:700 14px Manrope;display:flex;align-items:center;justify-content:center">A</div></div></div>
+<div style="padding:26px 28px 30px">
+<div style="display:flex;align-items:center;justify-content:space-between;border-radius:18px;background:#6134EB;padding:24px 28px;position:relative;overflow:hidden">
+<div style="position:absolute;right:180px;top:-30px;width:160px;height:160px;border-radius:50%;background:rgba(167,144,234,.25)"></div>
+<div style="position:relative"><h2 style="margin:0;font:700 24px/1.2 Sora;color:#fff">Unlock all of Class 10</h2><p style="margin:7px 0 0;font:600 13.5px Manrope;color:#DCD2FA">All 5 subjects · 142 chapter-wise tests · 56 video lessons · one-time payment, no auto-renewal</p></div>
+<div style="display:flex;align-items:center;gap:16px;position:relative"><span style="font:800 22px Sora;color:#fff">From ₹499</span><button style="min-height:44px;padding:0 22px;border:none;border-radius:11px;background:#fff;color:#6134EB;font:700 14px Manrope;cursor:pointer">See plans</button></div></div>
+<div style="display:flex;align-items:baseline;justify-content:space-between;margin:24px 0 14px"><h3 style="margin:0;font:700 17px Sora;color:#140C3D">Your subjects</h3><span style="font:600 12px Manrope;color:#837CA3">One free sample test in every subject</span></div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+<div style="background:#fff;border:1px solid #E6E1F5;border-radius:18px;overflow:hidden"><div style="height:4px;background:#815FE9"></div><div style="padding:16px 18px"><div style="display:flex;align-items:center;gap:12px"><div style="width:42px;height:42px;border-radius:12px;background:#F4F0FE;color:#815FE9;font:800 18px Sora;display:flex;align-items:center;justify-content:center">π</div><div><div style="font:700 15.5px Sora;color:#140C3D">Mathematics</div><div style="font:600 12px Manrope;color:#837CA3">38 tests · 14 videos</div></div></div><button style="width:100%;min-height:44px;border:none;border-radius:11px;background:#F4F0FE;color:#642CC8;font:700 13.5px Manrope;cursor:pointer;margin-top:14px">Try your free Maths test</button></div></div>
+<div style="background:#fff;border:1px solid #E6E1F5;border-radius:18px;overflow:hidden"><div style="height:4px;background:#815FE9"></div><div style="padding:16px 18px"><div style="display:flex;align-items:center;gap:12px"><div style="width:42px;height:42px;border-radius:12px;background:#F4F0FE;color:#815FE9;font:800 18px Sora;display:flex;align-items:center;justify-content:center">Δ</div><div><div style="font:700 15.5px Sora;color:#140C3D">Science</div><div style="font:600 12px Manrope;color:#837CA3">34 tests · 16 videos</div></div></div><button style="width:100%;min-height:44px;border:none;border-radius:11px;background:#F4F0FE;color:#642CC8;font:700 13.5px Manrope;cursor:pointer;margin-top:14px">Try your free Science test</button></div></div>
+<div style="background:#fff;border:1px solid #E6E1F5;border-radius:18px;overflow:hidden"><div style="height:4px;background:#815FE9"></div><div style="padding:16px 18px"><div style="display:flex;align-items:center;gap:12px"><div style="width:42px;height:42px;border-radius:12px;background:#F4F0FE;color:#815FE9;font:800 16px Sora;display:flex;align-items:center;justify-content:center">SS</div><div><div style="font:700 15.5px Sora;color:#140C3D">Social Science</div><div style="font:600 12px Manrope;color:#837CA3">30 tests · 12 videos</div></div></div><button style="width:100%;min-height:44px;border:none;border-radius:11px;background:#F4F0FE;color:#642CC8;font:700 13.5px Manrope;cursor:pointer;margin-top:14px">Try your free SST test</button></div></div>
+<div style="background:#fff;border:1px solid #E6E1F5;border-radius:18px;overflow:hidden"><div style="height:4px;background:#815FE9"></div><div style="padding:16px 18px"><div style="display:flex;align-items:center;gap:12px"><div style="width:42px;height:42px;border-radius:12px;background:#F4F0FE;color:#815FE9;font:800 18px Sora;display:flex;align-items:center;justify-content:center">Aa</div><div><div style="font:700 15.5px Sora;color:#140C3D">English</div><div style="font:600 12px Manrope;color:#837CA3">22 tests · 8 videos</div></div></div><button style="width:100%;min-height:44px;border:none;border-radius:11px;background:#F4F0FE;color:#642CC8;font:700 13.5px Manrope;cursor:pointer;margin-top:14px">Try your free English test</button></div></div>
+<div style="background:#fff;border:1px solid #E6E1F5;border-radius:18px;overflow:hidden"><div style="height:4px;background:#815FE9"></div><div style="padding:16px 18px"><div style="display:flex;align-items:center;gap:12px"><div style="width:42px;height:42px;border-radius:12px;background:#F4F0FE;color:#815FE9;font:800 18px Sora;display:flex;align-items:center;justify-content:center">अ</div><div><div style="font:700 15.5px Sora;color:#140C3D">Hindi</div><div style="font:600 12px Manrope;color:#837CA3">18 tests · 6 videos</div></div></div><button style="width:100%;min-height:44px;border:none;border-radius:11px;background:#F4F0FE;color:#642CC8;font:700 13.5px Manrope;cursor:pointer;margin-top:14px">Try your free Hindi test</button></div></div>
+</div></div>
+</div><span class="dv-cap">1100 · light · unsubscribed desktop</span></div>
+</div>
+</div>
+<div class="dv-opt" id="1c">
+<div class="dv-olabel"><a class="dv-oid" href="#1c">1c</a>Subject page — chapters → tests + videos, sticky pass CTA while unsubscribed</div>
+<div class="dv-row">
+<div class="dv-frame"><div class="dv-card" style="width:375px;background:#fff;position:relative">
+<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid #E6E1F5">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#140C3D" stroke-width="2.5"><path d="M15 18l-6-6 6-6"></path></svg>
+<div style="flex:1"><div style="font:700 16px Sora;color:#140C3D">Mathematics</div><div style="font:600 11px Manrope;color:#837CA3">CBSE · Class 10 · 15 chapters · 38 tests · 14 videos</div></div>
+<span style="display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:999px;background:#EAF7F0;color:#1B8A5A;font:700 11px Manrope">1 free test</span></div>
+<div style="padding:12px 16px 90px;display:flex;flex-direction:column;gap:10px">
+<div style="border:1px solid #E6E1F5;border-radius:16px;overflow:hidden">
+<div style="display:flex;align-items:center;gap:12px;padding:13px 14px;background:#F4F0FE"><span style="font:800 12px Sora;color:#815FE9">01</span><div style="flex:1"><div style="font:700 14px Sora;color:#140C3D">Real Numbers</div><div style="font:600 11px Manrope;color:#4B426E">3 tests · 2 videos</div></div><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#642CC8" stroke-width="2.5"><path d="M18 15l-6-6-6 6"></path></svg></div>
+<div style="display:flex;align-items:center;gap:12px;min-height:52px;padding:0 14px;border-top:1px solid #E6E1F5">
+<div style="width:26px;height:26px;border-radius:50%;background:#EAF7F0;display:flex;align-items:center;justify-content:center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1B8A5A" stroke-width="3"><path d="M20 6 9 17l-5-5"></path></svg></div>
+<div style="flex:1"><div style="font:700 13px Manrope;color:#140C3D">Test 1 · Basics of real numbers</div><div style="font:600 11px Manrope;color:#1B8A5A">Free sample · Done — 82%</div></div>
+<span style="font:700 12px Manrope;color:#642CC8">Review</span></div>
+<div style="display:flex;align-items:center;gap:12px;min-height:52px;padding:0 14px;border-top:1px solid #E6E1F5">
+<div style="width:26px;height:26px;border-radius:50%;background:#F4F0FE;display:flex;align-items:center;justify-content:center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#815FE9" stroke-width="2.2"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg></div>
+<div style="flex:1"><div style="font:700 13px Manrope;color:#140C3D">Test 2 · Euclid's division lemma</div><div style="font:600 11px Manrope;color:#837CA3">42 marks · 60 min</div></div>
+<span style="font:700 12px Manrope;color:#642CC8">Unlock</span></div>
+<div style="display:flex;align-items:center;gap:12px;min-height:52px;padding:0 14px;border-top:1px solid #E6E1F5">
+<div style="width:26px;height:26px;border-radius:50%;background:#F4F0FE;display:flex;align-items:center;justify-content:center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#815FE9" stroke-width="2.2"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg></div>
+<div style="flex:1"><div style="font:700 13px Manrope;color:#140C3D">Test 3 · Irrational numbers</div><div style="font:600 11px Manrope;color:#837CA3">36 marks · 45 min</div></div>
+<span style="font:700 12px Manrope;color:#642CC8">Unlock</span></div>
+<div style="display:flex;gap:10px;padding:12px 14px;border-top:1px solid #E6E1F5">
+<div style="flex:1;border:1px solid #E6E1F5;border-radius:12px;overflow:hidden"><div style="height:74px;background:#F4F0FE;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#815FE9" stroke-width="2.2"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg><span style="font:700 9.5px Manrope;color:#642CC8">Included with the pass</span></div><div style="padding:8px 10px"><div style="font:700 11.5px Manrope;color:#140C3D">Why √2 is irrational</div><div style="font:600 10.5px Manrope;color:#837CA3">Video · 08:12</div></div></div>
+<div style="flex:1;border:1px solid #E6E1F5;border-radius:12px;overflow:hidden"><div style="height:74px;background:#F4F0FE;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#815FE9" stroke-width="2.2"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg><span style="font:700 9.5px Manrope;color:#642CC8">In the class pass</span></div><div style="padding:8px 10px"><div style="font:700 11.5px Manrope;color:#140C3D">HCF &amp; LCM shortcuts</div><div style="font:600 10.5px Manrope;color:#837CA3">Video · 12:40</div></div></div>
+</div></div>
+<div style="display:flex;align-items:center;gap:12px;border:1px solid #E6E1F5;border-radius:16px;padding:13px 14px"><span style="font:800 12px Sora;color:#837CA3">02</span><div style="flex:1"><div style="font:700 14px Sora;color:#140C3D">Polynomials</div><div style="font:600 11px Manrope;color:#837CA3">3 tests · 1 video</div></div><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#837CA3" stroke-width="2.5"><path d="M6 9l6 6 6-6"></path></svg></div>
+<div style="display:flex;align-items:center;gap:12px;border:1px solid #E6E1F5;border-radius:16px;padding:13px 14px"><span style="font:800 12px Sora;color:#837CA3">03</span><div style="flex:1"><div style="font:700 14px Sora;color:#140C3D">Pair of Linear Equations</div><div style="font:600 11px Manrope;color:#837CA3">4 tests · 2 videos</div></div><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#837CA3" stroke-width="2.5"><path d="M6 9l6 6 6-6"></path></svg></div>
+<div style="display:flex;align-items:center;gap:12px;border:1px dashed #E6E1F5;border-radius:16px;padding:13px 14px;background:#FBFAFE"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#837CA3" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"></path></svg><div style="flex:1"><div style="font:700 14px Sora;color:#4B426E">More tests</div><div style="font:600 11px Manrope;color:#837CA3">4 tests not yet tagged to a chapter</div></div><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#837CA3" stroke-width="2.5"><path d="M6 9l6 6 6-6"></path></svg></div>
+</div>
+<div style="position:absolute;left:0;right:0;bottom:0;padding:12px 16px 14px;background:linear-gradient(transparent,#fff 30%)"><button style="width:100%;min-height:48px;border:none;border-radius:12px;background:#6134EB;color:#fff;font:700 14.5px Manrope;cursor:pointer;box-shadow:0 6px 18px rgba(97,52,235,.35)">Unlock Class 10 — from ₹499</button><p style="margin:7px 0 0;text-align:center;font:600 11px Manrope;color:#837CA3">One-time payment · No auto-renewal</p></div>
+</div><span class="dv-cap">375 · light · unsubscribed — sticky class-pass CTA</span></div>
+
+<div class="dv-frame"><div class="dv-card" style="width:375px;background:#130C36;border-color:#332A6B">
+<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid #332A6B">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F1EDFF" stroke-width="2.5"><path d="M15 18l-6-6 6-6"></path></svg>
+<div style="flex:1"><div style="font:700 16px Sora;color:#F1EDFF">Mathematics</div><div style="font:600 11px Manrope;color:#948BC4">CBSE · Class 10 · 15 chapters</div></div>
+<span style="padding:5px 10px;border-radius:999px;background:rgba(69,201,144,.15);color:#45C990;font:700 11px Manrope">Pass active</span></div>
+<div style="padding:12px 16px 16px;display:flex;flex-direction:column;gap:10px">
+<div style="border:1px solid #332A6B;border-radius:16px;background:#1D1550;overflow:hidden">
+<div style="display:flex;align-items:center;gap:12px;padding:13px 14px;background:#251C5E"><span style="font:800 12px Sora;color:#A790EA">01</span><div style="flex:1"><div style="font:700 14px Sora;color:#F1EDFF">Real Numbers</div><div style="font:600 11px Manrope;color:#C0B5EA">3 tests · 2 videos · 2 done</div></div><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#A790EA" stroke-width="2.5"><path d="M18 15l-6-6-6 6"></path></svg></div>
+<div style="display:flex;align-items:center;gap:12px;min-height:52px;padding:0 14px;border-top:1px solid #332A6B">
+<div style="width:26px;height:26px;border-radius:50%;background:rgba(69,201,144,.15);display:flex;align-items:center;justify-content:center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#45C990" stroke-width="3"><path d="M20 6 9 17l-5-5"></path></svg></div>
+<div style="flex:1"><div style="font:700 13px Manrope;color:#F1EDFF">Test 1 · Basics of real numbers</div><div style="font:600 11px Manrope;color:#45C990">Done — 82%</div></div><span style="font:700 12px Manrope;color:#A790EA">Review</span></div>
+<div style="display:flex;align-items:center;gap:12px;min-height:52px;padding:0 14px;border-top:1px solid #332A6B">
+<div style="width:26px;height:26px;border-radius:50%;background:rgba(69,201,144,.15);display:flex;align-items:center;justify-content:center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#45C990" stroke-width="3"><path d="M20 6 9 17l-5-5"></path></svg></div>
+<div style="flex:1"><div style="font:700 13px Manrope;color:#F1EDFF">Test 2 · Euclid's division lemma</div><div style="font:600 11px Manrope;color:#45C990">Done — 74%</div></div><span style="font:700 12px Manrope;color:#A790EA">Review</span></div>
+<div style="display:flex;align-items:center;gap:12px;min-height:52px;padding:0 14px;border-top:1px solid #332A6B">
+<div style="width:26px;height:26px;border-radius:50%;background:#251C5E;display:flex;align-items:center;justify-content:center"><svg width="12" height="12" viewBox="0 0 24 24" fill="#A790EA"><path d="M8 5v14l11-7z"></path></svg></div>
+<div style="flex:1"><div style="font:700 13px Manrope;color:#F1EDFF">Test 3 · Irrational numbers</div><div style="font:600 11px Manrope;color:#948BC4">36 marks · 45 min</div></div>
+<button style="min-height:36px;padding:0 14px;border:none;border-radius:9px;background:#815FE9;color:#fff;font:700 12px Manrope;cursor:pointer">Start</button></div>
+<div style="display:flex;gap:10px;padding:12px 14px;border-top:1px solid #332A6B">
+<div style="flex:1;border:1px solid #332A6B;border-radius:12px;overflow:hidden"><div style="height:74px;background:linear-gradient(135deg,#251C5E,#815FE9);display:flex;align-items:center;justify-content:center"><div style="width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center"><svg width="12" height="12" viewBox="0 0 24 24" fill="#6134EB"><path d="M8 5v14l11-7z"></path></svg></div></div><div style="padding:8px 10px"><div style="font:700 11.5px Manrope;color:#F1EDFF">Why √2 is irrational</div><div style="font:600 10.5px Manrope;color:#948BC4">08:12 · Watched</div></div></div>
+<div style="flex:1;border:1px solid #332A6B;border-radius:12px;overflow:hidden"><div style="height:74px;background:linear-gradient(135deg,#251C5E,#815FE9);display:flex;align-items:center;justify-content:center"><div style="width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center"><svg width="12" height="12" viewBox="0 0 24 24" fill="#6134EB"><path d="M8 5v14l11-7z"></path></svg></div></div><div style="padding:8px 10px"><div style="font:700 11.5px Manrope;color:#F1EDFF">HCF &amp; LCM shortcuts</div><div style="font:600 10.5px Manrope;color:#948BC4">12:40</div></div></div>
+</div></div>
+<div style="display:flex;align-items:center;gap:12px;border:1px solid #332A6B;border-radius:16px;background:#1D1550;padding:13px 14px"><span style="font:800 12px Sora;color:#948BC4">02</span><div style="flex:1"><div style="font:700 14px Sora;color:#F1EDFF">Polynomials</div><div style="font:600 11px Manrope;color:#948BC4">3 tests · 1 video</div></div><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#948BC4" stroke-width="2.5"><path d="M6 9l6 6 6-6"></path></svg></div>
+</div>
+</div><span class="dv-cap">375 · dark · subscribed — done states, Start CTAs, no paywall CTA</span></div>
+
+<div class="dv-frame"><div class="dv-card" style="width:1100px;background:#FBFAFE">
+<div style="display:flex;align-items:center;gap:14px;padding:14px 28px;border-bottom:1px solid #E6E1F5;background:#fff">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#140C3D" stroke-width="2.5"><path d="M15 18l-6-6 6-6"></path></svg>
+<div style="flex:1"><span style="font:700 17px Sora;color:#140C3D">Mathematics</span><span style="font:600 12px Manrope;color:#837CA3;margin-left:10px">CBSE · Class 10 · 15 chapters · 38 tests · 14 videos</span></div>
+<button style="min-height:42px;padding:0 18px;border:none;border-radius:11px;background:#6134EB;color:#fff;font:700 13px Manrope;cursor:pointer">Unlock Class 10 — from ₹499</button></div>
+<div style="display:grid;grid-template-columns:280px 1fr;gap:22px;padding:22px 28px 28px">
+<div style="display:flex;flex-direction:column;gap:6px">
+<div style="display:flex;align-items:center;gap:10px;min-height:46px;padding:0 14px;border-radius:12px;background:#F4F0FE;border:1px solid #E6E1F5"><span style="font:800 11px Sora;color:#815FE9">01</span><span style="flex:1;font:700 13px Manrope;color:#140C3D">Real Numbers</span><span style="font:600 11px Manrope;color:#1B8A5A">1/3</span></div>
+<div style="display:flex;align-items:center;gap:10px;min-height:46px;padding:0 14px;border-radius:12px"><span style="font:800 11px Sora;color:#837CA3">02</span><span style="flex:1;font:600 13px Manrope;color:#4B426E">Polynomials</span></div>
+<div style="display:flex;align-items:center;gap:10px;min-height:46px;padding:0 14px;border-radius:12px"><span style="font:800 11px Sora;color:#837CA3">03</span><span style="flex:1;font:600 13px Manrope;color:#4B426E">Pair of Linear Equations</span></div>
+<div style="display:flex;align-items:center;gap:10px;min-height:46px;padding:0 14px;border-radius:12px"><span style="font:800 11px Sora;color:#837CA3">04</span><span style="flex:1;font:600 13px Manrope;color:#4B426E">Quadratic Equations</span></div>
+<div style="display:flex;align-items:center;gap:10px;min-height:46px;padding:0 14px;border-radius:12px"><span style="font:800 11px Sora;color:#837CA3">05</span><span style="flex:1;font:600 13px Manrope;color:#4B426E">Arithmetic Progressions</span></div>
+<div style="display:flex;align-items:center;gap:10px;min-height:46px;padding:0 14px;border-radius:12px;border:1px dashed #E6E1F5;background:#FBFAFE"><span style="flex:1;font:600 13px Manrope;color:#837CA3">More tests (4)</span></div>
+</div>
+<div style="background:#fff;border:1px solid #E6E1F5;border-radius:18px;overflow:hidden;align-self:start">
+<div style="padding:16px 20px;border-bottom:1px solid #E6E1F5;background:#F4F0FE"><div style="font:700 16px Sora;color:#140C3D">Chapter 1 · Real Numbers</div><div style="font:600 12px Manrope;color:#4B426E">3 tests · 2 videos</div></div>
+<div style="display:flex;align-items:center;gap:14px;min-height:56px;padding:0 20px;border-bottom:1px solid #E6E1F5">
+<div style="width:28px;height:28px;border-radius:50%;background:#EAF7F0;display:flex;align-items:center;justify-content:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1B8A5A" stroke-width="3"><path d="M20 6 9 17l-5-5"></path></svg></div>
+<div style="flex:1"><span style="font:700 13.5px Manrope;color:#140C3D">Test 1 · Basics of real numbers</span><span style="font:600 11.5px Manrope;color:#1B8A5A;margin-left:10px">Free sample · Done — 82%</span></div><span style="font:700 12.5px Manrope;color:#642CC8">Review</span></div>
+<div style="display:flex;align-items:center;gap:14px;min-height:56px;padding:0 20px;border-bottom:1px solid #E6E1F5">
+<div style="width:28px;height:28px;border-radius:50%;background:#F4F0FE;display:flex;align-items:center;justify-content:center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#815FE9" stroke-width="2.2"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg></div>
+<div style="flex:1"><span style="font:700 13.5px Manrope;color:#140C3D">Test 2 · Euclid's division lemma</span><span style="font:600 11.5px Manrope;color:#837CA3;margin-left:10px">42 marks · 60 min</span></div><span style="font:700 12.5px Manrope;color:#642CC8">Unlock</span></div>
+<div style="display:flex;align-items:center;gap:14px;min-height:56px;padding:0 20px;border-bottom:1px solid #E6E1F5">
+<div style="width:28px;height:28px;border-radius:50%;background:#F4F0FE;display:flex;align-items:center;justify-content:center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#815FE9" stroke-width="2.2"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg></div>
+<div style="flex:1"><span style="font:700 13.5px Manrope;color:#140C3D">Test 3 · Irrational numbers</span><span style="font:600 11.5px Manrope;color:#837CA3;margin-left:10px">36 marks · 45 min</span></div><span style="font:700 12.5px Manrope;color:#642CC8">Unlock</span></div>
+<div style="display:flex;gap:14px;padding:16px 20px">
+<div style="width:220px;border:1px solid #E6E1F5;border-radius:12px;overflow:hidden"><div style="height:96px;background:#F4F0FE;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#815FE9" stroke-width="2.2"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg><span style="font:700 10.5px Manrope;color:#642CC8">Included with the pass</span></div><div style="padding:10px 12px"><div style="font:700 12.5px Manrope;color:#140C3D">Why √2 is irrational</div><div style="font:600 11px Manrope;color:#837CA3">Video · 08:12</div></div></div>
+<div style="width:220px;border:1px solid #E6E1F5;border-radius:12px;overflow:hidden"><div style="height:96px;background:#F4F0FE;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#815FE9" stroke-width="2.2"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg><span style="font:700 10.5px Manrope;color:#642CC8">In the class pass</span></div><div style="padding:10px 12px"><div style="font:700 12.5px Manrope;color:#140C3D">HCF &amp; LCM shortcuts</div><div style="font:600 11px Manrope;color:#837CA3">Video · 12:40</div></div></div>
+</div></div>
+</div>
+</div><span class="dv-cap">1100 · light · unsubscribed — chapter rail + expanded chapter (locked video = branded placeholder, never the YouTube thumb)</span></div>
+</div>
+</div>
+<div class="dv-opt" id="1d">
+<div class="dv-olabel"><a class="dv-oid" href="#1d">1d</a>Subscription sheet — the paywall (12-month pre-selected, honesty line, Razorpay)</div>
+<div class="dv-row">
+<div class="dv-frame"><div class="dv-card" style="width:375px;height:660px;background:#140C3D;position:relative">
+<div style="position:absolute;inset:0;background:rgba(20,12,61,.55)"></div>
+<div style="position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:20px 20px 0 0;padding:10px 20px 18px">
+<div style="width:40px;height:4px;border-radius:2px;background:#E6E1F5;margin:0 auto 14px"></div>
+<h2 style="margin:0;font:700 20px/1.2 Sora;color:#140C3D">Unlock CBSE · Class 10</h2>
+<p style="margin:6px 0 0;font:600 13px/1.5 Manrope;color:#4B426E">All 5 subjects · 142 chapter-wise tests · 56 video lessons</p>
+<div style="display:flex;flex-direction:column;gap:10px;margin:16px 0 0">
+<div style="display:flex;align-items:center;gap:12px;min-height:56px;padding:0 16px;border:1px solid #E6E1F5;border-radius:14px">
+<div style="width:20px;height:20px;border-radius:50%;border:2px solid #E6E1F5"></div>
+<div style="flex:1"><div style="font:700 14px Manrope;color:#140C3D">3 months</div><div style="font:600 11.5px Manrope;color:#837CA3">₹166/month</div></div>
+<span style="font:800 16px Sora;color:#140C3D">₹499</span></div>
+<div style="display:flex;align-items:center;gap:12px;min-height:56px;padding:0 16px;border:1px solid #E6E1F5;border-radius:14px">
+<div style="width:20px;height:20px;border-radius:50%;border:2px solid #E6E1F5"></div>
+<div style="flex:1"><div style="font:700 14px Manrope;color:#140C3D">6 months</div><div style="font:600 11.5px Manrope;color:#837CA3">₹133/month</div></div>
+<span style="padding:3px 8px;border-radius:999px;background:#EAF7F0;color:#1B8A5A;font:700 10.5px Manrope">Save 20%</span>
+<span style="font:800 16px Sora;color:#140C3D">₹799</span></div>
+<div style="position:relative;display:flex;align-items:center;gap:12px;min-height:62px;padding:0 16px;border:2px solid #6134EB;border-radius:14px;background:#F4F0FE">
+<span style="position:absolute;top:-9px;left:14px;padding:2px 9px;border-radius:999px;background:#6134EB;color:#fff;font:700 10px Manrope">Best value</span>
+<div style="width:20px;height:20px;border-radius:50%;background:#6134EB;display:flex;align-items:center;justify-content:center"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M20 6 9 17l-5-5"></path></svg></div>
+<div style="flex:1"><div style="font:800 14px Manrope;color:#140C3D">12 months</div><div style="font:600 11.5px Manrope;color:#642CC8">₹108/month</div></div>
+<span style="padding:3px 8px;border-radius:999px;background:#EAF7F0;color:#1B8A5A;font:700 10.5px Manrope">Save 35%</span>
+<span style="font:800 18px Sora;color:#140C3D">₹1,299</span></div>
+</div>
+<div style="display:flex;align-items:center;gap:9px;margin:14px 0 0;padding:11px 14px;border-radius:12px;background:#FBFAFE;border:1px solid #E6E1F5">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1B8A5A" stroke-width="2.2"><path d="M12 22s8-3.6 8-10V5l-8-3-8 3v7c0 6.4 8 10 8 10z"></path><path d="M9 12l2 2 4-4"></path></svg>
+<span style="font:700 12px/1.45 Manrope;color:#140C3D">One-time payment. Valid until 28 Jul 2027.<span style="color:#1B8A5A"> No auto-renewal.</span></span></div>
+<button style="width:100%;min-height:50px;border:none;border-radius:13px;background:#6134EB;color:#fff;font:700 15px Manrope;cursor:pointer;margin-top:14px;box-shadow:0 6px 18px rgba(97,52,235,.35)">Pay ₹1,299</button>
+<div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:10px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#837CA3" stroke-width="2.2"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg><span style="font:600 11px Manrope;color:#837CA3">Secured by Razorpay · UPI, cards, netbanking</span></div>
+</div>
+</div><span class="dv-cap">375 · light · bottom sheet over the item that was tapped</span></div>
+
+<div class="dv-frame"><div class="dv-card" style="width:375px;height:660px;background:#0C0726;position:relative">
+<div style="position:absolute;inset:0;background:rgba(5,3,18,.6)"></div>
+<div style="position:absolute;left:0;right:0;bottom:0;background:#1D1550;border-radius:20px 20px 0 0;padding:10px 20px 18px">
+<div style="width:40px;height:4px;border-radius:2px;background:#332A6B;margin:0 auto 14px"></div>
+<h2 style="margin:0;font:700 20px/1.2 Sora;color:#F1EDFF">Unlock CBSE · Class 10</h2>
+<p style="margin:6px 0 0;font:600 13px/1.5 Manrope;color:#C0B5EA">All 5 subjects · 142 chapter-wise tests · 56 video lessons</p>
+<div style="display:flex;flex-direction:column;gap:10px;margin:16px 0 0">
+<div style="display:flex;align-items:center;gap:12px;min-height:56px;padding:0 16px;border:1px solid #332A6B;border-radius:14px">
+<div style="width:20px;height:20px;border-radius:50%;border:2px solid #332A6B"></div>
+<div style="flex:1"><div style="font:700 14px Manrope;color:#F1EDFF">3 months</div><div style="font:600 11.5px Manrope;color:#948BC4">₹166/month</div></div>
+<span style="font:800 16px Sora;color:#F1EDFF">₹499</span></div>
+<div style="display:flex;align-items:center;gap:12px;min-height:56px;padding:0 16px;border:1px solid #332A6B;border-radius:14px">
+<div style="width:20px;height:20px;border-radius:50%;border:2px solid #332A6B"></div>
+<div style="flex:1"><div style="font:700 14px Manrope;color:#F1EDFF">6 months</div><div style="font:600 11.5px Manrope;color:#948BC4">₹133/month</div></div>
+<span style="padding:3px 8px;border-radius:999px;background:rgba(69,201,144,.15);color:#45C990;font:700 10.5px Manrope">Save 20%</span>
+<span style="font:800 16px Sora;color:#F1EDFF">₹799</span></div>
+<div style="position:relative;display:flex;align-items:center;gap:12px;min-height:62px;padding:0 16px;border:2px solid #815FE9;border-radius:14px;background:rgba(129,95,233,.14)">
+<span style="position:absolute;top:-9px;left:14px;padding:2px 9px;border-radius:999px;background:#815FE9;color:#fff;font:700 10px Manrope">Best value</span>
+<div style="width:20px;height:20px;border-radius:50%;background:#815FE9;display:flex;align-items:center;justify-content:center"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M20 6 9 17l-5-5"></path></svg></div>
+<div style="flex:1"><div style="font:800 14px Manrope;color:#fff">12 months</div><div style="font:600 11.5px Manrope;color:#A790EA">₹108/month</div></div>
+<span style="padding:3px 8px;border-radius:999px;background:rgba(69,201,144,.15);color:#45C990;font:700 10.5px Manrope">Save 35%</span>
+<span style="font:800 18px Sora;color:#fff">₹1,299</span></div>
+</div>
+<div style="display:flex;align-items:center;gap:9px;margin:14px 0 0;padding:11px 14px;border-radius:12px;background:#251C5E;border:1px solid #332A6B">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#45C990" stroke-width="2.2"><path d="M12 22s8-3.6 8-10V5l-8-3-8 3v7c0 6.4 8 10 8 10z"></path><path d="M9 12l2 2 4-4"></path></svg>
+<span style="font:700 12px/1.45 Manrope;color:#F1EDFF">One-time payment. Valid until 28 Jul 2027.<span style="color:#45C990"> No auto-renewal.</span></span></div>
+<button style="width:100%;min-height:50px;border:none;border-radius:13px;background:#815FE9;color:#fff;font:700 15px Manrope;cursor:pointer;margin-top:14px">Pay ₹1,299</button>
+<div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:10px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#948BC4" stroke-width="2.2"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg><span style="font:600 11px Manrope;color:#948BC4">Secured by Razorpay · UPI, cards, netbanking</span></div>
+</div>
+</div><span class="dv-cap">375 · dark</span></div>
+
+<div class="dv-frame"><div class="dv-card" style="width:860px;height:560px;background:#140C3D;position:relative">
+<div style="position:absolute;inset:0;background:rgba(20,12,61,.55)"></div>
+<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:620px;background:#fff;border-radius:20px;padding:26px 28px 24px;box-shadow:0 24px 60px rgba(5,3,18,.5)">
+<div style="display:flex;align-items:flex-start;justify-content:space-between"><div><h2 style="margin:0;font:700 22px/1.2 Sora;color:#140C3D">Unlock CBSE · Class 10</h2><p style="margin:6px 0 0;font:600 13px Manrope;color:#4B426E">All 5 subjects · 142 chapter-wise tests · 56 video lessons</p></div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#837CA3" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"></path></svg></div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:20px 0 0">
+<div style="border:1px solid #E6E1F5;border-radius:16px;padding:16px;text-align:center"><div style="font:700 13px Manrope;color:#140C3D">3 months</div><div style="font:800 22px Sora;color:#140C3D;margin:8px 0 2px">₹499</div><div style="font:600 11.5px Manrope;color:#837CA3">₹166/month</div></div>
+<div style="border:1px solid #E6E1F5;border-radius:16px;padding:16px;text-align:center"><div style="font:700 13px Manrope;color:#140C3D">6 months</div><div style="font:800 22px Sora;color:#140C3D;margin:8px 0 2px">₹799</div><div style="font:600 11.5px Manrope;color:#837CA3">₹133/month</div><span style="display:inline-block;margin-top:8px;padding:3px 9px;border-radius:999px;background:#EAF7F0;color:#1B8A5A;font:700 10.5px Manrope">Save 20%</span></div>
+<div style="position:relative;border:2px solid #6134EB;border-radius:16px;padding:16px;text-align:center;background:#F4F0FE"><span style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);padding:2px 10px;border-radius:999px;background:#6134EB;color:#fff;font:700 10px Manrope;white-space:nowrap">Best value</span><div style="font:800 13px Manrope;color:#140C3D">12 months</div><div style="font:800 24px Sora;color:#140C3D;margin:8px 0 2px">₹1,299</div><div style="font:600 11.5px Manrope;color:#642CC8">₹108/month</div><span style="display:inline-block;margin-top:8px;padding:3px 9px;border-radius:999px;background:#EAF7F0;color:#1B8A5A;font:700 10.5px Manrope">Save 35%</span></div>
+</div>
+<div style="display:flex;align-items:center;gap:9px;margin:16px 0 0;padding:11px 14px;border-radius:12px;background:#FBFAFE;border:1px solid #E6E1F5">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1B8A5A" stroke-width="2.2"><path d="M12 22s8-3.6 8-10V5l-8-3-8 3v7c0 6.4 8 10 8 10z"></path><path d="M9 12l2 2 4-4"></path></svg>
+<span style="font:700 12.5px Manrope;color:#140C3D">One-time payment. Valid until 28 Jul 2027.<span style="color:#1B8A5A"> No auto-renewal.</span></span></div>
+<button style="width:100%;min-height:50px;border:none;border-radius:13px;background:#6134EB;color:#fff;font:700 15px Manrope;cursor:pointer;margin-top:14px;box-shadow:0 6px 18px rgba(97,52,235,.3)">Pay ₹1,299</button>
+<div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:10px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#837CA3" stroke-width="2.2"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg><span style="font:600 11px Manrope;color:#837CA3">Secured by Razorpay · UPI, cards, netbanking · Works on web today, app later</span></div>
+</div>
+</div><span class="dv-cap">860 · light · desktop modal — duration cards as columns</span></div>
+</div>
+</div>
+
+<div class="dv-opt" id="1e">
+<div class="dv-olabel"><a class="dv-oid" href="#1e">1e</a>Post-payment success — whole-class unlock, return to the item tapped</div>
+<div class="dv-row">
+<div class="dv-frame"><div class="dv-card" style="width:375px;height:600px;background:#F4F0FE;position:relative;overflow:hidden">
+<div style="position:absolute;top:36px;left:26px;font:600 14px Sora;color:#A790EA;opacity:.5;transform:rotate(-8deg)">E=mc²</div>
+<div style="position:absolute;top:90px;right:24px;font:600 15px Sora;color:#A790EA;opacity:.45;transform:rotate(7deg)">sin²θ+cos²θ=1</div>
+<div style="position:absolute;bottom:120px;left:20px;font:600 13px Sora;color:#A790EA;opacity:.4;transform:rotate(5deg)">πr²</div>
+<div style="position:absolute;top:60px;left:50%;transform:translateX(-50%);width:180px;height:180px;border-radius:50%;background:rgba(167,144,234,.22)"></div>
+<div style="position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;padding:96px 28px 0">
+<div style="width:84px;height:84px;border-radius:50%;background:#fff;box-shadow:0 10px 30px rgba(97,52,235,.25);display:flex;align-items:center;justify-content:center"><div style="width:58px;height:58px;border-radius:50%;background:#1B8A5A;display:flex;align-items:center;justify-content:center"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M20 6 9 17l-5-5"></path></svg></div></div>
+<h1 style="margin:24px 0 0;font:800 26px/1.2 Sora;color:#140C3D">All of Class 10,<br>unlocked.</h1>
+<p style="margin:12px 0 0;font:600 14px/1.6 Manrope;color:#4B426E">5 subjects · 142 tests · 56 videos<br>Valid till <strong style="color:#140C3D">28 Jul 2027</strong> — no auto-renewal.</p>
+<p style="margin:14px 0 0;font:600 12px Manrope;color:#837CA3">Receipt sent to aarav@gmail.com</p></div>
+<div style="position:absolute;left:20px;right:20px;bottom:20px;display:flex;flex-direction:column;gap:10px">
+<button style="min-height:50px;border:none;border-radius:13px;background:#6134EB;color:#fff;font:700 15px Manrope;cursor:pointer;box-shadow:0 6px 18px rgba(97,52,235,.35)">Continue to Test 2 · Euclid's division lemma</button>
+<button style="min-height:46px;border:1px solid #E6E1F5;border-radius:13px;background:#fff;color:#642CC8;font:700 14px Manrope;cursor:pointer">Explore your subjects</button></div>
+</div><span class="dv-cap">375 · light — returns to the exact item tapped</span></div>
+
+<div class="dv-frame"><div class="dv-card" style="width:375px;height:600px;background:#130C36;position:relative;overflow:hidden;border-color:#332A6B">
+<div style="position:absolute;top:36px;left:26px;font:600 14px Sora;color:#815FE9;opacity:.4;transform:rotate(-8deg)">E=mc²</div>
+<div style="position:absolute;top:90px;right:24px;font:600 15px Sora;color:#815FE9;opacity:.35;transform:rotate(7deg)">sin²θ+cos²θ=1</div>
+<div style="position:absolute;top:60px;left:50%;transform:translateX(-50%);width:180px;height:180px;border-radius:50%;background:rgba(129,95,233,.16)"></div>
+<div style="position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;padding:96px 28px 0">
+<div style="width:84px;height:84px;border-radius:50%;background:#1D1550;box-shadow:0 10px 30px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center"><div style="width:58px;height:58px;border-radius:50%;background:#45C990;display:flex;align-items:center;justify-content:center"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#0C0726" stroke-width="3"><path d="M20 6 9 17l-5-5"></path></svg></div></div>
+<h1 style="margin:24px 0 0;font:800 26px/1.2 Sora;color:#F1EDFF">All of Class 10,<br>unlocked.</h1>
+<p style="margin:12px 0 0;font:600 14px/1.6 Manrope;color:#C0B5EA">5 subjects · 142 tests · 56 videos<br>Valid till <strong style="color:#F1EDFF">28 Jul 2027</strong> — no auto-renewal.</p>
+<p style="margin:14px 0 0;font:600 12px Manrope;color:#948BC4">Receipt sent to aarav@gmail.com</p></div>
+<div style="position:absolute;left:20px;right:20px;bottom:20px;display:flex;flex-direction:column;gap:10px">
+<button style="min-height:50px;border:none;border-radius:13px;background:#815FE9;color:#fff;font:700 15px Manrope;cursor:pointer">Continue to Test 2 · Euclid's division lemma</button>
+<button style="min-height:46px;border:1px solid #332A6B;border-radius:13px;background:transparent;color:#A790EA;font:700 14px Manrope;cursor:pointer">Explore your subjects</button></div>
+</div><span class="dv-cap">375 · dark</span></div>
+</div>
+</div>
+<div class="dv-opt" id="1f">
+<div class="dv-olabel"><a class="dv-oid" href="#1f">1f</a>My subscriptions — passes, renew (never lose days), history, grandfathered purchases</div>
+<div class="dv-row">
+<div class="dv-frame"><div class="dv-card" style="width:375px;background:#fff">
+<div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid #E6E1F5"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#140C3D" stroke-width="2.5"><path d="M15 18l-6-6 6-6"></path></svg><span style="font:700 17px Sora;color:#140C3D">My subscriptions</span></div>
+<div style="padding:14px 16px 18px;display:flex;flex-direction:column;gap:14px">
+<div style="border:1px solid #E6E1F5;border-radius:18px;overflow:hidden"><div style="height:4px;background:#1B8A5A"></div><div style="padding:15px 16px">
+<div style="display:flex;align-items:center;justify-content:space-between"><span style="font:700 15.5px Sora;color:#140C3D">CBSE · Class 10</span><span style="padding:4px 10px;border-radius:999px;background:#EAF7F0;color:#1B8A5A;font:700 11px Manrope">Active</span></div>
+<div style="font:600 12.5px Manrope;color:#4B426E;margin-top:5px">12-month pass · valid till <strong style="color:#140C3D">12 Jan 2027</strong> · 168 days left</div>
+<div style="height:6px;border-radius:3px;background:#F4F0FE;margin:12px 0"><div style="width:46%;height:6px;border-radius:3px;background:#1B8A5A"></div></div>
+<button style="width:100%;min-height:44px;border:none;border-radius:11px;background:#6134EB;color:#fff;font:700 13.5px Manrope;cursor:pointer">Renew — extend beyond 12 Jan</button>
+<p style="margin:8px 0 0;font:600 11px/1.5 Manrope;color:#837CA3">Renewing adds time from your current expiry — you never lose days.</p></div></div>
+<div style="border:1px solid #E6E1F5;border-radius:18px;overflow:hidden;background:#FBFAFE"><div style="height:4px;background:#E6E1F5"></div><div style="padding:15px 16px">
+<div style="display:flex;align-items:center;justify-content:space-between"><span style="font:700 15.5px Sora;color:#4B426E">ICSE · Class 8</span><span style="padding:4px 10px;border-radius:999px;background:#FCEEE9;color:#D92D20;font:700 11px Manrope">Expired</span></div>
+<div style="font:600 12.5px Manrope;color:#837CA3;margin-top:5px">Expired 3 May 2026 · your scores and progress are saved</div>
+<button style="width:100%;min-height:44px;border:1px solid #E6E1F5;border-radius:11px;background:#fff;color:#642CC8;font:700 13.5px Manrope;cursor:pointer;margin-top:12px">Renew from ₹399</button></div></div>
+<div><div style="font:700 12px Manrope;color:#837CA3;letter-spacing:.06em;text-transform:uppercase;margin:6px 0 8px">Payment history</div>
+<div style="border:1px solid #E6E1F5;border-radius:14px;overflow:hidden">
+<div style="display:flex;align-items:center;gap:12px;min-height:52px;padding:0 14px"><div style="flex:1"><div style="font:700 13px Manrope;color:#140C3D">CBSE · Class 10 — 12 months</div><div style="font:600 11px Manrope;color:#837CA3">12 Jan 2026 · Razorpay · UPI</div></div><span style="font:700 13px Manrope;color:#140C3D">₹1,299</span><a href="#1f" style="font:700 12px Manrope">Receipt</a></div>
+<div style="display:flex;align-items:center;gap:12px;min-height:52px;padding:0 14px;border-top:1px solid #E6E1F5"><div style="flex:1"><div style="font:700 13px Manrope;color:#140C3D">ICSE · Class 8 — 3 months</div><div style="font:600 11px Manrope;color:#837CA3">3 Feb 2026 · Razorpay · Card</div></div><span style="font:700 13px Manrope;color:#140C3D">₹399</span><a href="#1f" style="font:700 12px Manrope">Receipt</a></div>
+</div></div>
+<div><div style="font:700 12px Manrope;color:#837CA3;letter-spacing:.06em;text-transform:uppercase;margin:6px 0 8px">Your purchased tests</div>
+<div style="border:1px solid #E6E1F5;border-radius:14px;overflow:hidden">
+<div style="display:flex;align-items:center;gap:12px;min-height:52px;padding:0 14px"><div style="flex:1"><div style="font:700 13px Manrope;color:#140C3D">Class 10 Maths — Board Sampler Pack</div><div style="font:600 11px Manrope;color:#837CA3">Purchased 2025 · yours forever</div></div><span style="font:700 12px Manrope;color:#642CC8">Open</span></div>
+</div></div>
+</div>
+</div><span class="dv-cap">375 · light — active, expired, history, grandfathered</span></div>
+
+<div class="dv-frame"><div class="dv-card" style="width:375px;background:#130C36;border-color:#332A6B">
+<div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid #332A6B"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F1EDFF" stroke-width="2.5"><path d="M15 18l-6-6 6-6"></path></svg><span style="font:700 17px Sora;color:#F1EDFF">My subscriptions</span></div>
+<div style="padding:14px 16px 18px;display:flex;flex-direction:column;gap:14px">
+<div style="border:1px solid #332A6B;border-radius:18px;background:#1D1550;overflow:hidden"><div style="height:4px;background:#45C990"></div><div style="padding:15px 16px">
+<div style="display:flex;align-items:center;justify-content:space-between"><span style="font:700 15.5px Sora;color:#F1EDFF">CBSE · Class 10</span><span style="padding:4px 10px;border-radius:999px;background:rgba(69,201,144,.15);color:#45C990;font:700 11px Manrope">Active</span></div>
+<div style="font:600 12.5px Manrope;color:#C0B5EA;margin-top:5px">12-month pass · valid till <strong style="color:#F1EDFF">12 Jan 2027</strong> · 168 days left</div>
+<div style="height:6px;border-radius:3px;background:#251C5E;margin:12px 0"><div style="width:46%;height:6px;border-radius:3px;background:#45C990"></div></div>
+<button style="width:100%;min-height:44px;border:none;border-radius:11px;background:#815FE9;color:#fff;font:700 13.5px Manrope;cursor:pointer">Renew — extend beyond 12 Jan</button>
+<p style="margin:8px 0 0;font:600 11px/1.5 Manrope;color:#948BC4">Renewing adds time from your current expiry — you never lose days.</p></div></div>
+<div style="border:1px solid #332A6B;border-radius:18px;background:#181040;overflow:hidden"><div style="height:4px;background:#332A6B"></div><div style="padding:15px 16px">
+<div style="display:flex;align-items:center;justify-content:space-between"><span style="font:700 15.5px Sora;color:#C0B5EA">ICSE · Class 8</span><span style="padding:4px 10px;border-radius:999px;background:rgba(217,45,32,.18);color:#F97066;font:700 11px Manrope">Expired</span></div>
+<div style="font:600 12.5px Manrope;color:#948BC4;margin-top:5px">Expired 3 May 2026 · your scores and progress are saved</div>
+<button style="width:100%;min-height:44px;border:1px solid #332A6B;border-radius:11px;background:transparent;color:#A790EA;font:700 13.5px Manrope;cursor:pointer;margin-top:12px">Renew from ₹399</button></div></div>
+</div>
+</div><span class="dv-cap">375 · dark</span></div>
+
+<div class="dv-frame"><div class="dv-card" style="width:900px;background:#FBFAFE">
+<div style="padding:20px 28px 6px"><span style="font:700 20px Sora;color:#140C3D">My subscriptions</span></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:14px 28px 26px">
+<div style="background:#fff;border:1px solid #E6E1F5;border-radius:18px;overflow:hidden;align-self:start"><div style="height:4px;background:#1B8A5A"></div><div style="padding:18px 20px">
+<div style="display:flex;align-items:center;justify-content:space-between"><span style="font:700 17px Sora;color:#140C3D">CBSE · Class 10</span><span style="padding:4px 10px;border-radius:999px;background:#EAF7F0;color:#1B8A5A;font:700 11px Manrope">Active</span></div>
+<div style="font:600 13px Manrope;color:#4B426E;margin-top:6px">12-month pass · valid till <strong style="color:#140C3D">12 Jan 2027</strong> · 168 days left</div>
+<div style="height:6px;border-radius:3px;background:#F4F0FE;margin:14px 0"><div style="width:46%;height:6px;border-radius:3px;background:#1B8A5A"></div></div>
+<div style="display:flex;gap:10px;align-items:center"><button style="min-height:44px;padding:0 18px;border:none;border-radius:11px;background:#6134EB;color:#fff;font:700 13.5px Manrope;cursor:pointer">Renew</button><span style="font:600 11.5px/1.5 Manrope;color:#837CA3">Extends from your current expiry —<br>you never lose days.</span></div></div></div>
+<div style="display:flex;flex-direction:column;gap:14px">
+<div style="background:#FBFAFE;border:1px solid #E6E1F5;border-radius:18px;padding:16px 20px"><div style="display:flex;align-items:center;justify-content:space-between"><span style="font:700 15px Sora;color:#4B426E">ICSE · Class 8</span><span style="padding:4px 10px;border-radius:999px;background:#FCEEE9;color:#D92D20;font:700 11px Manrope">Expired</span></div><div style="font:600 12px Manrope;color:#837CA3;margin-top:4px">Expired 3 May 2026 · progress saved · <a href="#1f" style="font-weight:700">Renew from ₹399</a></div></div>
+<div style="background:#fff;border:1px solid #E6E1F5;border-radius:18px;overflow:hidden"><div style="padding:12px 20px 8px;font:700 11.5px Manrope;color:#837CA3;letter-spacing:.06em;text-transform:uppercase">Payment history</div>
+<div style="display:flex;align-items:center;gap:12px;min-height:48px;padding:0 20px;border-top:1px solid #E6E1F5"><div style="flex:1;font:700 13px Manrope;color:#140C3D">CBSE · Class 10 — 12 months <span style="font:600 11px Manrope;color:#837CA3">· 12 Jan 2026</span></div><span style="font:700 13px Manrope;color:#140C3D">₹1,299</span><a href="#1f" style="font:700 12px Manrope">Receipt</a></div>
+<div style="display:flex;align-items:center;gap:12px;min-height:48px;padding:0 20px;border-top:1px solid #E6E1F5"><div style="flex:1;font:700 13px Manrope;color:#140C3D">ICSE · Class 8 — 3 months <span style="font:600 11px Manrope;color:#837CA3">· 3 Feb 2026</span></div><span style="font:700 13px Manrope;color:#140C3D">₹399</span><a href="#1f" style="font:700 12px Manrope">Receipt</a></div></div>
+</div></div>
+</div><span class="dv-cap">900 · light · desktop</span></div>
+</div>
+</div>
+
+<div class="dv-opt" id="1g">
+<div class="dv-olabel"><a class="dv-oid" href="#1g">1g</a>My progress — score trend, chapter completion, weak chapters → practice</div>
+<div class="dv-row">
+<div class="dv-frame"><div class="dv-card" style="width:375px;background:#fff">
+<div style="display:flex;align-items:center;gap:12px;padding:14px 16px 10px"><span style="font:700 17px Sora;color:#140C3D;flex:1">My progress</span><span style="font:600 11.5px Manrope;color:#837CA3">CBSE · Class 10</span></div>
+<div style="display:flex;gap:8px;padding:0 16px 14px;overflow:hidden">
+<span style="min-height:38px;display:flex;align-items:center;padding:0 16px;border-radius:999px;background:#6134EB;color:#fff;font:700 12.5px Manrope">Maths</span>
+<span style="min-height:38px;display:flex;align-items:center;padding:0 16px;border-radius:999px;border:1px solid #E6E1F5;color:#4B426E;font:700 12.5px Manrope">Science</span>
+<span style="min-height:38px;display:flex;align-items:center;padding:0 16px;border-radius:999px;border:1px solid #E6E1F5;color:#4B426E;font:700 12.5px Manrope">SST</span>
+<span style="min-height:38px;display:flex;align-items:center;padding:0 16px;border-radius:999px;border:1px solid #E6E1F5;color:#4B426E;font:700 12.5px Manrope">English</span></div>
+<div style="margin:0 16px;border:1px solid #E6E1F5;border-radius:18px;padding:14px 16px">
+<div style="display:flex;align-items:baseline;justify-content:space-between"><span style="font:700 13.5px Sora;color:#140C3D">Score trend</span><span style="font:600 11px Manrope;color:#837CA3">Last 8 tests</span></div>
+<svg width="100%" height="110" viewBox="0 0 310 110" style="margin-top:8px">
+<line x1="0" y1="88" x2="310" y2="88" stroke="#E6E1F5" stroke-width="1"></line><line x1="0" y1="55" x2="310" y2="55" stroke="#E6E1F5" stroke-width="1"></line><line x1="0" y1="22" x2="310" y2="22" stroke="#E6E1F5" stroke-width="1"></line>
+<path d="M10 78 L52 70 L94 74 L136 58 L178 62 L220 44 L262 38 L300 26" fill="none" stroke="#6134EB" stroke-width="2.5" stroke-linecap="round"></path>
+<circle cx="10" cy="78" r="3.5" fill="#A790EA"></circle><circle cx="52" cy="70" r="3.5" fill="#A790EA"></circle><circle cx="94" cy="74" r="3.5" fill="#A790EA"></circle><circle cx="136" cy="58" r="3.5" fill="#A790EA"></circle><circle cx="178" cy="62" r="3.5" fill="#A790EA"></circle><circle cx="220" cy="44" r="3.5" fill="#A790EA"></circle><circle cx="262" cy="38" r="3.5" fill="#A790EA"></circle><circle cx="300" cy="26" r="4.5" fill="#6134EB"></circle>
+<text x="300" y="14" text-anchor="end" font-family="Sora" font-size="12" font-weight="700" fill="#6134EB">82%</text></svg>
+<div style="display:flex;justify-content:space-between;font:600 10px Manrope;color:#837CA3"><span>May</span><span>Jun</span><span>Jul</span></div></div>
+<div style="margin:12px 16px;border:1px solid #E6E1F5;border-radius:18px;padding:14px 16px">
+<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px"><span style="font:700 13.5px Sora;color:#140C3D">Chapter completion</span><span style="font:600 11px Manrope;color:#837CA3">9 of 15</span></div>
+<div style="display:flex;flex-direction:column;gap:9px">
+<div style="display:flex;align-items:center;gap:10px"><span style="width:96px;font:600 11.5px Manrope;color:#4B426E">Real Numbers</span><div style="flex:1;height:8px;border-radius:4px;background:#F4F0FE"><div style="width:100%;height:8px;border-radius:4px;background:#6134EB"></div></div><span style="font:700 11px Manrope;color:#140C3D">3/3</span></div>
+<div style="display:flex;align-items:center;gap:10px"><span style="width:96px;font:600 11.5px Manrope;color:#4B426E">Polynomials</span><div style="flex:1;height:8px;border-radius:4px;background:#F4F0FE"><div style="width:67%;height:8px;border-radius:4px;background:#815FE9"></div></div><span style="font:700 11px Manrope;color:#140C3D">2/3</span></div>
+<div style="display:flex;align-items:center;gap:10px"><span style="width:96px;font:600 11.5px Manrope;color:#4B426E">Linear Equations</span><div style="flex:1;height:8px;border-radius:4px;background:#F4F0FE"><div style="width:50%;height:8px;border-radius:4px;background:#815FE9"></div></div><span style="font:700 11px Manrope;color:#140C3D">2/4</span></div>
+<div style="display:flex;align-items:center;gap:10px"><span style="width:96px;font:600 11.5px Manrope;color:#4B426E">Quadratic Eqns</span><div style="flex:1;height:8px;border-radius:4px;background:#F4F0FE"><div style="width:33%;height:8px;border-radius:4px;background:#A790EA"></div></div><span style="font:700 11px Manrope;color:#140C3D">1/3</span></div>
+<div style="display:flex;align-items:center;gap:10px"><span style="width:96px;font:600 11.5px Manrope;color:#4B426E">Triangles</span><div style="flex:1;height:8px;border-radius:4px;background:#F4F0FE"><div style="width:25%;height:8px;border-radius:4px;background:#A790EA"></div></div><span style="font:700 11px Manrope;color:#140C3D">1/4</span></div>
+</div></div>
+<div style="margin:0 16px 18px;border:1px solid #E6E1F5;border-radius:18px;overflow:hidden"><div style="height:4px;background:#B45309"></div><div style="padding:13px 16px 6px"><span style="font:700 13.5px Sora;color:#140C3D">Worth another look</span></div>
+<div style="display:flex;align-items:center;gap:12px;min-height:50px;padding:0 16px"><div style="flex:1"><div style="font:700 13px Manrope;color:#140C3D">Ch 7 · Triangles</div><div style="font:600 11px Manrope;color:#B45309">Avg 41% across 2 tests</div></div><span style="font:700 12.5px Manrope;color:#642CC8">Practice</span></div>
+<div style="display:flex;align-items:center;gap:12px;min-height:50px;padding:0 16px;border-top:1px solid #E6E1F5;margin-bottom:6px"><div style="flex:1"><div style="font:700 13px Manrope;color:#140C3D">Ch 12 · Areas Related to Circles</div><div style="font:600 11px Manrope;color:#B45309">Avg 48% · 1 test left</div></div><span style="font:700 12.5px Manrope;color:#642CC8">Practice</span></div></div>
+</div><span class="dv-cap">375 · light</span></div>
+
+<div class="dv-frame"><div class="dv-card" style="width:375px;background:#130C36;border-color:#332A6B">
+<div style="display:flex;align-items:center;gap:12px;padding:14px 16px 10px"><span style="font:700 17px Sora;color:#F1EDFF;flex:1">My progress</span><span style="font:600 11.5px Manrope;color:#948BC4">CBSE · Class 10</span></div>
+<div style="display:flex;gap:8px;padding:0 16px 14px">
+<span style="min-height:38px;display:flex;align-items:center;padding:0 16px;border-radius:999px;background:#815FE9;color:#fff;font:700 12.5px Manrope">Maths</span>
+<span style="min-height:38px;display:flex;align-items:center;padding:0 16px;border-radius:999px;border:1px solid #332A6B;color:#C0B5EA;font:700 12.5px Manrope">Science</span>
+<span style="min-height:38px;display:flex;align-items:center;padding:0 16px;border-radius:999px;border:1px solid #332A6B;color:#C0B5EA;font:700 12.5px Manrope">SST</span></div>
+<div style="margin:0 16px 16px;border:1px solid #332A6B;background:#1D1550;border-radius:18px;padding:14px 16px">
+<div style="display:flex;align-items:baseline;justify-content:space-between"><span style="font:700 13.5px Sora;color:#F1EDFF">Score trend</span><span style="font:600 11px Manrope;color:#948BC4">Last 8 tests</span></div>
+<svg width="100%" height="110" viewBox="0 0 310 110" style="margin-top:8px">
+<line x1="0" y1="88" x2="310" y2="88" stroke="#332A6B" stroke-width="1"></line><line x1="0" y1="55" x2="310" y2="55" stroke="#332A6B" stroke-width="1"></line><line x1="0" y1="22" x2="310" y2="22" stroke="#332A6B" stroke-width="1"></line>
+<path d="M10 78 L52 70 L94 74 L136 58 L178 62 L220 44 L262 38 L300 26" fill="none" stroke="#A790EA" stroke-width="2.5" stroke-linecap="round"></path>
+<circle cx="300" cy="26" r="4.5" fill="#A790EA"></circle>
+<text x="300" y="14" text-anchor="end" font-family="Sora" font-size="12" font-weight="700" fill="#A790EA">82%</text></svg></div>
+</div><span class="dv-cap">375 · dark (same modules)</span></div>
+
+<div class="dv-frame"><div class="dv-card" style="width:900px;background:#FBFAFE">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:20px 28px 12px"><span style="font:700 20px Sora;color:#140C3D">My progress <span style="font:600 13px Manrope;color:#837CA3">· CBSE · Class 10 · Mathematics</span></span>
+<div style="display:flex;gap:8px"><span style="min-height:36px;display:flex;align-items:center;padding:0 14px;border-radius:999px;background:#6134EB;color:#fff;font:700 12px Manrope">Maths</span><span style="min-height:36px;display:flex;align-items:center;padding:0 14px;border-radius:999px;border:1px solid #E6E1F5;color:#4B426E;font:700 12px Manrope">Science</span><span style="min-height:36px;display:flex;align-items:center;padding:0 14px;border-radius:999px;border:1px solid #E6E1F5;color:#4B426E;font:700 12px Manrope">SST</span></div></div>
+<div style="display:grid;grid-template-columns:1.4fr 1fr;gap:18px;padding:6px 28px 26px">
+<div style="background:#fff;border:1px solid #E6E1F5;border-radius:18px;padding:16px 20px"><div style="display:flex;align-items:baseline;justify-content:space-between"><span style="font:700 14.5px Sora;color:#140C3D">Score trend</span><span style="font:600 11px Manrope;color:#837CA3">Last 8 tests</span></div>
+<svg width="100%" height="150" viewBox="0 0 460 150" style="margin-top:10px">
+<line x1="0" y1="120" x2="460" y2="120" stroke="#E6E1F5" stroke-width="1"></line><line x1="0" y1="75" x2="460" y2="75" stroke="#E6E1F5" stroke-width="1"></line><line x1="0" y1="30" x2="460" y2="30" stroke="#E6E1F5" stroke-width="1"></line>
+<path d="M14 108 L76 96 L138 102 L200 80 L262 86 L324 60 L386 52 L446 34" fill="none" stroke="#6134EB" stroke-width="3" stroke-linecap="round"></path>
+<circle cx="446" cy="34" r="5" fill="#6134EB"></circle><text x="446" y="20" text-anchor="end" font-family="Sora" font-size="13" font-weight="700" fill="#6134EB">82%</text></svg></div>
+<div style="background:#fff;border:1px solid #E6E1F5;border-radius:18px;overflow:hidden;align-self:start"><div style="height:4px;background:#B45309"></div><div style="padding:13px 18px 4px;font:700 14.5px Sora;color:#140C3D">Worth another look</div>
+<div style="display:flex;align-items:center;gap:12px;min-height:50px;padding:0 18px"><div style="flex:1"><div style="font:700 13px Manrope;color:#140C3D">Ch 7 · Triangles</div><div style="font:600 11px Manrope;color:#B45309">Avg 41%</div></div><span style="font:700 12.5px Manrope;color:#642CC8">Practice</span></div>
+<div style="display:flex;align-items:center;gap:12px;min-height:50px;padding:0 18px;border-top:1px solid #E6E1F5;margin-bottom:8px"><div style="flex:1"><div style="font:700 13px Manrope;color:#140C3D">Ch 12 · Areas Related to Circles</div><div style="font:600 11px Manrope;color:#B45309">Avg 48%</div></div><span style="font:700 12.5px Manrope;color:#642CC8">Practice</span></div></div>
+</div>
+</div><span class="dv-cap">900 · light · desktop</span></div>
+</div>
+</div>
+<div class="dv-opt" id="1h">
+<div class="dv-olabel"><a class="dv-oid" href="#1h">1h</a>Video experience — in-chapter player, up-next, locked = branded placeholder</div>
+<div class="dv-row">
+<div class="dv-frame"><div class="dv-card" style="width:375px;background:#fff">
+<div style="display:flex;align-items:center;gap:12px;padding:12px 16px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#140C3D" stroke-width="2.5"><path d="M15 18l-6-6 6-6"></path></svg><div><div style="font:700 14px Sora;color:#140C3D">Real Numbers</div><div style="font:600 11px Manrope;color:#837CA3">Mathematics · CBSE · Class 10</div></div></div>
+<div style="height:211px;background:linear-gradient(135deg,#140C3D,#251C5E 60%,#6134EB);display:flex;align-items:center;justify-content:center;position:relative">
+<div style="position:absolute;top:14px;left:16px;font:600 13px Sora;color:#A790EA;opacity:.5">√2 = 1.414…</div>
+<div style="width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.94);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(0,0,0,.35)"><svg width="20" height="20" viewBox="0 0 24 24" fill="#6134EB"><path d="M8 5v14l11-7z"></path></svg></div>
+<span style="position:absolute;bottom:12px;right:14px;padding:3px 8px;border-radius:6px;background:rgba(0,0,0,.55);color:#fff;font:700 10.5px Manrope">08:12</span>
+<span style="position:absolute;bottom:12px;left:14px;font:600 10px Manrope;color:rgba(255,255,255,.6)">YouTube · privacy-enhanced embed</span></div>
+<div style="padding:14px 16px 6px"><h2 style="margin:0;font:700 17px/1.3 Sora;color:#140C3D">Why √2 is irrational</h2><div style="font:600 12px Manrope;color:#837CA3;margin-top:4px">Video 1 of 2 · Chapter 1 · 08:12</div></div>
+<div style="display:flex;gap:8px;padding:10px 16px 4px"><button style="flex:1;min-height:44px;border:none;border-radius:11px;background:#F4F0FE;color:#642CC8;font:700 12.5px Manrope;cursor:pointer">Take Test 2 on this topic</button><button style="flex:1;min-height:44px;border:1px solid #E6E1F5;border-radius:11px;background:#fff;color:#4B426E;font:700 12.5px Manrope;cursor:pointer">Mark watched</button></div>
+<div style="padding:12px 16px 4px;font:700 12px Manrope;color:#837CA3;letter-spacing:.06em;text-transform:uppercase">Up next in Real Numbers</div>
+<div style="display:flex;flex-direction:column;gap:10px;padding:4px 16px 18px">
+<div style="display:flex;gap:12px;align-items:center;border:1px solid #E6E1F5;border-radius:14px;padding:10px">
+<div style="width:104px;height:60px;border-radius:9px;background:linear-gradient(135deg,#251C5E,#815FE9);display:flex;align-items:center;justify-content:center;flex:none"><div style="width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center"><svg width="10" height="10" viewBox="0 0 24 24" fill="#6134EB"><path d="M8 5v14l11-7z"></path></svg></div></div>
+<div style="flex:1"><div style="font:700 13px Manrope;color:#140C3D">HCF &amp; LCM shortcuts</div><div style="font:600 11px Manrope;color:#837CA3">Video · 12:40</div></div>
+<span style="font:700 12px Manrope;color:#642CC8">Play</span></div>
+<div style="display:flex;gap:12px;align-items:center;border:1px solid #E6E1F5;border-radius:14px;padding:10px">
+<div style="width:104px;height:60px;border-radius:9px;background:#F4F0FE;display:flex;align-items:center;justify-content:center;flex:none"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#815FE9" stroke-width="2.2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"></path></svg></div>
+<div style="flex:1"><div style="font:700 13px Manrope;color:#140C3D">Test 2 · Euclid's division lemma</div><div style="font:600 11px Manrope;color:#837CA3">42 marks · 60 min</div></div>
+<button style="min-height:36px;padding:0 14px;border:none;border-radius:9px;background:#6134EB;color:#fff;font:700 12px Manrope;cursor:pointer">Start</button></div>
+</div>
+</div><span class="dv-cap">375 · light · subscribed — videos are complementary: the pass unlocks every video mapped to its board→class</span></div>
+
+<div class="dv-frame"><div class="dv-card" style="width:375px;background:#130C36;border-color:#332A6B">
+<div style="display:flex;align-items:center;gap:12px;padding:12px 16px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F1EDFF" stroke-width="2.5"><path d="M15 18l-6-6 6-6"></path></svg><div><div style="font:700 14px Sora;color:#F1EDFF">Real Numbers</div><div style="font:600 11px Manrope;color:#948BC4">Mathematics · CBSE · Class 10</div></div></div>
+<div style="height:211px;background:linear-gradient(135deg,#0C0726,#251C5E 60%,#6134EB);display:flex;align-items:center;justify-content:center;position:relative">
+<div style="width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.94);display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="#6134EB"><path d="M8 5v14l11-7z"></path></svg></div>
+<span style="position:absolute;bottom:12px;right:14px;padding:3px 8px;border-radius:6px;background:rgba(0,0,0,.55);color:#fff;font:700 10.5px Manrope">08:12</span></div>
+<div style="padding:14px 16px 6px"><h2 style="margin:0;font:700 17px/1.3 Sora;color:#F1EDFF">Why √2 is irrational</h2><div style="font:600 12px Manrope;color:#948BC4;margin-top:4px">Video 1 of 2 · Chapter 1 · 08:12</div></div>
+<div style="display:flex;gap:8px;padding:10px 16px 4px"><button style="flex:1;min-height:44px;border:none;border-radius:11px;background:#815FE9;color:#fff;font:700 12.5px Manrope;cursor:pointer">Take Test 2 on this topic</button><button style="flex:1;min-height:44px;border:1px solid #332A6B;border-radius:11px;background:transparent;color:#C0B5EA;font:700 12.5px Manrope;cursor:pointer">Mark watched</button></div>
+<div style="padding:12px 16px 4px;font:700 12px Manrope;color:#948BC4;letter-spacing:.06em;text-transform:uppercase">Up next in Real Numbers</div>
+<div style="display:flex;flex-direction:column;gap:10px;padding:4px 16px 18px">
+<div style="display:flex;gap:12px;align-items:center;border:1px solid #332A6B;background:#1D1550;border-radius:14px;padding:10px">
+<div style="width:104px;height:60px;border-radius:9px;background:linear-gradient(135deg,#251C5E,#815FE9);display:flex;align-items:center;justify-content:center;flex:none"><div style="width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center"><svg width="10" height="10" viewBox="0 0 24 24" fill="#6134EB"><path d="M8 5v14l11-7z"></path></svg></div></div>
+<div style="flex:1"><div style="font:700 13px Manrope;color:#F1EDFF">HCF &amp; LCM shortcuts</div><div style="font:600 11px Manrope;color:#948BC4">Video · 12:40</div></div>
+<span style="font:700 12px Manrope;color:#A790EA">Play</span></div>
+<div style="display:flex;gap:12px;align-items:center;border:1px solid #332A6B;background:#1D1550;border-radius:14px;padding:10px">
+<div style="width:104px;height:60px;border-radius:9px;background:#251C5E;display:flex;align-items:center;justify-content:center;flex:none"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#A790EA" stroke-width="2.2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"></path></svg></div>
+<div style="flex:1"><div style="font:700 13px Manrope;color:#F1EDFF">Test 2 · Euclid's division lemma</div><div style="font:600 11px Manrope;color:#948BC4">42 marks · 60 min</div></div>
+<button style="min-height:36px;padding:0 14px;border:none;border-radius:9px;background:#815FE9;color:#fff;font:700 12px Manrope;cursor:pointer">Start</button></div>
+</div>
+</div><span class="dv-cap">375 · dark · subscribed — everything playable</span></div>
+
+<div class="dv-frame"><div class="dv-card" style="width:1100px;background:#FBFAFE">
+<div style="display:flex;align-items:center;gap:14px;padding:14px 28px;background:#fff;border-bottom:1px solid #E6E1F5"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#140C3D" stroke-width="2.5"><path d="M15 18l-6-6 6-6"></path></svg><span style="font:700 16px Sora;color:#140C3D">Chapter 1 · Real Numbers</span><span style="font:600 12px Manrope;color:#837CA3">Mathematics · CBSE · Class 10</span></div>
+<div style="display:grid;grid-template-columns:1fr 320px;gap:22px;padding:22px 28px 26px">
+<div><div style="height:388px;border-radius:18px;background:#F4F0FE;border:1px solid #E6E1F5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;position:relative;overflow:hidden">
+<div style="position:absolute;top:20px;left:24px;font:600 16px Sora;color:#A790EA;opacity:.5">√2 = 1.414…</div>
+<div style="width:72px;height:72px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 30px rgba(97,52,235,.18)"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#6134EB" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg></div>
+<div style="font:700 15px Sora;color:#140C3D">This video is included with the Class 10 pass</div>
+<div style="font:600 12px Manrope;color:#4B426E">Subscribe once — every video in every subject unlocks together.</div>
+<span style="position:absolute;bottom:16px;right:18px;padding:4px 10px;border-radius:7px;background:#fff;border:1px solid #E6E1F5;color:#4B426E;font:700 11.5px Manrope">08:12</span></div>
+<h2 style="margin:16px 0 0;font:700 20px Sora;color:#140C3D">Why √2 is irrational</h2>
+<div style="font:600 12.5px Manrope;color:#837CA3;margin-top:5px">Video 1 of 2 in Real Numbers · 08:12</div></div>
+<div style="display:flex;flex-direction:column;gap:12px">
+<div style="font:700 12px Manrope;color:#837CA3;letter-spacing:.06em;text-transform:uppercase">Up next in this chapter</div>
+<div style="display:flex;gap:12px;align-items:center;background:#fff;border:1px solid #E6E1F5;border-radius:14px;padding:10px">
+<div style="width:96px;height:56px;border-radius:9px;background:#F4F0FE;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;flex:none"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#815FE9" stroke-width="2.2"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg><span style="font:700 8px Manrope;color:#642CC8">In the class pass</span></div>
+<div style="flex:1"><div style="font:700 12.5px Manrope;color:#140C3D">HCF &amp; LCM shortcuts</div><div style="font:600 10.5px Manrope;color:#837CA3">Video · 12:40</div></div></div>
+<div style="display:flex;gap:12px;align-items:center;background:#fff;border:1px solid #E6E1F5;border-radius:14px;padding:10px">
+<div style="width:96px;height:56px;border-radius:9px;background:#F4F0FE;display:flex;align-items:center;justify-content:center;flex:none"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#815FE9" stroke-width="2.2"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg></div>
+<div style="flex:1"><div style="font:700 12.5px Manrope;color:#140C3D">Test 2 · Euclid's division lemma</div><div style="font:600 10.5px Manrope;color:#837CA3">42 marks · 60 min</div></div></div>
+<div style="margin-top:6px;border-radius:14px;background:#6134EB;padding:16px"><div style="font:700 14px Sora;color:#fff">Unlock every video</div><div style="font:600 11.5px Manrope;color:#DCD2FA;margin:4px 0 10px">56 video lessons come with the Class 10 pass.</div><button style="width:100%;min-height:42px;border:none;border-radius:10px;background:#fff;color:#6134EB;font:700 13px Manrope;cursor:pointer">See plans — from ₹499</button></div>
+</div></div>
+</div><span class="dv-cap">1100 · light · unsubscribed desktop — locked hero; the video id is never sent to non-subscribers</span></div>
+</div>
+</div>
+<p class="dv-next">Try next: "show dark desktop for the paywall" · "make the duration cards horizontal on mobile" · "riff 3 variants of the class pass banner"</p>
+</section>
+</x-dc>
+</body>
+</html>

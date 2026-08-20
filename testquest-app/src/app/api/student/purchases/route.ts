@@ -1,63 +1,29 @@
 import { prisma } from "@/lib/db";
 import { requireAuth } from "@/lib/auth";
 import { handleApiError, success } from "@/lib/api-utils";
-import { findTestsByIds } from "@/lib/legacy-lookups";
 
+/**
+ * A student's purchase history.
+ *
+ * Every order references a class pass (`tq_b2c_plans`); per-test and bundle
+ * purchases were retired with the old schema. The `access` block used to list
+ * grandfathered per-test purchases from `tq_student_access` — a table that
+ * does not exist in this database, and students here start at zero, so there
+ * is nothing to grandfather. The keys stay in the response so existing
+ * consumers keep their shape; they are simply always empty.
+ */
 export async function GET() {
   try {
     const session = await requireAuth("student");
 
-    const [orders, access] = await Promise.all([
-      prisma.order.findMany({
-        where: { studentId: session.id },
-        include: {
-          bundle: { select: { id: true, name: true } },
-        },
-        orderBy: { createdAt: "desc" },
-      }),
-
-      prisma.studentAccess.findMany({
-        where: { studentId: session.id },
-      }),
-    ]);
-
-    // Hydrate test names from vw_tests for both orders (TEST type) and access rows.
-    const testIds = Array.from(new Set([
-      ...orders.flatMap((o) => (o.itemType === "TEST" && o.testId ? [o.testId] : [])),
-      ...access.map((a) => a.testId),
-    ]));
-    const testMap = await findTestsByIds(testIds);
-
-    const activeAccess = access.filter((a) => !a.expiresAt || a.expiresAt > new Date());
-    const expiredAccess = access.filter((a) => a.expiresAt && a.expiresAt <= new Date());
-
-    const ordersOut = orders.map((o) => ({
-      ...o,
-      test: o.testId ? (testMap.get(o.testId) ? { id: o.testId, name: testMap.get(o.testId)!.name } : null) : null,
-    }));
+    const orders = await prisma.order.findMany({
+      where: { studentId: session.id },
+      orderBy: { createdAt: "desc" },
+    });
 
     return success({
-      orders: ordersOut,
-      access: {
-        active: activeAccess.map((a) => {
-          const t = testMap.get(a.testId);
-          return {
-            testId: a.testId,
-            testName: t?.name ?? null,
-            subject: t?.subjectName ?? null,
-            expiresAt: a.expiresAt,
-          };
-        }),
-        expired: expiredAccess.map((a) => {
-          const t = testMap.get(a.testId);
-          return {
-            testId: a.testId,
-            testName: t?.name ?? null,
-            subject: t?.subjectName ?? null,
-            expiredAt: a.expiresAt,
-          };
-        }),
-      },
+      orders: orders.map((o) => ({ ...o, test: null })),
+      access: { active: [], expired: [] },
     });
   } catch (err) {
     return handleApiError(err);

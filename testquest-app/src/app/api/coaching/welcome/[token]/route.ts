@@ -76,7 +76,7 @@ export async function POST(
       orgRole: ownership?.role,
     });
     const response = success({
-      redirect: ownership ? "/coaching/setup" : "/tests",
+      redirect: ownership ? "/coaching/setup" : "/dashboard",
     });
     response.cookies.set("token", jwt, {
       httpOnly: true,

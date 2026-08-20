@@ -2,7 +2,7 @@ import { z } from "zod";
 import { OAuth2Client } from "google-auth-library";
 import { signToken } from "@/lib/auth";
 import { handleApiError, parseBody, success, error } from "@/lib/api-utils";
-import { findByEmail, createLegacyStudent, updateLegacyStudent } from "@/lib/legacy-students";
+import { findByEmail, findByGoogleId, createStudent, updateStudent } from "@/lib/students";
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -26,30 +26,34 @@ export async function POST(request: Request) {
 
     const email = payload.email.toLowerCase();
     const name = payload.name || email;
-    const picture = payload.picture || null;
+    const googleId = payload.sub;
 
-    // Find by email in the legacy student table; create if missing
-    let student = await findByEmail(email);
+    // Match on the Google subject first — it is stable even if the account's
+    // email changes. Fall back to email so an existing password account links
+    // to Google rather than colliding on the unique email.
+    let student = (await findByGoogleId(googleId)) ?? (await findByEmail(email));
     let studentId: number;
 
     if (student) {
       studentId = student.id;
-      // Sync avatar from Google on each login if absent
-      if (!student.avatarUrl && picture) {
-        await updateLegacyStudent(student.id, { avatarUrl: picture });
+      // Link the Google identity on first Google sign-in, and trust Google's
+      // verification of the address.
+      if (!student.googleId || !student.emailVerified) {
+        await updateStudent(student.id, { googleId, emailVerified: true });
       }
     } else {
-      studentId = await createLegacyStudent({
+      studentId = await createStudent({
         name,
         email,
-        avatarUrl: picture,
-        // No password — Google-only account. User must set one via password
-        // reset before they can log in with email/password.
+        googleId,
+        emailVerified: true,
+        // No password — Google-only account. The user must set one via
+        // password reset before they can sign in with email/password.
       });
-      student = await findByEmail(email);
+      student = await findByGoogleId(googleId);
     }
 
-    const needsProfile = !student?.classId;
+    const needsProfile = student?.primaryContext == null;
 
     const token = signToken({
       id: studentId,
@@ -63,6 +67,8 @@ export async function POST(request: Request) {
       email,
       role: "student",
       needsProfile,
+      // For mobile clients that can't read the httpOnly cookie
+      token,
     });
 
     response.cookies.set("token", token, {

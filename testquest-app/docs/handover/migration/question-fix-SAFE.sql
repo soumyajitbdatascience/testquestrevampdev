@@ -1,0 +1,95 @@
+-- TestQuest question cleanup — SAFE, hand-verified only. Run in DBeaver against TquestTestEnv.
+-- Idempotent (REPLACE). Touches tq_questions AND tq_question_options.
+
+-- 1) Recurring misspelling 'Clasification' -> 'Classification' (~130 questions)
+UPDATE tq_questions        SET text = REPLACE(text, 'Clasification', 'Classification') WHERE text LIKE '%Clasification%';
+UPDATE tq_question_options SET text = REPLACE(text, 'Clasification', 'Classification') WHERE text LIKE '%Clasification%';
+UPDATE tq_questions        SET text = REPLACE(text, 'clasification', 'classification') WHERE text LIKE '%clasification%';
+UPDATE tq_question_options SET text = REPLACE(text, 'clasification', 'classification') WHERE text LIKE '%clasification%';
+
+-- 2) Genuine glued phrases (hand-verified)
+UPDATE tq_questions        SET text = REPLACE(text, 'onlyherbivorous', 'only herbivorous') WHERE text LIKE '%onlyherbivorous%';
+UPDATE tq_question_options SET text = REPLACE(text, 'onlyherbivorous', 'only herbivorous') WHERE text LIKE '%onlyherbivorous%';
+UPDATE tq_questions        SET text = REPLACE(text, 'energygiving', 'energy giving') WHERE text LIKE '%energygiving%';
+UPDATE tq_question_options SET text = REPLACE(text, 'energygiving', 'energy giving') WHERE text LIKE '%energygiving%';
+UPDATE tq_questions        SET text = REPLACE(text, 'Roughagehelps', 'Roughage helps') WHERE text LIKE '%Roughagehelps%';
+UPDATE tq_question_options SET text = REPLACE(text, 'Roughagehelps', 'Roughage helps') WHERE text LIKE '%Roughagehelps%';
+UPDATE tq_questions        SET text = REPLACE(text, 'runninganimals', 'running animals') WHERE text LIKE '%runninganimals%';
+UPDATE tq_question_options SET text = REPLACE(text, 'runninganimals', 'running animals') WHERE text LIKE '%runninganimals%';
+UPDATE tq_questions        SET text = REPLACE(text, 'alloyobtained', 'alloy obtained') WHERE text LIKE '%alloyobtained%';
+UPDATE tq_question_options SET text = REPLACE(text, 'alloyobtained', 'alloy obtained') WHERE text LIKE '%alloyobtained%';
+UPDATE tq_questions        SET text = REPLACE(text, 'regardingfood', 'regarding food') WHERE text LIKE '%regardingfood%';
+UPDATE tq_question_options SET text = REPLACE(text, 'regardingfood', 'regarding food') WHERE text LIKE '%regardingfood%';
+UPDATE tq_questions        SET text = REPLACE(text, 'carefulexamination', 'careful examination') WHERE text LIKE '%carefulexamination%';
+UPDATE tq_question_options SET text = REPLACE(text, 'carefulexamination', 'careful examination') WHERE text LIKE '%carefulexamination%';
+UPDATE tq_questions        SET text = REPLACE(text, 'specificfungi', 'specific fungi') WHERE text LIKE '%specificfungi%';
+UPDATE tq_question_options SET text = REPLACE(text, 'specificfungi', 'specific fungi') WHERE text LIKE '%specificfungi%';
+UPDATE tq_questions        SET text = REPLACE(text, 'circulatoryfluid', 'circulatory fluid') WHERE text LIKE '%circulatoryfluid%';
+UPDATE tq_question_options SET text = REPLACE(text, 'circulatoryfluid', 'circulatory fluid') WHERE text LIKE '%circulatoryfluid%';
+UPDATE tq_questions        SET text = REPLACE(text, 'followingcontains', 'following contains') WHERE text LIKE '%followingcontains%';
+UPDATE tq_question_options SET text = REPLACE(text, 'followingcontains', 'following contains') WHERE text LIKE '%followingcontains%';
+UPDATE tq_questions        SET text = REPLACE(text, 'excretoryproduct', 'excretory product') WHERE text LIKE '%excretoryproduct%';
+UPDATE tq_question_options SET text = REPLACE(text, 'excretoryproduct', 'excretory product') WHERE text LIKE '%excretoryproduct%';
+UPDATE tq_questions        SET text = REPLACE(text, 'excretoryorgan', 'excretory organ') WHERE text LIKE '%excretoryorgan%';
+UPDATE tq_question_options SET text = REPLACE(text, 'excretoryorgan', 'excretory organ') WHERE text LIKE '%excretoryorgan%';
+UPDATE tq_questions        SET text = REPLACE(text, 'vegetativelythrough', 'vegetatively through') WHERE text LIKE '%vegetativelythrough%';
+UPDATE tq_question_options SET text = REPLACE(text, 'vegetativelythrough', 'vegetatively through') WHERE text LIKE '%vegetativelythrough%';
+UPDATE tq_questions        SET text = REPLACE(text, 'theirmethods', 'their methods') WHERE text LIKE '%theirmethods%';
+UPDATE tq_question_options SET text = REPLACE(text, 'theirmethods', 'their methods') WHERE text LIKE '%theirmethods%';
+UPDATE tq_questions        SET text = REPLACE(text, 'pollengrains', 'pollen grains') WHERE text LIKE '%pollengrains%';
+UPDATE tq_question_options SET text = REPLACE(text, 'pollengrains', 'pollen grains') WHERE text LIKE '%pollengrains%';
+UPDATE tq_questions        SET text = REPLACE(text, 'Calciumhydroxide', 'Calcium hydroxide') WHERE text LIKE '%Calciumhydroxide%';
+UPDATE tq_question_options SET text = REPLACE(text, 'Calciumhydroxide', 'Calcium hydroxide') WHERE text LIKE '%Calciumhydroxide%';
+UPDATE tq_questions        SET text = REPLACE(text, 'followingcompounds', 'following compounds') WHERE text LIKE '%followingcompounds%';
+UPDATE tq_question_options SET text = REPLACE(text, 'followingcompounds', 'following compounds') WHERE text LIKE '%followingcompounds%';
+UPDATE tq_questions        SET text = REPLACE(text, 'Dyeingindustry', 'Dyeing industry') WHERE text LIKE '%Dyeingindustry%';
+UPDATE tq_question_options SET text = REPLACE(text, 'Dyeingindustry', 'Dyeing industry') WHERE text LIKE '%Dyeingindustry%';
+UPDATE tq_questions        SET text = REPLACE(text, 'healthygrowth', 'healthy growth') WHERE text LIKE '%healthygrowth%';
+UPDATE tq_question_options SET text = REPLACE(text, 'healthygrowth', 'healthy growth') WHERE text LIKE '%healthygrowth%';
+UPDATE tq_questions        SET text = REPLACE(text, 'absolutelypure', 'absolutely pure') WHERE text LIKE '%absolutelypure%';
+UPDATE tq_question_options SET text = REPLACE(text, 'absolutelypure', 'absolutely pure') WHERE text LIKE '%absolutelypure%';
+UPDATE tq_questions        SET text = REPLACE(text, 'Everyinteger', 'Every integer') WHERE text LIKE '%Everyinteger%';
+UPDATE tq_question_options SET text = REPLACE(text, 'Everyinteger', 'Every integer') WHERE text LIKE '%Everyinteger%';
+UPDATE tq_questions        SET text = REPLACE(text, 'everyfraction', 'every fraction') WHERE text LIKE '%everyfraction%';
+UPDATE tq_question_options SET text = REPLACE(text, 'everyfraction', 'every fraction') WHERE text LIKE '%everyfraction%';
+UPDATE tq_questions        SET text = REPLACE(text, 'pollutionindicators', 'pollution indicators') WHERE text LIKE '%pollutionindicators%';
+UPDATE tq_question_options SET text = REPLACE(text, 'pollutionindicators', 'pollution indicators') WHERE text LIKE '%pollutionindicators%';
+UPDATE tq_questions        SET text = REPLACE(text, 'phasetransition', 'phase transition') WHERE text LIKE '%phasetransition%';
+UPDATE tq_question_options SET text = REPLACE(text, 'phasetransition', 'phase transition') WHERE text LIKE '%phasetransition%';
+UPDATE tq_questions        SET text = REPLACE(text, 'manylittleboxes', 'many little boxes') WHERE text LIKE '%manylittleboxes%';
+UPDATE tq_question_options SET text = REPLACE(text, 'manylittleboxes', 'many little boxes') WHERE text LIKE '%manylittleboxes%';
+UPDATE tq_questions        SET text = REPLACE(text, 'pulmonaryvein', 'pulmonary vein') WHERE text LIKE '%pulmonaryvein%';
+UPDATE tq_question_options SET text = REPLACE(text, 'pulmonaryvein', 'pulmonary vein') WHERE text LIKE '%pulmonaryvein%';
+UPDATE tq_questions        SET text = REPLACE(text, 'pulmonaryarteryand', 'pulmonary artery and') WHERE text LIKE '%pulmonaryarteryand%';
+UPDATE tq_question_options SET text = REPLACE(text, 'pulmonaryarteryand', 'pulmonary artery and') WHERE text LIKE '%pulmonaryarteryand%';
+UPDATE tq_questions        SET text = REPLACE(text, 'removingtheinfectedportion', 'removing the infected portion') WHERE text LIKE '%removingtheinfectedportion%';
+UPDATE tq_question_options SET text = REPLACE(text, 'removingtheinfectedportion', 'removing the infected portion') WHERE text LIKE '%removingtheinfectedportion%';
+UPDATE tq_questions        SET text = REPLACE(text, 'Rabicropsinclude', 'Rabi crops include') WHERE text LIKE '%Rabicropsinclude%';
+UPDATE tq_question_options SET text = REPLACE(text, 'Rabicropsinclude', 'Rabi crops include') WHERE text LIKE '%Rabicropsinclude%';
+UPDATE tq_questions        SET text = REPLACE(text, 'Biocidesarechemicalsubstanceswhichareusedtocontrolof', 'Biocides are chemical substances which are used to control of') WHERE text LIKE '%Biocidesarechemicalsubstanceswhichareusedtocontrolof%';
+UPDATE tq_question_options SET text = REPLACE(text, 'Biocidesarechemicalsubstanceswhichareusedtocontrolof', 'Biocides are chemical substances which are used to control of') WHERE text LIKE '%Biocidesarechemicalsubstanceswhichareusedtocontrolof%';
+UPDATE tq_questions        SET text = REPLACE(text, 'Cassiaplantsareusedtopreventthegrowthofpartheniumweeds', 'Cassia plants are used to prevent the growth of parthenium weeds') WHERE text LIKE '%Cassiaplantsareusedtopreventthegrowthofpartheniumweeds%';
+UPDATE tq_question_options SET text = REPLACE(text, 'Cassiaplantsareusedtopreventthegrowthofpartheniumweeds', 'Cassia plants are used to prevent the growth of parthenium weeds') WHERE text LIKE '%Cassiaplantsareusedtopreventthegrowthofpartheniumweeds%';
+UPDATE tq_questions        SET text = REPLACE(text, 'abotanistsuggestedthefollowingsurgicalintervention', 'a botanist suggested the following surgical intervention') WHERE text LIKE '%abotanistsuggestedthefollowingsurgicalintervention%';
+UPDATE tq_question_options SET text = REPLACE(text, 'abotanistsuggestedthefollowingsurgicalintervention', 'a botanist suggested the following surgical intervention') WHERE text LIKE '%abotanistsuggestedthefollowingsurgicalintervention%';
+UPDATE tq_questions        SET text = REPLACE(text, 'Earthwormsareinvolvedinpreparationof', 'Earthworms are involved in preparation of') WHERE text LIKE '%Earthwormsareinvolvedinpreparationof%';
+UPDATE tq_question_options SET text = REPLACE(text, 'Earthwormsareinvolvedinpreparationof', 'Earthworms are involved in preparation of') WHERE text LIKE '%Earthwormsareinvolvedinpreparationof%';
+UPDATE tq_questions        SET text = REPLACE(text, 'Theyarerichsourceof', 'They are rich source of') WHERE text LIKE '%Theyarerichsourceof%';
+UPDATE tq_question_options SET text = REPLACE(text, 'Theyarerichsourceof', 'They are rich source of') WHERE text LIKE '%Theyarerichsourceof%';
+UPDATE tq_questions        SET text = REPLACE(text, 'Itisexampleof', 'It is example of') WHERE text LIKE '%Itisexampleof%';
+UPDATE tq_question_options SET text = REPLACE(text, 'Itisexampleof', 'It is example of') WHERE text LIKE '%Itisexampleof%';
+UPDATE tq_questions        SET text = REPLACE(text, 'Transplantationprocessisusedin', 'Transplantation process is used in') WHERE text LIKE '%Transplantationprocessisusedin%';
+UPDATE tq_question_options SET text = REPLACE(text, 'Transplantationprocessisusedin', 'Transplantation process is used in') WHERE text LIKE '%Transplantationprocessisusedin%';
+UPDATE tq_questions        SET text = REPLACE(text, 'Inheritanceof', 'Inheritance of') WHERE text LIKE '%Inheritanceof%';
+UPDATE tq_question_options SET text = REPLACE(text, 'Inheritanceof', 'Inheritance of') WHERE text LIKE '%Inheritanceof%';
+UPDATE tq_questions        SET text = REPLACE(text, 'Solubilityof', 'Solubility of') WHERE text LIKE '%Solubilityof%';
+UPDATE tq_question_options SET text = REPLACE(text, 'Solubilityof', 'Solubility of') WHERE text LIKE '%Solubilityof%';
+UPDATE tq_questions        SET text = REPLACE(text, 'Thesoilpreparationmethodsdonotinclude', 'The soil preparation methods do not include') WHERE text LIKE '%Thesoilpreparationmethodsdonotinclude%';
+UPDATE tq_question_options SET text = REPLACE(text, 'Thesoilpreparationmethodsdonotinclude', 'The soil preparation methods do not include') WHERE text LIKE '%Thesoilpreparationmethodsdonotinclude%';
+UPDATE tq_questions        SET text = REPLACE(text, 'SeparationofgrainfromHuskiscalled', 'Separation of grain from Husk is called') WHERE text LIKE '%SeparationofgrainfromHuskiscalled%';
+UPDATE tq_question_options SET text = REPLACE(text, 'SeparationofgrainfromHuskiscalled', 'Separation of grain from Husk is called') WHERE text LIKE '%SeparationofgrainfromHuskiscalled%';
+UPDATE tq_questions        SET text = REPLACE(text, 'Dhekliisatraditionalmethodof', 'Dhekli is a traditional method of') WHERE text LIKE '%Dhekliisatraditionalmethodof%';
+UPDATE tq_question_options SET text = REPLACE(text, 'Dhekliisatraditionalmethodof', 'Dhekli is a traditional method of') WHERE text LIKE '%Dhekliisatraditionalmethodof%';
+
+-- verify nothing obvious remains:
+-- SELECT id, LEFT(text,80) FROM tq_questions WHERE text LIKE '%Clasification%' OR text LIKE '%onlyherbivorous%';

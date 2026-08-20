@@ -213,7 +213,7 @@ export default function AdminTestsPage() {
       });
       const data = await res.json();
       if (!data.ok) {
-        alert(data.error);
+        alert(data.error || "Something went wrong");
         setSaving(false);
         return;
       }

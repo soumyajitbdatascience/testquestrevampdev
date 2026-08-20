@@ -33,7 +33,7 @@ export const dynamic = "force-dynamic";
 export default async function CoachingDashboardPage() {
   const session = await getSession();
   if (!session || !session.orgId) redirect("/coaching/login");
-  if (session.orgRole === "STUDENT") redirect("/tests");
+  if (session.orgRole === "STUDENT") redirect("/dashboard");
 
   // If this owner hasn't finished the setup wizard yet, push them through it.
   if (session.orgRole === "OWNER") {

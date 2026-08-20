@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>body{margin:0;background:#EFEDF7;font-family:Manrope,system-ui,sans-serif}a{color:#642CC8}a:hover{color:#6134EB}.dv-turn{padding:40px 44px 32px;scroll-margin-top:16px}.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 8px}.dv-tid{font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#140C3D;color:#fff;border-radius:4px;text-decoration:none}.dv-tname{font:600 13px/1.2 Manrope,sans-serif;color:#140C3D}.dv-opt{scroll-margin-top:16px;margin:0 0 44px}.dv-oid{font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(20,12,61,.08);color:#140C3D;border-radius:5px;text-decoration:none}.dv-olabel{display:flex;align-items:baseline;gap:8px;font:600 13px/1.3 Manrope,sans-serif;color:#140C3D;margin:0 0 14px}.dv-row{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start}.dv-frame{display:flex;flex-direction:column;gap:7px}.dv-cap{font:500 11px Manrope,sans-serif;color:#837CA3;max-width:375px}.dv-card{background:#fff;border:1px solid rgba(20,12,61,.1);border-radius:14px;box-shadow:0 2px 8px rgba(20,12,61,.07);overflow:hidden}.dv-opt:target .dv-oid{background:#6134EB;color:#fff}</style>
+</helmet>
+<section class="dv-turn" id="t2">
+<div class="dv-thd"><a class="dv-tid" href="#t2">2</a><span class="dv-tname">A tighter add-a-class flow — from 3 steps to 2 taps</span></div>
+<div style="max-width:820px;background:#fff;border:1px solid #E6E1F5;border-radius:14px;padding:14px 20px;margin:0 0 30px;font:500 12.5px/1.6 Manrope,sans-serif;color:#4B426E">
+<strong style="color:#140C3D">Why revisit <a href="#1c">1c</a>:</strong> it reuses onboarding's 3 steps, but an add is not onboarding — the student already has a board (default it, don't ask), and a separate confirm screen restates what the picker already showed. Folding board into a chip row and confirm into the CTA makes adding a class <strong style="color:#140C3D">one sheet, two taps</strong>: pick class → Add. <a href="#2a">2a</a> is the recommendation; <a href="#2b">2b</a> is the zero-navigation alternative, kept for comparison.
+</div>
+
+<div class="dv-opt" id="2a">
+<div class="dv-olabel"><a class="dv-oid" href="#2a">2a</a>Recommended — one-sheet add: board as a chip row, confirm folded into the CTA</div>
+<div class="dv-row">
+<div class="dv-frame"><div class="dv-card" style="width:1240px;background:#fff;padding:18px 20px">
+<div style="display:flex;align-items:stretch;gap:0">
+<div style="flex:1;border:1px solid #E6E1F5;border-radius:12px;padding:12px 14px"><div style="font:700 10px Manrope;color:#837CA3;letter-spacing:.06em">TAP 0 · <a href="#1b">1b</a></div><div style="font:700 13px Sora;color:#140C3D;margin-top:3px">＋ Add a class</div><div style="font:600 11px/1.5 Manrope;color:#4B426E;margin-top:5px">Last row of the context switcher, always there</div></div>
+<div style="display:flex;align-items:center;padding:0 6px;color:#A790EA;font:700 14px Sora">→</div>
+<div style="flex:1.3;border:2px solid #6134EB;border-radius:12px;padding:12px 14px;background:#F4F0FE"><div style="font:700 10px Manrope;color:#642CC8;letter-spacing:.06em">TAP 1 — PICK A CLASS</div><div style="font:700 13px Sora;color:#140C3D;margin-top:3px">One sheet, board pre-set</div><div style="font:600 11px/1.5 Manrope;color:#4B426E;margin-top:5px">Board = their current one as a chip row (change is optional, not a step); classes load instantly below</div></div>
+<div style="display:flex;align-items:center;padding:0 6px;color:#A790EA;font:700 14px Sora">→</div>
+<div style="flex:1.3;border:2px solid #6134EB;border-radius:12px;padding:12px 14px;background:#F4F0FE"><div style="font:700 10px Manrope;color:#642CC8;letter-spacing:.06em">TAP 2 — THE CTA IS THE CONFIRM</div><div style="font:700 13px Sora;color:#140C3D;margin-top:3px">"Add Class 7 · 5 free tests"</div><div style="font:600 11px/1.5 Manrope;color:#4B426E;margin-top:5px">Button copy restates the pick + the upside; honesty line sits under it — no third screen</div></div>
+<div style="display:flex;align-items:center;padding:0 6px;color:#A790EA;font:700 14px Sora">→</div>
+<div style="flex:1;border:1px solid #E6E1F5;border-radius:12px;padding:12px 14px"><div style="font:700 10px Manrope;color:#837CA3;letter-spacing:.06em">LAND · <a href="#1d">1d</a></div><div style="font:700 13px Sora;color:#140C3D;margin-top:3px">Class 7 Home, quietly</div><div style="font:600 11px/1.5 Manrope;color:#4B426E;margin-top:5px">Free-sample CTAs + its own subscribe banner do the selling</div></div>
+</div>
+</div><span class="dv-cap" style="max-width:1240px">The flow — two taps in one sheet replaces 1c's three screens; every guarantee from 1c (duplicates disabled, empty boards hidden, quiet landing) carries over</span></div>
+</div>
+<div class="dv-row" style="margin-top:20px">
+<div class="dv-frame"><div class="dv-card" style="width:375px;height:640px;background:#140C3D;position:relative">
+<div style="position:absolute;inset:0;background:rgba(20,12,61,.55)"></div>
+<div style="position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:20px 20px 0 0;padding:10px 20px 20px">
+<div style="width:40px;height:4px;border-radius:2px;background:#E6E1F5;margin:0 auto 12px"></div>
+<div style="display:flex;align-items:center;justify-content:space-between"><h2 style="margin:0;font:700 20px/1.2 Sora;color:#140C3D">Add a class</h2><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#837CA3" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"></path></svg></div>
+<div style="display:flex;gap:8px;margin:14px 0 0;flex-wrap:wrap">
+<span style="display:inline-flex;align-items:center;gap:5px;height:36px;padding:0 14px;border-radius:999px;background:#6134EB;color:#fff;font:700 12.5px Manrope"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M20 6 9 17l-5-5"></path></svg>CBSE</span>
+<span style="display:inline-flex;align-items:center;height:36px;padding:0 14px;border-radius:999px;background:#F4F0FE;color:#4B426E;font:700 12.5px Manrope">ICSE</span>
+<span style="display:inline-flex;align-items:center;height:36px;padding:0 14px;border-radius:999px;background:#F4F0FE;color:#4B426E;font:700 12.5px Manrope">Maharashtra State</span>
+</div>
+<p style="margin:6px 2px 0;font:600 10.5px Manrope;color:#837CA3">Your current board is pre-selected — tap another to switch</p>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:14px">
+<div style="display:flex;align-items:center;justify-content:center;min-height:56px;border:1px solid #E6E1F5;border-radius:14px;font:700 14px Manrope;color:#140C3D">Class 6</div>
+<div style="display:flex;align-items:center;justify-content:center;min-height:56px;border:2px solid #6134EB;border-radius:14px;background:#F4F0FE;font:800 14px Manrope;color:#140C3D">Class 7</div>
+<div style="display:flex;align-items:center;justify-content:center;min-height:56px;border:1px solid #E6E1F5;border-radius:14px;font:700 14px Manrope;color:#140C3D">Class 8</div>
+<div style="display:flex;align-items:center;justify-content:center;min-height:56px;border:1px solid #E6E1F5;border-radius:14px;font:700 14px Manrope;color:#140C3D">Class 9</div>
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:56px;border:1px solid #E6E1F5;border-radius:14px;background:#F4F0FE;opacity:.75"><span style="font:700 14px Manrope;color:#837CA3">Class 10</span><span style="display:flex;align-items:center;gap:3px;font:700 10px Manrope;color:#1B8A5A"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#1B8A5A" stroke-width="3"><path d="M20 6 9 17l-5-5"></path></svg>Already added</span></div>
+<div style="display:flex;align-items:center;justify-content:center;min-height:56px;border:1px solid #E6E1F5;border-radius:14px;font:700 14px Manrope;color:#140C3D">Class 11</div>
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:56px;border:1px solid #E6E1F5;border-radius:14px"><span style="font:700 14px Manrope;color:#140C3D">Class 12</span><span style="font:500 10px Manrope;color:#837CA3">coming soon</span></div>
+</div>
+<div style="display:flex;align-items:center;gap:10px;border:1px solid #E6E1F5;border-radius:12px;background:#FBFAFE;padding:10px 14px;margin-top:14px">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6134EB" stroke-width="2" style="flex-shrink:0"><path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z"></path></svg>
+<span style="font:600 11.5px/1.45 Manrope;color:#4B426E"><strong style="color:#140C3D">CBSE · Class 7</strong> — 5 subjects · 96 tests · <strong style="color:#140C3D">1 free test per subject</strong></span>
+</div>
+<button style="margin-top:12px;width:100%;min-height:48px;border:none;border-radius:14px;background:#6134EB;color:#fff;font:700 14.5px Manrope;cursor:pointer;box-shadow:0 6px 18px rgba(97,52,235,.35)">Add Class 7 · try 5 free tests</button>
+<p style="margin:8px 0 0;text-align:center;font:600 10.5px Manrope;color:#837CA3">Switches you right away — flip back anytime · its pass is separate, from ₹399</p>
+</div>
+</div><span class="dv-cap">375 · light — the summary strip appears the moment a class is picked and animates into the CTA; before a pick, the button reads a disabled "Pick a class". Two taps total</span></div>
+
+<div class="dv-frame"><div class="dv-card" style="width:375px;height:640px;background:#06031A;position:relative;border-color:#332A6B">
+<div style="position:absolute;inset:0;background:rgba(6,3,20,.6)"></div>
+<div style="position:absolute;left:0;right:0;bottom:0;background:#1D1550;border-radius:20px 20px 0 0;padding:10px 20px 20px">
+<div style="width:40px;height:4px;border-radius:2px;background:#332A6B;margin:0 auto 12px"></div>
+<div style="display:flex;align-items:center;justify-content:space-between"><h2 style="margin:0;font:700 20px/1.2 Sora;color:#F1EDFF">Add a class</h2><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#948BC4" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"></path></svg></div>
+<div style="display:flex;gap:8px;margin:14px 0 0;flex-wrap:wrap">
+<span style="display:inline-flex;align-items:center;gap:5px;height:36px;padding:0 14px;border-radius:999px;background:#815FE9;color:#fff;font:700 12.5px Manrope"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M20 6 9 17l-5-5"></path></svg>CBSE</span>
+<span style="display:inline-flex;align-items:center;height:36px;padding:0 14px;border-radius:999px;background:#251C5E;color:#C0B5EA;font:700 12.5px Manrope">ICSE</span>
+<span style="display:inline-flex;align-items:center;height:36px;padding:0 14px;border-radius:999px;background:#251C5E;color:#C0B5EA;font:700 12.5px Manrope">Maharashtra State</span>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:14px">
+<div style="display:flex;align-items:center;justify-content:center;min-height:56px;border:1px solid #332A6B;border-radius:14px;font:700 14px Manrope;color:#F1EDFF">Class 6</div>
+<div style="display:flex;align-items:center;justify-content:center;min-height:56px;border:2px solid #815FE9;border-radius:14px;background:#251C5E;font:800 14px Manrope;color:#F1EDFF">Class 7</div>
+<div style="display:flex;align-items:center;justify-content:center;min-height:56px;border:1px solid #332A6B;border-radius:14px;font:700 14px Manrope;color:#F1EDFF">Class 8</div>
+<div style="display:flex;align-items:center;justify-content:center;min-height:56px;border:1px solid #332A6B;border-radius:14px;font:700 14px Manrope;color:#F1EDFF">Class 9</div>
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:56px;border:1px solid #332A6B;border-radius:14px;background:#251C5E;opacity:.8"><span style="font:700 14px Manrope;color:#948BC4">Class 10</span><span style="display:flex;align-items:center;gap:3px;font:700 10px Manrope;color:#45C990"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#45C990" stroke-width="3"><path d="M20 6 9 17l-5-5"></path></svg>Already added</span></div>
+<div style="display:flex;align-items:center;justify-content:center;min-height:56px;border:1px solid #332A6B;border-radius:14px;font:700 14px Manrope;color:#F1EDFF">Class 11</div>
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:56px;border:1px solid #332A6B;border-radius:14px"><span style="font:700 14px Manrope;color:#F1EDFF">Class 12</span><span style="font:500 10px Manrope;color:#948BC4">coming soon</span></div>
+</div>
+<div style="display:flex;align-items:center;gap:10px;border:1px solid #332A6B;border-radius:12px;background:#251C5E;padding:10px 14px;margin-top:14px">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#A790EA" stroke-width="2" style="flex-shrink:0"><path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z"></path></svg>
+<span style="font:600 11.5px/1.45 Manrope;color:#C0B5EA"><strong style="color:#F1EDFF">CBSE · Class 7</strong> — 5 subjects · 96 tests · <strong style="color:#F1EDFF">1 free test per subject</strong></span>
+</div>
+<button style="margin-top:12px;width:100%;min-height:48px;border:none;border-radius:14px;background:#815FE9;color:#fff;font:700 14.5px Manrope;cursor:pointer">Add Class 7 · try 5 free tests</button>
+<p style="margin:8px 0 0;text-align:center;font:600 10.5px Manrope;color:#948BC4">Switches you right away — flip back anytime · its pass is separate, from ₹399</p>
+</div>
+</div><span class="dv-cap">375 · dark</span></div>
+</div>
+</div>
+
+<div class="dv-opt" id="2b">
+<div class="dv-olabel"><a class="dv-oid" href="#2b">2b</a>Alternative — add inline, inside the switcher itself (no sheet at all)</div>
+<div class="dv-row">
+<div class="dv-frame"><div class="dv-card" style="width:375px;height:560px;background:#FBFAFE;position:relative">
+<div style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid #E6E1F5;background:#fff">
+<img src="assets/logo-mark.png" width="28" height="28" style="display:block" alt="">
+<span style="display:flex;align-items:center;gap:7px;height:40px;padding:0 14px;border-radius:999px;background:#F4F0FE;font:700 13px Manrope;color:#140C3D"><span style="width:7px;height:7px;border-radius:50%;background:#1B8A5A"></span>CBSE · Class 10 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#837CA3" stroke-width="2.5"><path d="M18 15l-6-6-6 6"></path></svg></span>
+<span style="flex:1"></span>
+<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#4B426E" stroke-width="2"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
+<span style="width:32px;height:32px;border-radius:50%;background:#6134EB;color:#fff;font:700 13px Manrope;display:flex;align-items:center;justify-content:center">P</span>
+</div>
+<div style="position:absolute;left:0;right:0;top:61px;bottom:0;background:rgba(20,12,61,.35)"></div>
+<div style="position:absolute;left:16px;top:68px;width:300px;background:#fff;border:1px solid #E6E1F5;border-radius:14px;box-shadow:0 12px 32px rgba(20,12,61,.18);padding:6px">
+<div style="display:flex;align-items:flex-start;gap:10px;border-radius:10px;background:#F4F0FE;padding:10px 12px">
+<div style="flex:1"><div style="font:700 14px Manrope;color:#140C3D">CBSE · Class 10</div><div style="font:600 11px Manrope;color:#1B8A5A;margin-top:1px">Subscribed — till 12 Jan 2027</div></div>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6134EB" stroke-width="3" style="margin-top:3px"><path d="M20 6 9 17l-5-5"></path></svg>
+</div>
+<div style="border:1px solid #E6E1F5;border-radius:10px;margin-top:6px;padding:10px 12px;background:#FBFAFE">
+<div style="display:flex;align-items:center;gap:8px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#642CC8" stroke-width="2.5"><path d="M12 5v14M5 12h14"></path></svg><span style="font:800 13px Manrope;color:#642CC8">Add a class</span><span style="margin-left:auto;font:600 10.5px Manrope;color:#837CA3">CBSE ▾</span></div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:10px">
+<span style="display:flex;align-items:center;justify-content:center;min-height:40px;border:1px solid #E6E1F5;border-radius:10px;background:#fff;font:700 12px Manrope;color:#140C3D">Cl 6</span>
+<span style="display:flex;align-items:center;justify-content:center;min-height:40px;border:2px solid #6134EB;border-radius:10px;background:#F4F0FE;font:800 12px Manrope;color:#140C3D">Cl 7</span>
+<span style="display:flex;align-items:center;justify-content:center;min-height:40px;border:1px solid #E6E1F5;border-radius:10px;background:#fff;font:700 12px Manrope;color:#140C3D">Cl 8</span>
+<span style="display:flex;align-items:center;justify-content:center;min-height:40px;border:1px solid #E6E1F5;border-radius:10px;background:#fff;font:700 12px Manrope;color:#140C3D">Cl 9</span>
+<span style="display:flex;align-items:center;justify-content:center;min-height:40px;border:1px solid #E6E1F5;border-radius:10px;background:#F4F0FE;opacity:.7;font:700 12px Manrope;color:#837CA3">Cl 10 ✓</span>
+<span style="display:flex;align-items:center;justify-content:center;min-height:40px;border:1px solid #E6E1F5;border-radius:10px;background:#fff;font:700 12px Manrope;color:#140C3D">Cl 11</span>
+</div>
+<button style="margin-top:10px;width:100%;min-height:40px;border:none;border-radius:10px;background:#6134EB;color:#fff;font:700 12.5px Manrope;cursor:pointer">Add Class 7</button>
+</div>
+<div style="padding:8px 12px 6px;font:600 11px Manrope;color:#837CA3">Edit contexts</div>
+</div>
+</div><span class="dv-cap">375 · light — tapping ＋ expands the picker inside the dropdown: zero navigation, but the 300px popover forces abbreviated chips, hides the free-test pitch, and desktop would cramp further. Kept for comparison — <a href="#2a">2a</a> is the recommendation</span></div>
+</div>
+</div>
+</section>
+<section class="dv-turn" id="t1">
+<div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">Flow consolidation — one shell everywhere, History folded into My progress, and the new add-a-class flow</span></div>
+<div style="max-width:820px;background:#fff;border:1px solid #E6E1F5;border-radius:14px;padding:14px 20px;margin:0 0 30px;font:500 12.5px/1.6 Manrope,sans-serif;color:#4B426E">
+<strong style="color:#140C3D">Grounded in the codebase:</strong> the legacy shell (<code style="font-size:11px">student-header.tsx</code>: Dashboard / Tests / History) still wraps <code style="font-size:11px">/tests</code>, <code style="font-size:11px">/my-attempts</code>, <code style="font-size:11px">/progress</code> and <code style="font-size:11px">/my-subscriptions</code>, while <code style="font-size:11px">/dashboard</code> renders its own new header — so the chrome flips as you navigate. Everything below is the existing purple system; the only new surface is the add-class sheet (<a href="#1c">1c</a>). Screens: <a href="#1a">1a</a> shell before/after · <a href="#1b">1b</a> context switcher · <a href="#1c">1c</a> add a class · <a href="#1d">1d</a> Home just after adding (unsubscribed) · <a href="#1e">1e</a> Home subscribed · <a href="#1f">1f</a> My progress + Recent attempts · <a href="#1g">1g</a> My subscriptions.
+</div>
+
+<div class="dv-opt" id="1a">
+<div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>One shell — what retires, what stays, where the old routes go</div>
+<div class="dv-frame"><div class="dv-card" style="width:1240px;background:#fff;padding:22px 24px">
+<div style="font:700 10px Manrope;color:#D92D20;letter-spacing:.06em">TODAY — TWO SHELLS, HEADER CHANGES BETWEEN PAGES</div>
+<div style="margin-top:10px;border:1px dashed #D92D20;border-radius:12px;padding:10px;position:relative">
+<span style="position:absolute;top:-9px;left:12px;padding:2px 9px;border-radius:999px;background:#FCEEE9;color:#D92D20;font:700 10px Manrope">RETIRE — legacy shell (student-header.tsx)</span>
+<div style="display:flex;align-items:center;gap:24px;background:#14111E;border-radius:9px;padding:12px 20px">
+<div style="display:flex;align-items:center;gap:8px"><img src="assets/logo-mark.png" width="24" height="24" style="display:block" alt=""><span style="font:700 13px Manrope;color:#fff">TestQuest</span></div>
+<div style="display:flex;gap:6px">
+<span style="display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:999px;background:#6134EB;color:#fff;font:600 12.5px Manrope">Dashboard</span>
+<span style="display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:999px;color:#9b93b3;font:600 12.5px Manrope">Tests</span>
+<span style="display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:999px;color:#9b93b3;font:600 12.5px Manrope">History</span>
+</div>
+<span style="margin-left:auto;width:30px;height:30px;border-radius:50%;background:#6134EB;color:#fff;font:700 13px Manrope;display:flex;align-items:center;justify-content:center">P</span>
+</div>
+<div style="margin-top:8px;font:600 11.5px/1.5 Manrope;color:#4B426E">Wraps <code style="font-size:10.5px">/tests</code> (browse-all — leaks every class), <code style="font-size:10.5px">/my-attempts</code>, and today's <code style="font-size:10.5px">/progress</code> + <code style="font-size:10.5px">/my-subscriptions</code>. Post-login lands here on <code style="font-size:10.5px">/tests</code>.</div>
+</div>
+<div style="margin-top:14px;border:1px dashed #B45309;border-radius:12px;padding:10px;position:relative">
+<span style="position:absolute;top:-9px;left:12px;padding:2px 9px;border-radius:999px;background:#FDF3E7;color:#B45309;font:700 10px Manrope">FIX — new header, but only on /dashboard, and it still links "All tests"</span>
+<div style="display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #E6E1F5;border-radius:9px;padding:11px 20px">
+<img src="assets/logo-mark.png" width="26" height="26" style="display:block" alt="">
+<span style="display:flex;align-items:center;gap:7px;height:36px;padding:0 14px;border-radius:999px;background:#F4F0FE;font:700 13px Manrope;color:#140C3D"><span style="width:7px;height:7px;border-radius:50%;background:#1B8A5A"></span>CBSE · Class 10 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#837CA3" stroke-width="2.5"><path d="M6 9l6 6 6-6"></path></svg></span>
+<div style="margin-left:auto;display:flex;align-items:center;gap:22px;font:600 13px Manrope;color:#4B426E"><span style="color:#140C3D;font-weight:800">Home</span><span>My progress</span><span>My subscriptions</span><span style="position:relative;color:#D92D20;text-decoration:line-through">All tests</span></div>
+<span style="width:30px;height:30px;border-radius:50%;background:#6134EB;color:#fff;font:700 13px Manrope;display:flex;align-items:center;justify-content:center">P</span>
+</div>
+</div>
+<div style="margin-top:20px;font:700 10px Manrope;color:#1B8A5A;letter-spacing:.06em">AFTER — THE ONE SHELL, IDENTICAL ON EVERY STUDENT PAGE</div>
+<div style="margin-top:10px;border:2px solid #6134EB;border-radius:12px;padding:10px;position:relative;background:#FBFAFE">
+<span style="position:absolute;top:-9px;left:12px;padding:2px 9px;border-radius:999px;background:#6134EB;color:#fff;font:700 10px Manrope">THE KEEPER</span>
+<div style="display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #E6E1F5;border-radius:9px;padding:11px 20px">
+<img src="assets/logo-mark.png" width="26" height="26" style="display:block" alt="">
+<span style="display:flex;align-items:center;gap:7px;height:36px;padding:0 14px;border-radius:999px;background:#F4F0FE;font:700 13px Manrope;color:#140C3D"><span style="width:7px;height:7px;border-radius:50%;background:#1B8A5A"></span>CBSE · Class 10 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#837CA3" stroke-width="2.5"><path d="M6 9l6 6 6-6"></path></svg></span>
+<div style="margin-left:auto;display:flex;align-items:center;gap:22px;font:600 13px Manrope;color:#4B426E"><span style="color:#140C3D;font-weight:800">Home</span><span>My progress</span><span>My subscriptions</span></div>
+<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#4B426E" stroke-width="2"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
+<span style="width:30px;height:30px;border-radius:50%;background:#6134EB;color:#fff;font:700 13px Manrope;display:flex;align-items:center;justify-content:center">P</span>
+</div>
+<div style="margin-top:8px;font:600 11.5px/1.5 Manrope;color:#4B426E">Left: logo + context switcher (<a href="#1b">1b</a>). Right: Home · My progress · My subscriptions · theme · avatar. No global browse — the class Home <em>is</em> the browse.</div>
+</div>
+<div style="display:flex;gap:12px;margin-top:16px">
+<div style="flex:1;border:1px solid #E6E1F5;border-radius:12px;padding:11px 14px"><div style="font:700 10px Manrope;color:#837CA3;letter-spacing:.06em">ROUTE MAP</div><div style="font:600 11.5px/1.7 Manrope;color:#4B426E;margin-top:4px"><code style="font-size:10.5px">/tests</code> (browse-all) → gone, redirects to Home · <code style="font-size:10.5px">/my-attempts</code> → "Recent attempts" inside <a href="#1f">My progress</a> · old <code style="font-size:10.5px">/dashboard</code> header → deleted</div></div>
+<div style="flex:1;border:1px solid #E6E1F5;border-radius:12px;padding:11px 14px"><div style="font:700 10px Manrope;color:#837CA3;letter-spacing:.06em">ENTRY RULES</div><div style="font:600 11.5px/1.7 Manrope;color:#4B426E;margin-top:4px">Login with ≥1 context → Home. Zero contexts → onboarding, once ever. Onboarding is visually unchanged — it never appears again after the first run.</div></div>
+<div style="flex:1;border:1px solid #E6E1F5;border-radius:12px;padding:11px 14px"><div style="font:700 10px Manrope;color:#837CA3;letter-spacing:.06em">SCOPING PROMISE</div><div style="font:600 11.5px/1.7 Manrope;color:#4B426E;margin-top:4px">Every page reads the active context. Another class's content is never rendered — switching classes re-scopes Home, progress and subscriptions.</div></div>
+</div>
+</div><span class="dv-cap" style="max-width:1240px">Before / after — the legacy shell and the "All tests" tab retire together; mobile keeps the same header minus the desktop nav links</span></div>
+</div>
+
+<div class="dv-opt" id="1b">
+<div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a>Context switcher — every class the student has, plus a persistent ＋ Add a class</div>
+<div class="dv-row">
+<div class="dv-frame"><div class="dv-card" style="width:375px;height:520px;background:#FBFAFE;position:relative">
+<div style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid #E6E1F5;background:#fff">
+<img src="assets/logo-mark.png" width="28" height="28" style="display:block" alt="">
+<span style="display:flex;align-items:center;gap:7px;height:40px;padding:0 14px;border-radius:999px;background:#F4F0FE;font:700 13px Manrope;color:#140C3D"><span style="width:7px;height:7px;border-radius:50%;background:#1B8A5A"></span>CBSE · Class 10 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#837CA3" stroke-width="2.5"><path d="M18 15l-6-6-6 6"></path></svg></span>
+<span style="flex:1"></span>
+<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#4B426E" stroke-width="2"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
+<span style="width:32px;height:32px;border-radius:50%;background:#6134EB;color:#fff;font:700 13px Manrope;display:flex;align-items:center;justify-content:center">P</span>
+</div>
+<div style="position:absolute;left:0;right:0;top:61px;bottom:0;background:rgba(20,12,61,.35)"></div>
+<div style="position:absolute;left:16px;top:68px;width:300px;background:#fff;border:1px solid #E6E1F5;border-radius:14px;box-shadow:0 12px 32px rgba(20,12,61,.18);padding:6px">
+<div style="display:flex;align-items:flex-start;gap:10px;border-radius:10px;background:#F4F0FE;padding:10px 12px">
+<div style="flex:1"><div style="font:700 14px Manrope;color:#140C3D">CBSE · Class 10</div><div style="font:600 11px Manrope;color:#1B8A5A;margin-top:1px">Subscribed — till 12 Jan 2027</div></div>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6134EB" stroke-width="3" style="margin-top:3px"><path d="M20 6 9 17l-5-5"></path></svg>
+</div>
+<div style="display:flex;align-items:flex-start;gap:10px;border-radius:10px;padding:10px 12px">
+<div style="flex:1"><div style="font:700 14px Manrope;color:#140C3D">CBSE · Class 7</div><div style="font:600 11px Manrope;color:#837CA3;margin-top:1px">Free browsing · 1 free test per subject</div></div>
+</div>
+<div style="height:1px;background:#E6E1F5;margin:4px 8px"></div>
+<div style="display:flex;align-items:center;gap:8px;border-radius:10px;padding:12px;min-height:44px;box-sizing:border-box">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#642CC8" stroke-width="2.5"><path d="M12 5v14M5 12h14"></path></svg>
+<span style="font:800 13.5px Manrope;color:#642CC8">Add a class</span>
+</div>
+<div style="padding:2px 12px 8px;font:600 11px Manrope;color:#837CA3">Edit contexts</div>
+</div>
+</div><span class="dv-cap">375 · light — tap a class to switch (Home re-scopes instantly); ＋ Add a class is the persistent last row even with one context, so growth is always one tap away</span></div>
+
+<div class="dv-frame"><div class="dv-card" style="width:375px;height:520px;background:#130C36;position:relative;border-color:#332A6B">
+<div style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid #332A6B;background:#1D1550">
+<img src="assets/logo-mark.png" width="28" height="28" style="display:block" alt="">
+<span style="display:flex;align-items:center;gap:7px;height:40px;padding:0 14px;border-radius:999px;background:#251C5E;font:700 13px Manrope;color:#F1EDFF"><span style="width:7px;height:7px;border-radius:50%;background:#45C990"></span>CBSE · Class 10 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#948BC4" stroke-width="2.5"><path d="M18 15l-6-6-6 6"></path></svg></span>
+<span style="flex:1"></span>
+<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#C0B5EA" stroke-width="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"></path></svg>
+<span style="width:32px;height:32px;border-radius:50%;background:#815FE9;color:#fff;font:700 13px Manrope;display:flex;align-items:center;justify-content:center">P</span>
+</div>
+<div style="position:absolute;left:0;right:0;top:61px;bottom:0;background:rgba(6,3,20,.5)"></div>
+<div style="position:absolute;left:16px;top:68px;width:300px;background:#1D1550;border:1px solid #332A6B;border-radius:14px;box-shadow:0 12px 32px rgba(0,0,0,.4);padding:6px">
+<div style="display:flex;align-items:flex-start;gap:10px;border-radius:10px;background:#251C5E;padding:10px 12px">
+<div style="flex:1"><div style="font:700 14px Manrope;color:#F1EDFF">CBSE · Class 10</div><div style="font:600 11px Manrope;color:#45C990;margin-top:1px">Subscribed — till 12 Jan 2027</div></div>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A790EA" stroke-width="3" style="margin-top:3px"><path d="M20 6 9 17l-5-5"></path></svg>
+</div>
+<div style="display:flex;align-items:flex-start;gap:10px;border-radius:10px;padding:10px 12px">
+<div style="flex:1"><div style="font:700 14px Manrope;color:#F1EDFF">CBSE · Class 7</div><div style="font:600 11px Manrope;color:#948BC4;margin-top:1px">Free browsing · 1 free test per subject</div></div>
+</div>
+<div style="height:1px;background:#332A6B;margin:4px 8px"></div>
+<div style="display:flex;align-items:center;gap:8px;border-radius:10px;padding:12px;min-height:44px;box-sizing:border-box">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A790EA" stroke-width="2.5"><path d="M12 5v14M5 12h14"></path></svg>
+<span style="font:800 13.5px Manrope;color:#A790EA">Add a class</span>
+</div>
+<div style="padding:2px 12px 8px;font:600 11px Manrope;color:#948BC4">Edit contexts</div>
+</div>
+</div><span class="dv-cap">375 · dark</span></div>
+</div>
+</div>
+
+
+<div class="dv-opt" id="1c">
+<div class="dv-olabel"><a class="dv-oid" href="#1c">1c</a>Add a class — bottom sheet from the switcher; onboarding's picker, scoped</div>
+<div class="dv-row">
+<div class="dv-frame"><div class="dv-card" style="width:375px;height:640px;background:#140C3D;position:relative">
+<div style="position:absolute;inset:0;background:rgba(20,12,61,.55)"></div>
+<div style="position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:20px 20px 0 0;padding:10px 20px 20px">
+<div style="width:40px;height:4px;border-radius:2px;background:#E6E1F5;margin:0 auto 12px"></div>
+<div style="display:flex;align-items:center;justify-content:space-between"><h2 style="margin:0;font:700 20px/1.2 Sora;color:#140C3D">Add a class</h2><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#837CA3" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"></path></svg></div>
+<div style="display:flex;gap:6px;margin:12px 0 16px"><div style="height:4px;flex:1;border-radius:2px;background:#6134EB"></div><div style="height:4px;flex:1;border-radius:2px;background:#E6E1F5"></div><div style="height:4px;flex:1;border-radius:2px;background:#E6E1F5"></div></div>
+<p style="margin:0 0 12px;font:600 13px Manrope;color:#4B426E">Which board?</p>
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;align-items:center;gap:12px;min-height:52px;padding:0 16px;border:2px solid #6134EB;border-radius:14px;background:#F4F0FE">
+<span style="flex:1;font:700 15px Manrope;color:#140C3D">CBSE</span>
+<span style="padding:3px 9px;border-radius:999px;background:#fff;color:#642CC8;font:700 10.5px Manrope">Your current board</span>
+<span style="width:22px;height:22px;border-radius:50%;background:#6134EB;display:flex;align-items:center;justify-content:center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M20 6 9 17l-5-5"></path></svg></span>
+</div>
+<div style="display:flex;align-items:center;gap:12px;min-height:52px;padding:0 16px;border:1px solid #E6E1F5;border-radius:14px"><span style="flex:1;font:700 15px Manrope;color:#140C3D">ICSE</span><span style="width:22px;height:22px;border-radius:50%;border:1px solid #E6E1F5"></span></div>
+<div style="display:flex;align-items:center;gap:12px;min-height:52px;padding:0 16px;border:1px solid #E6E1F5;border-radius:14px"><span style="flex:1;font:700 15px Manrope;color:#140C3D">Maharashtra State Board</span><span style="width:22px;height:22px;border-radius:50%;border:1px solid #E6E1F5"></span></div>
+</div>
+<button style="margin-top:18px;width:100%;min-height:48px;border:none;border-radius:14px;background:#6134EB;color:#fff;font:700 14.5px Manrope;cursor:pointer;box-shadow:0 6px 18px rgba(97,52,235,.35)">Continue</button>
+</div>
+</div><span class="dv-cap">375 · light · step 1 — board, defaulted to the one they already use (most adds are same-board); boards with no content never appear, same rule as onboarding</span></div>
+
+<div class="dv-frame"><div class="dv-card" style="width:375px;height:640px;background:#140C3D;position:relative">
+<div style="position:absolute;inset:0;background:rgba(20,12,61,.55)"></div>
+<div style="position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:20px 20px 0 0;padding:10px 20px 20px">
+<div style="width:40px;height:4px;border-radius:2px;background:#E6E1F5;margin:0 auto 12px"></div>
+<div style="display:flex;align-items:center;justify-content:space-between"><h2 style="margin:0;font:700 20px/1.2 Sora;color:#140C3D">Add a class</h2><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#837CA3" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"></path></svg></div>
+<div style="display:flex;gap:6px;margin:12px 0 16px"><div style="height:4px;flex:1;border-radius:2px;background:#6134EB"></div><div style="height:4px;flex:1;border-radius:2px;background:#6134EB"></div><div style="height:4px;flex:1;border-radius:2px;background:#E6E1F5"></div></div>
+<p style="margin:0 0 12px;font:600 13px Manrope;color:#4B426E">Which class on <strong style="color:#140C3D">CBSE</strong>?</p>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+<div style="display:flex;align-items:center;justify-content:center;min-height:56px;border:1px solid #E6E1F5;border-radius:14px;font:700 14px Manrope;color:#140C3D">Class 6</div>
+<div style="display:flex;align-items:center;justify-content:center;min-height:56px;border:2px solid #6134EB;border-radius:14px;background:#F4F0FE;font:800 14px Manrope;color:#140C3D">Class 7</div>
+<div style="display:flex;align-items:center;justify-content:center;min-height:56px;border:1px solid #E6E1F5;border-radius:14px;font:700 14px Manrope;color:#140C3D">Class 8</div>
+<div style="display:flex;align-items:center;justify-content:center;min-height:56px;border:1px solid #E6E1F5;border-radius:14px;font:700 14px Manrope;color:#140C3D">Class 9</div>
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:56px;border:1px solid #E6E1F5;border-radius:14px;background:#F4F0FE;opacity:.75"><span style="font:700 14px Manrope;color:#837CA3">Class 10</span><span style="display:flex;align-items:center;gap:3px;font:700 10px Manrope;color:#1B8A5A"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#1B8A5A" stroke-width="3"><path d="M20 6 9 17l-5-5"></path></svg>Already added</span></div>
+<div style="display:flex;align-items:center;justify-content:center;min-height:56px;border:1px solid #E6E1F5;border-radius:14px;font:700 14px Manrope;color:#140C3D">Class 11</div>
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:56px;border:1px solid #E6E1F5;border-radius:14px"><span style="font:700 14px Manrope;color:#140C3D">Class 12</span><span style="font:500 10px Manrope;color:#837CA3">coming soon</span></div>
+</div>
+<button style="margin-top:18px;width:100%;min-height:48px;border:none;border-radius:14px;background:#6134EB;color:#fff;font:700 14.5px Manrope;cursor:pointer;box-shadow:0 6px 18px rgba(97,52,235,.35)">Continue</button>
+</div>
+</div><span class="dv-cap">375 · light · step 2 — a class they already have is disabled ("already added"), never an error; empty classes stay honest with "coming soon"</span></div>
+
+<div class="dv-frame"><div class="dv-card" style="width:375px;height:640px;background:#140C3D;position:relative">
+<div style="position:absolute;inset:0;background:rgba(20,12,61,.55)"></div>
+<div style="position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:20px 20px 0 0;padding:10px 20px 20px">
+<div style="width:40px;height:4px;border-radius:2px;background:#E6E1F5;margin:0 auto 12px"></div>
+<div style="display:flex;align-items:center;justify-content:space-between"><h2 style="margin:0;font:700 20px/1.2 Sora;color:#140C3D">Add a class</h2><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#837CA3" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"></path></svg></div>
+<div style="display:flex;gap:6px;margin:12px 0 16px"><div style="height:4px;flex:1;border-radius:2px;background:#6134EB"></div><div style="height:4px;flex:1;border-radius:2px;background:#6134EB"></div><div style="height:4px;flex:1;border-radius:2px;background:#6134EB"></div></div>
+<div style="border:1px solid #E6E1F5;border-radius:16px;padding:16px;text-align:center;background:#FBFAFE">
+<div style="font:800 20px Sora;color:#140C3D">CBSE · Class 7</div>
+<div style="font:600 12px Manrope;color:#837CA3;margin-top:3px">5 subjects · 96 chapter-wise tests · 30 video lessons</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:11px;margin-top:16px">
+<div style="display:flex;gap:10px;align-items:flex-start"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1B8A5A" stroke-width="2.5" style="margin-top:1px;flex-shrink:0"><path d="M20 6 9 17l-5-5"></path></svg><span style="font:600 13px/1.5 Manrope;color:#4B426E">You'll switch to Class 7 right away — flip back anytime from the class menu</span></div>
+<div style="display:flex;gap:10px;align-items:flex-start"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1B8A5A" stroke-width="2.5" style="margin-top:1px;flex-shrink:0"><path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z"></path></svg><span style="font:600 13px/1.5 Manrope;color:#4B426E">1 free test in each subject, on us — try before any payment</span></div>
+<div style="display:flex;gap:10px;align-items:flex-start"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#837CA3" stroke-width="2.2" style="margin-top:1px;flex-shrink:0"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg><span style="font:600 13px/1.5 Manrope;color:#4B426E">Full access has its own pass — from ₹399, separate from your Class 10 pass</span></div>
+</div>
+<button style="margin-top:18px;width:100%;min-height:48px;border:none;border-radius:14px;background:#6134EB;color:#fff;font:700 14.5px Manrope;cursor:pointer;box-shadow:0 6px 18px rgba(97,52,235,.35)">Add Class 7</button>
+<button style="margin-top:8px;width:100%;min-height:44px;border:none;border-radius:14px;background:none;color:#4B426E;font:700 13px Manrope;cursor:pointer">Back</button>
+</div>
+</div><span class="dv-cap">375 · light · step 3 — confirm sells the upside (free tests) and is honest about the separate pass; on Add → land quietly on Class 7's Home (<a href="#1d">1d</a>), where its free samples and subscribe banner do the talking</span></div>
+</div>
+<div class="dv-row" style="margin-top:24px">
+<div class="dv-frame"><div class="dv-card" style="width:375px;height:640px;background:#06031A;position:relative;border-color:#332A6B">
+<div style="position:absolute;inset:0;background:rgba(6,3,20,.6)"></div>
+<div style="position:absolute;left:0;right:0;bottom:0;background:#1D1550;border-radius:20px 20px 0 0;padding:10px 20px 20px">
+<div style="width:40px;height:4px;border-radius:2px;background:#332A6B;margin:0 auto 12px"></div>
+<div style="display:flex;align-items:center;justify-content:space-between"><h2 style="margin:0;font:700 20px/1.2 Sora;color:#F1EDFF">Add a class</h2><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#948BC4" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"></path></svg></div>
+<div style="display:flex;gap:6px;margin:12px 0 16px"><div style="height:4px;flex:1;border-radius:2px;background:#815FE9"></div><div style="height:4px;flex:1;border-radius:2px;background:#815FE9"></div><div style="height:4px;flex:1;border-radius:2px;background:#332A6B"></div></div>
+<p style="margin:0 0 12px;font:600 13px Manrope;color:#C0B5EA">Which class on <strong style="color:#F1EDFF">CBSE</strong>?</p>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+<div style="display:flex;align-items:center;justify-content:center;min-height:56px;border:1px solid #332A6B;border-radius:14px;font:700 14px Manrope;color:#F1EDFF">Class 6</div>
+<div style="display:flex;align-items:center;justify-content:center;min-height:56px;border:2px solid #815FE9;border-radius:14px;background:#251C5E;font:800 14px Manrope;color:#F1EDFF">Class 7</div>
+<div style="display:flex;align-items:center;justify-content:center;min-height:56px;border:1px solid #332A6B;border-radius:14px;font:700 14px Manrope;color:#F1EDFF">Class 8</div>
+<div style="display:flex;align-items:center;justify-content:center;min-height:56px;border:1px solid #332A6B;border-radius:14px;font:700 14px Manrope;color:#F1EDFF">Class 9</div>
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:56px;border:1px solid #332A6B;border-radius:14px;background:#251C5E;opacity:.8"><span style="font:700 14px Manrope;color:#948BC4">Class 10</span><span style="display:flex;align-items:center;gap:3px;font:700 10px Manrope;color:#45C990"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#45C990" stroke-width="3"><path d="M20 6 9 17l-5-5"></path></svg>Already added</span></div>
+<div style="display:flex;align-items:center;justify-content:center;min-height:56px;border:1px solid #332A6B;border-radius:14px;font:700 14px Manrope;color:#F1EDFF">Class 11</div>
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:56px;border:1px solid #332A6B;border-radius:14px"><span style="font:700 14px Manrope;color:#F1EDFF">Class 12</span><span style="font:500 10px Manrope;color:#948BC4">coming soon</span></div>
+</div>
+<button style="margin-top:18px;width:100%;min-height:48px;border:none;border-radius:14px;background:#815FE9;color:#fff;font:700 14.5px Manrope;cursor:pointer">Continue</button>
+</div>
+</div><span class="dv-cap">375 · dark · step 2</span></div>
+
+<div class="dv-frame"><div class="dv-card" style="width:700px;height:480px;background:#FBFAFE;position:relative">
+<div style="display:flex;align-items:center;gap:12px;background:#fff;border-bottom:1px solid #E6E1F5;padding:11px 20px">
+<img src="assets/logo-mark.png" width="26" height="26" style="display:block" alt="">
+<span style="display:flex;align-items:center;gap:7px;height:36px;padding:0 14px;border-radius:999px;background:#F4F0FE;font:700 13px Manrope;color:#140C3D"><span style="width:7px;height:7px;border-radius:50%;background:#1B8A5A"></span>CBSE · Class 10 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#837CA3" stroke-width="2.5"><path d="M6 9l6 6 6-6"></path></svg></span>
+<div style="margin-left:auto;display:flex;align-items:center;gap:18px;font:600 12.5px Manrope;color:#4B426E"><span style="color:#140C3D;font-weight:800">Home</span><span>My progress</span><span>My subscriptions</span></div>
+<span style="width:28px;height:28px;border-radius:50%;background:#6134EB;color:#fff;font:700 12px Manrope;display:flex;align-items:center;justify-content:center">P</span>
+</div>
+<div style="position:absolute;left:0;right:0;top:59px;bottom:0;background:rgba(20,12,61,.45)"></div>
+<div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:420px;background:#fff;border-radius:18px;box-shadow:0 24px 64px rgba(20,12,61,.35);padding:20px 22px">
+<div style="display:flex;align-items:center;justify-content:space-between"><h2 style="margin:0;font:700 19px/1.2 Sora;color:#140C3D">Add a class</h2><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#837CA3" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"></path></svg></div>
+<div style="display:flex;gap:6px;margin:12px 0 14px"><div style="height:4px;flex:1;border-radius:2px;background:#6134EB"></div><div style="height:4px;flex:1;border-radius:2px;background:#6134EB"></div><div style="height:4px;flex:1;border-radius:2px;background:#E6E1F5"></div></div>
+<p style="margin:0 0 10px;font:600 12.5px Manrope;color:#4B426E">Which class on <strong style="color:#140C3D">CBSE</strong>?</p>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:9px">
+<div style="display:flex;align-items:center;justify-content:center;min-height:48px;border:1px solid #E6E1F5;border-radius:12px;font:700 13px Manrope;color:#140C3D">Class 6</div>
+<div style="display:flex;align-items:center;justify-content:center;min-height:48px;border:2px solid #6134EB;border-radius:12px;background:#F4F0FE;font:800 13px Manrope;color:#140C3D">Class 7</div>
+<div style="display:flex;align-items:center;justify-content:center;min-height:48px;border:1px solid #E6E1F5;border-radius:12px;font:700 13px Manrope;color:#140C3D">Class 8</div>
+<div style="display:flex;align-items:center;justify-content:center;min-height:48px;border:1px solid #E6E1F5;border-radius:12px;font:700 13px Manrope;color:#140C3D">Class 9</div>
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:48px;border:1px solid #E6E1F5;border-radius:12px;background:#F4F0FE;opacity:.75"><span style="font:700 13px Manrope;color:#837CA3">Class 10</span><span style="font:700 9.5px Manrope;color:#1B8A5A">Already added</span></div>
+<div style="display:flex;align-items:center;justify-content:center;min-height:48px;border:1px solid #E6E1F5;border-radius:12px;font:700 13px Manrope;color:#140C3D">Class 11</div>
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:48px;border:1px solid #E6E1F5;border-radius:12px"><span style="font:700 13px Manrope;color:#140C3D">Class 12</span><span style="font:500 9.5px Manrope;color:#837CA3">coming soon</span></div>
+</div>
+<button style="margin-top:16px;width:100%;min-height:46px;border:none;border-radius:12px;background:#6134EB;color:#fff;font:700 14px Manrope;cursor:pointer;box-shadow:0 6px 18px rgba(97,52,235,.35)">Continue</button>
+</div>
+</div><span class="dv-cap" style="max-width:700px">Desktop — same flow as a centered 420px modal over the shell; the sheet/modal never navigates away, so cancel returns to exactly where they were</span></div>
+</div>
+</div>
+
+<div class="dv-opt" id="1d">
+<div class="dv-olabel"><a class="dv-oid" href="#1d">1d</a>Home right after adding Class 7 — quiet landing; free samples + its own subscribe banner</div>
+<div class="dv-row">
+<div class="dv-frame"><div class="dv-card" style="width:375px;background:#FBFAFE">
+<div style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid #E6E1F5;background:#fff">
+<img src="assets/logo-mark.png" width="28" height="28" style="display:block" alt="">
+<span style="display:flex;align-items:center;gap:7px;height:40px;padding:0 14px;border-radius:999px;background:#F4F0FE;font:700 13px Manrope;color:#140C3D">CBSE · Class 7 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#837CA3" stroke-width="2.5"><path d="M6 9l6 6 6-6"></path></svg></span>
+<span style="flex:1"></span>
+<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#4B426E" stroke-width="2"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
+<span style="width:32px;height:32px;border-radius:50%;background:#6134EB;color:#fff;font:700 13px Manrope;display:flex;align-items:center;justify-content:center">P</span>
+</div>
+<div style="padding:16px">
+<div style="position:relative;overflow:hidden;border-radius:18px;background:#6134EB;padding:20px;color:#fff">
+<div style="position:absolute;right:-40px;top:-40px;width:150px;height:150px;border-radius:50%;background:rgba(167,144,234,.3)"></div>
+<h2 style="margin:0;font:700 20px/1.2 Sora">Unlock all of Class 7</h2>
+<p style="margin:5px 0 0;font:600 13px/1.5 Manrope;opacity:.92">All 5 subjects · 96 chapter-wise tests · 30 video lessons</p>
+<p style="margin:2px 0 0;font:600 13px Manrope;opacity:.92">From ₹399 · One-time payment · no auto-renewal</p>
+<button style="margin-top:14px;min-height:44px;border:none;border-radius:12px;background:#fff;color:#6134EB;font:700 13.5px Manrope;padding:0 20px;cursor:pointer">See plans</button>
+</div>
+<div style="position:relative;overflow:hidden;border-radius:18px;border:1px solid #E6E1F5;background:#fff;box-shadow:0 2px 8px rgba(20,12,61,.05);margin-top:14px">
+<div style="position:absolute;left:0;right:0;top:0;height:4px;background:#815FE9"></div>
+<div style="padding:18px 16px 16px">
+<div style="display:flex;align-items:center;gap:12px">
+<span style="width:40px;height:40px;border-radius:12px;background:#F4F0FE;display:flex;align-items:center;justify-content:center"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#6134EB" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg></span>
+<div><div style="font:700 15px Sora;color:#140C3D">Mathematics</div><div style="font:600 11.5px Manrope;color:#837CA3">24 chapter-wise tests · 8 video lessons</div></div>
+</div>
+<button style="margin-top:14px;width:100%;min-height:44px;border:none;border-radius:12px;background:#F4F0FE;color:#6134EB;font:700 13.5px Manrope;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6134EB" stroke-width="2"><path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z"></path></svg>Try your free Maths test</button>
+<div style="margin-top:8px;display:flex;align-items:center;justify-content:center;gap:5px;font:600 11px Manrope;color:#837CA3"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#837CA3" stroke-width="2.2"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>23 in pass</div>
+</div>
+</div>
+<div style="position:relative;overflow:hidden;border-radius:18px;border:1px solid #E6E1F5;background:#fff;box-shadow:0 2px 8px rgba(20,12,61,.05);margin-top:14px">
+<div style="position:absolute;left:0;right:0;top:0;height:4px;background:#815FE9"></div>
+<div style="padding:18px 16px 16px">
+<div style="display:flex;align-items:center;gap:12px">
+<span style="width:40px;height:40px;border-radius:12px;background:#F4F0FE;display:flex;align-items:center;justify-content:center"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#6134EB" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg></span>
+<div><div style="font:700 15px Sora;color:#140C3D">Science</div><div style="font:600 11.5px Manrope;color:#837CA3">22 chapter-wise tests · 6 video lessons</div></div>
+</div>
+<button style="margin-top:14px;width:100%;min-height:44px;border:none;border-radius:12px;background:#F4F0FE;color:#6134EB;font:700 13.5px Manrope;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6134EB" stroke-width="2"><path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z"></path></svg>Try your free Science test</button>
+<div style="margin-top:8px;display:flex;align-items:center;justify-content:center;gap:5px;font:600 11px Manrope;color:#837CA3"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#837CA3" stroke-width="2.2"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>21 in pass</div>
+</div>
+</div>
+<div style="margin-top:8px;text-align:center;font:600 11px Manrope;color:#837CA3">+ English, Social Science, Hindi below</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px">
+<div style="border:1px solid #E6E1F5;border-radius:12px;background:#fff;padding:12px 0;text-align:center;font:700 13px Manrope;color:#4B426E">My progress</div>
+<div style="border:1px solid #E6E1F5;border-radius:12px;background:#fff;padding:12px 0;text-align:center;font:700 13px Manrope;color:#4B426E">Subscriptions</div>
+</div>
+</div>
+</div><span class="dv-cap">375 · light — the pill now reads Class 7 (no green dot: unsubscribed); banner + free-sample CTAs are the same modules every unsubscribed class gets. Quick-nav drops "All tests" — two tiles remain</span></div>
+
+<div class="dv-frame"><div class="dv-card" style="width:375px;background:#130C36;border-color:#332A6B">
+<div style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid #332A6B;background:#1D1550">
+<img src="assets/logo-mark.png" width="28" height="28" style="display:block" alt="">
+<span style="display:flex;align-items:center;gap:7px;height:40px;padding:0 14px;border-radius:999px;background:#251C5E;font:700 13px Manrope;color:#F1EDFF">CBSE · Class 7 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#948BC4" stroke-width="2.5"><path d="M6 9l6 6 6-6"></path></svg></span>
+<span style="flex:1"></span>
+<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#C0B5EA" stroke-width="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"></path></svg>
+<span style="width:32px;height:32px;border-radius:50%;background:#815FE9;color:#fff;font:700 13px Manrope;display:flex;align-items:center;justify-content:center">P</span>
+</div>
+<div style="padding:16px">
+<div style="position:relative;overflow:hidden;border-radius:18px;background:#6134EB;padding:20px;color:#fff">
+<div style="position:absolute;right:-40px;top:-40px;width:150px;height:150px;border-radius:50%;background:rgba(167,144,234,.3)"></div>
+<h2 style="margin:0;font:700 20px/1.2 Sora">Unlock all of Class 7</h2>
+<p style="margin:5px 0 0;font:600 13px/1.5 Manrope;opacity:.92">All 5 subjects · 96 chapter-wise tests · 30 video lessons</p>
+<p style="margin:2px 0 0;font:600 13px Manrope;opacity:.92">From ₹399 · One-time payment · no auto-renewal</p>
+<button style="margin-top:14px;min-height:44px;border:none;border-radius:12px;background:#fff;color:#6134EB;font:700 13.5px Manrope;padding:0 20px;cursor:pointer">See plans</button>
+</div>
+<div style="position:relative;overflow:hidden;border-radius:18px;border:1px solid #332A6B;background:#1D1550;margin-top:14px">
+<div style="position:absolute;left:0;right:0;top:0;height:4px;background:#815FE9"></div>
+<div style="padding:18px 16px 16px">
+<div style="display:flex;align-items:center;gap:12px">
+<span style="width:40px;height:40px;border-radius:12px;background:#251C5E;display:flex;align-items:center;justify-content:center"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#A790EA" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg></span>
+<div><div style="font:700 15px Sora;color:#F1EDFF">Mathematics</div><div style="font:600 11.5px Manrope;color:#948BC4">24 chapter-wise tests · 8 video lessons</div></div>
+</div>
+<button style="margin-top:14px;width:100%;min-height:44px;border:none;border-radius:12px;background:#251C5E;color:#A790EA;font:700 13.5px Manrope;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#A790EA" stroke-width="2"><path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z"></path></svg>Try your free Maths test</button>
+<div style="margin-top:8px;display:flex;align-items:center;justify-content:center;gap:5px;font:600 11px Manrope;color:#948BC4"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#948BC4" stroke-width="2.2"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>23 in pass</div>
+</div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px">
+<div style="border:1px solid #332A6B;border-radius:12px;background:#1D1550;padding:12px 0;text-align:center;font:700 13px Manrope;color:#C0B5EA">My progress</div>
+<div style="border:1px solid #332A6B;border-radius:12px;background:#1D1550;padding:12px 0;text-align:center;font:700 13px Manrope;color:#C0B5EA">Subscriptions</div>
+</div>
+</div>
+</div><span class="dv-cap">375 · dark — banner keeps brand purple; card chrome moves to dark tokens</span></div>
+</div>
+<div class="dv-row" style="margin-top:24px">
+<div class="dv-frame"><div class="dv-card" style="width:1100px;background:#FBFAFE">
+<div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.92);border-bottom:1px solid #E6E1F5;padding:12px 24px">
+<img src="assets/logo-mark.png" width="28" height="28" style="display:block" alt="">
+<span style="display:flex;align-items:center;gap:7px;height:40px;padding:0 14px;border-radius:999px;background:#F4F0FE;font:700 13px Manrope;color:#140C3D">CBSE · Class 7 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#837CA3" stroke-width="2.5"><path d="M6 9l6 6 6-6"></path></svg></span>
+<div style="margin-left:auto;display:flex;align-items:center;gap:24px;font:600 13.5px Manrope;color:#4B426E"><span style="color:#140C3D;font-weight:800">Home</span><span>My progress</span><span>My subscriptions</span></div>
+<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#4B426E" stroke-width="2"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
+<span style="width:34px;height:34px;border-radius:50%;background:#6134EB;color:#fff;font:700 13px Manrope;display:flex;align-items:center;justify-content:center">P</span>
+</div>
+<div style="padding:22px 24px 26px">
+<div style="position:relative;overflow:hidden;border-radius:18px;background:#6134EB;padding:22px 26px;color:#fff">
+<div style="position:absolute;right:-50px;top:-60px;width:210px;height:210px;border-radius:50%;background:rgba(167,144,234,.3)"></div>
+<h2 style="margin:0;font:700 22px/1.2 Sora">Unlock all of Class 7</h2>
+<p style="margin:5px 0 0;font:600 13.5px Manrope;opacity:.92">All 5 subjects · 96 chapter-wise tests · 30 video lessons — from ₹399 · One-time payment · no auto-renewal</p>
+<button style="margin-top:14px;min-height:44px;border:none;border-radius:12px;background:#fff;color:#6134EB;font:700 13.5px Manrope;padding:0 22px;cursor:pointer">See plans</button>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:18px">
+<div style="position:relative;overflow:hidden;border-radius:18px;border:1px solid #E6E1F5;background:#fff;box-shadow:0 2px 8px rgba(20,12,61,.05)">
+<div style="position:absolute;left:0;right:0;top:0;height:4px;background:#815FE9"></div>
+<div style="padding:18px 16px 16px">
+<div style="display:flex;align-items:center;gap:12px"><span style="width:40px;height:40px;border-radius:12px;background:#F4F0FE;display:flex;align-items:center;justify-content:center"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#6134EB" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg></span><div><div style="font:700 15px Sora;color:#140C3D">Mathematics</div><div style="font:600 11.5px Manrope;color:#837CA3">24 tests · 8 videos</div></div></div>
+<button style="margin-top:14px;width:100%;min-height:44px;border:none;border-radius:12px;background:#F4F0FE;color:#6134EB;font:700 13px Manrope;cursor:pointer">Try your free Maths test</button>
+<div style="margin-top:8px;text-align:center;font:600 11px Manrope;color:#837CA3">23 in pass</div>
+</div></div>
+<div style="position:relative;overflow:hidden;border-radius:18px;border:1px solid #E6E1F5;background:#fff;box-shadow:0 2px 8px rgba(20,12,61,.05)">
+<div style="position:absolute;left:0;right:0;top:0;height:4px;background:#815FE9"></div>
+<div style="padding:18px 16px 16px">
+<div style="display:flex;align-items:center;gap:12px"><span style="width:40px;height:40px;border-radius:12px;background:#F4F0FE;display:flex;align-items:center;justify-content:center"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#6134EB" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg></span><div><div style="font:700 15px Sora;color:#140C3D">Science</div><div style="font:600 11.5px Manrope;color:#837CA3">22 tests · 6 videos</div></div></div>
+<button style="margin-top:14px;width:100%;min-height:44px;border:none;border-radius:12px;background:#F4F0FE;color:#6134EB;font:700 13px Manrope;cursor:pointer">Try your free Science test</button>
+<div style="margin-top:8px;text-align:center;font:600 11px Manrope;color:#837CA3">21 in pass</div>
+</div></div>
+<div style="position:relative;overflow:hidden;border-radius:18px;border:1px solid #E6E1F5;background:#fff;box-shadow:0 2px 8px rgba(20,12,61,.05)">
+<div style="position:absolute;left:0;right:0;top:0;height:4px;background:#815FE9"></div>
+<div style="padding:18px 16px 16px">
+<div style="display:flex;align-items:center;gap:12px"><span style="width:40px;height:40px;border-radius:12px;background:#F4F0FE;display:flex;align-items:center;justify-content:center"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#6134EB" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg></span><div><div style="font:700 15px Sora;color:#140C3D">English</div><div style="font:600 11.5px Manrope;color:#837CA3">18 tests · 4 videos</div></div></div>
+<button style="margin-top:14px;width:100%;min-height:44px;border:none;border-radius:12px;background:#F4F0FE;color:#6134EB;font:700 13px Manrope;cursor:pointer">Try your free English test</button>
+<div style="margin-top:8px;text-align:center;font:600 11px Manrope;color:#837CA3">17 in pass</div>
+</div></div>
+</div>
+</div>
+</div><span class="dv-cap" style="max-width:1100px">1100 · light — desktop gets the top nav (Home active) and a 3-col subject grid; no "All tests" anywhere</span></div>
+</div>
+</div>
+
+<div class="dv-opt" id="1e">
+<div class="dv-olabel"><a class="dv-oid" href="#1e">1e</a>Home, subscribed class — switch back to Class 10 and the same shell re-scopes</div>
+<div class="dv-row">
+<div class="dv-frame"><div class="dv-card" style="width:375px;background:#FBFAFE">
+<div style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid #E6E1F5;background:#fff">
+<img src="assets/logo-mark.png" width="28" height="28" style="display:block" alt="">
+<span style="display:flex;align-items:center;gap:7px;height:40px;padding:0 14px;border-radius:999px;background:#F4F0FE;font:700 13px Manrope;color:#140C3D"><span style="width:7px;height:7px;border-radius:50%;background:#1B8A5A"></span>CBSE · Class 10 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#837CA3" stroke-width="2.5"><path d="M6 9l6 6 6-6"></path></svg></span>
+<span style="flex:1"></span>
+<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#4B426E" stroke-width="2"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
+<span style="width:32px;height:32px;border-radius:50%;background:#6134EB;color:#fff;font:700 13px Manrope;display:flex;align-items:center;justify-content:center">P</span>
+</div>
+<div style="padding:16px">
+<div style="border:2px solid #6134EB;border-radius:18px;background:#F4F0FE;padding:18px 16px">
+<div style="font:800 11px Manrope;color:#6134EB;letter-spacing:.08em">IN PROGRESS</div>
+<div style="font:700 17px Sora;color:#140C3D;margin-top:4px">Trigonometry — Test 2</div>
+<div style="font:600 13px Manrope;color:#4B426E;margin-top:2px">Question 8 of 18 · 14 min left</div>
+<button style="margin-top:12px;min-height:44px;border:none;border-radius:12px;background:#6134EB;color:#fff;font:700 13.5px Manrope;padding:0 18px;cursor:pointer;display:inline-flex;align-items:center;gap:8px">Pick up where you left off <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"></path></svg></button>
+</div>
+<p style="margin:12px 2px 0;font:600 11.5px Manrope;color:#837CA3">Pass active · valid till 12 Jan 2027</p>
+<div style="position:relative;overflow:hidden;border-radius:18px;border:1px solid #E6E1F5;background:#fff;box-shadow:0 2px 8px rgba(20,12,61,.05);margin-top:12px">
+<div style="position:absolute;left:0;right:0;top:0;height:4px;background:#815FE9"></div>
+<div style="padding:18px 16px 16px">
+<div style="display:flex;align-items:center;gap:12px">
+<span style="width:40px;height:40px;border-radius:12px;background:#F4F0FE;display:flex;align-items:center;justify-content:center"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#6134EB" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg></span>
+<div><div style="font:700 15px Sora;color:#140C3D">Mathematics</div><div style="font:600 11.5px Manrope;color:#837CA3">38 chapter-wise tests · 14 video lessons</div></div>
+</div>
+<div style="margin-top:14px;display:flex;align-items:baseline;justify-content:space-between;font:600 13px Manrope"><span style="color:#4B426E">9 of 38 tests attempted</span><span style="font:800 13px Sora;color:#815FE9">68%</span></div>
+<div style="margin-top:6px;height:6px;border-radius:3px;background:#F4F0FE"><div style="width:24%;height:6px;border-radius:3px;background:#6134EB"></div></div>
+<button style="margin-top:14px;width:100%;min-height:44px;border:none;border-radius:12px;background:#6134EB;color:#fff;font:700 13.5px Manrope;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px"><svg width="13" height="13" viewBox="0 0 24 24" fill="#fff"><path d="M6 4l14 8-14 8z"></path></svg>Continue · Ch 10 Circles — Test 2</button>
+</div>
+</div>
+<div style="position:relative;overflow:hidden;border-radius:18px;border:1px solid #E6E1F5;background:#fff;box-shadow:0 2px 8px rgba(20,12,61,.05);margin-top:14px">
+<div style="position:absolute;left:0;right:0;top:0;height:4px;background:#815FE9"></div>
+<div style="padding:18px 16px 16px">
+<div style="display:flex;align-items:center;gap:12px">
+<span style="width:40px;height:40px;border-radius:12px;background:#F4F0FE;display:flex;align-items:center;justify-content:center"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#6134EB" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg></span>
+<div><div style="font:700 15px Sora;color:#140C3D">Science</div><div style="font:600 11.5px Manrope;color:#837CA3">30 chapter-wise tests · 12 video lessons</div></div>
+</div>
+<div style="margin-top:14px;display:flex;align-items:baseline;justify-content:space-between;font:600 13px Manrope"><span style="color:#4B426E">4 of 30 tests attempted</span><span style="font:800 13px Sora;color:#815FE9">74%</span></div>
+<div style="margin-top:6px;height:6px;border-radius:3px;background:#F4F0FE"><div style="width:13%;height:6px;border-radius:3px;background:#6134EB"></div></div>
+<button style="margin-top:14px;width:100%;min-height:44px;border:none;border-radius:12px;background:#F4F0FE;color:#6134EB;font:700 13.5px Manrope;cursor:pointer">Continue Science</button>
+</div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px">
+<div style="border:1px solid #E6E1F5;border-radius:12px;background:#fff;padding:12px 0;text-align:center;font:700 13px Manrope;color:#4B426E">My progress</div>
+<div style="border:1px solid #E6E1F5;border-radius:12px;background:#fff;padding:12px 0;text-align:center;font:700 13px Manrope;color:#4B426E">Subscriptions</div>
+</div>
+</div>
+</div><span class="dv-cap">375 · light — no banner when subscribed: resume card first (3d rule), validity note, progress + continue per subject. Only the primary subject's CTA is loud</span></div>
+
+<div class="dv-frame"><div class="dv-card" style="width:375px;background:#130C36;border-color:#332A6B">
+<div style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid #332A6B;background:#1D1550">
+<img src="assets/logo-mark.png" width="28" height="28" style="display:block" alt="">
+<span style="display:flex;align-items:center;gap:7px;height:40px;padding:0 14px;border-radius:999px;background:#251C5E;font:700 13px Manrope;color:#F1EDFF"><span style="width:7px;height:7px;border-radius:50%;background:#45C990"></span>CBSE · Class 10 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#948BC4" stroke-width="2.5"><path d="M6 9l6 6 6-6"></path></svg></span>
+<span style="flex:1"></span>
+<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#C0B5EA" stroke-width="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"></path></svg>
+<span style="width:32px;height:32px;border-radius:50%;background:#815FE9;color:#fff;font:700 13px Manrope;display:flex;align-items:center;justify-content:center">P</span>
+</div>
+<div style="padding:16px">
+<div style="border:2px solid #815FE9;border-radius:18px;background:#251C5E;padding:18px 16px">
+<div style="font:800 11px Manrope;color:#A790EA;letter-spacing:.08em">IN PROGRESS</div>
+<div style="font:700 17px Sora;color:#F1EDFF;margin-top:4px">Trigonometry — Test 2</div>
+<div style="font:600 13px Manrope;color:#C0B5EA;margin-top:2px">Question 8 of 18 · 14 min left</div>
+<button style="margin-top:12px;min-height:44px;border:none;border-radius:12px;background:#815FE9;color:#fff;font:700 13.5px Manrope;padding:0 18px;cursor:pointer;display:inline-flex;align-items:center;gap:8px">Pick up where you left off <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"></path></svg></button>
+</div>
+<p style="margin:12px 2px 0;font:600 11.5px Manrope;color:#948BC4">Pass active · valid till 12 Jan 2027</p>
+<div style="position:relative;overflow:hidden;border-radius:18px;border:1px solid #332A6B;background:#1D1550;margin-top:12px">
+<div style="position:absolute;left:0;right:0;top:0;height:4px;background:#815FE9"></div>
+<div style="padding:18px 16px 16px">
+<div style="display:flex;align-items:center;gap:12px">
+<span style="width:40px;height:40px;border-radius:12px;background:#251C5E;display:flex;align-items:center;justify-content:center"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#A790EA" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg></span>
+<div><div style="font:700 15px Sora;color:#F1EDFF">Mathematics</div><div style="font:600 11.5px Manrope;color:#948BC4">38 chapter-wise tests · 14 video lessons</div></div>
+</div>
+<div style="margin-top:14px;display:flex;align-items:baseline;justify-content:space-between;font:600 13px Manrope"><span style="color:#C0B5EA">9 of 38 tests attempted</span><span style="font:800 13px Sora;color:#A790EA">68%</span></div>
+<div style="margin-top:6px;height:6px;border-radius:3px;background:#251C5E"><div style="width:24%;height:6px;border-radius:3px;background:#815FE9"></div></div>
+<button style="margin-top:14px;width:100%;min-height:44px;border:none;border-radius:12px;background:#815FE9;color:#fff;font:700 13.5px Manrope;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px"><svg width="13" height="13" viewBox="0 0 24 24" fill="#fff"><path d="M6 4l14 8-14 8z"></path></svg>Continue · Ch 10 Circles — Test 2</button>
+</div>
+</div>
+</div>
+</div><span class="dv-cap">375 · dark</span></div>
+
+<div class="dv-frame"><div class="dv-card" style="width:1100px;background:#130C36;border-color:#332A6B">
+<div style="display:flex;align-items:center;gap:12px;background:#1D1550;border-bottom:1px solid #332A6B;padding:12px 24px">
+<img src="assets/logo-mark.png" width="28" height="28" style="display:block" alt="">
+<span style="display:flex;align-items:center;gap:7px;height:40px;padding:0 14px;border-radius:999px;background:#251C5E;font:700 13px Manrope;color:#F1EDFF"><span style="width:7px;height:7px;border-radius:50%;background:#45C990"></span>CBSE · Class 10 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#948BC4" stroke-width="2.5"><path d="M6 9l6 6 6-6"></path></svg></span>
+<div style="margin-left:auto;display:flex;align-items:center;gap:24px;font:600 13.5px Manrope;color:#C0B5EA"><span style="color:#F1EDFF;font-weight:800">Home</span><span>My progress</span><span>My subscriptions</span></div>
+<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#C0B5EA" stroke-width="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"></path></svg>
+<span style="width:34px;height:34px;border-radius:50%;background:#815FE9;color:#fff;font:700 13px Manrope;display:flex;align-items:center;justify-content:center">P</span>
+</div>
+<div style="padding:22px 24px 26px">
+<div style="display:flex;gap:16px">
+<div style="flex:1.2;border:2px solid #815FE9;border-radius:18px;background:#251C5E;padding:18px">
+<div style="font:800 11px Manrope;color:#A790EA;letter-spacing:.08em">IN PROGRESS</div>
+<div style="font:700 17px Sora;color:#F1EDFF;margin-top:4px">Trigonometry — Test 2</div>
+<div style="font:600 13px Manrope;color:#C0B5EA;margin-top:2px">Question 8 of 18 · 14 min left</div>
+<button style="margin-top:12px;min-height:44px;border:none;border-radius:12px;background:#815FE9;color:#fff;font:700 13.5px Manrope;padding:0 18px;cursor:pointer">Pick up where you left off</button>
+</div>
+<div style="flex:2;display:grid;grid-template-columns:1fr 1fr;gap:16px">
+<div style="position:relative;overflow:hidden;border-radius:18px;border:1px solid #332A6B;background:#1D1550">
+<div style="position:absolute;left:0;right:0;top:0;height:4px;background:#815FE9"></div>
+<div style="padding:16px">
+<div style="font:700 15px Sora;color:#F1EDFF">Mathematics</div>
+<div style="margin-top:10px;display:flex;align-items:baseline;justify-content:space-between;font:600 12.5px Manrope"><span style="color:#C0B5EA">9 of 38 attempted</span><span style="font:800 13px Sora;color:#A790EA">68%</span></div>
+<div style="margin-top:6px;height:6px;border-radius:3px;background:#251C5E"><div style="width:24%;height:6px;border-radius:3px;background:#815FE9"></div></div>
+<button style="margin-top:12px;width:100%;min-height:40px;border:none;border-radius:12px;background:#815FE9;color:#fff;font:700 12.5px Manrope;cursor:pointer">Continue · Circles — Test 2</button>
+</div></div>
+<div style="position:relative;overflow:hidden;border-radius:18px;border:1px solid #332A6B;background:#1D1550">
+<div style="position:absolute;left:0;right:0;top:0;height:4px;background:#815FE9"></div>
+<div style="padding:16px">
+<div style="font:700 15px Sora;color:#F1EDFF">Science</div>
+<div style="margin-top:10px;display:flex;align-items:baseline;justify-content:space-between;font:600 12.5px Manrope"><span style="color:#C0B5EA">4 of 30 attempted</span><span style="font:800 13px Sora;color:#A790EA">74%</span></div>
+<div style="margin-top:6px;height:6px;border-radius:3px;background:#251C5E"><div style="width:13%;height:6px;border-radius:3px;background:#815FE9"></div></div>
+<button style="margin-top:12px;width:100%;min-height:40px;border:none;border-radius:12px;background:#251C5E;color:#A790EA;font:700 12.5px Manrope;cursor:pointer">Continue Science</button>
+</div></div>
+</div>
+</div>
+</div>
+</div><span class="dv-cap" style="max-width:1100px">1100 · dark — desktop pairs the resume card with the subject grid; header identical to 1d's</span></div>
+</div>
+</div>
+
+<div class="dv-opt" id="1f">
+<div class="dv-olabel"><a class="dv-oid" href="#1f">1f</a>My progress — History folds in as "Recent attempts", filtered by the same subject pills</div>
+<div class="dv-row">
+<div class="dv-frame"><div class="dv-card" style="width:375px;background:#FBFAFE">
+<div style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid #E6E1F5;background:#fff">
+<img src="assets/logo-mark.png" width="28" height="28" style="display:block" alt="">
+<span style="display:flex;align-items:center;gap:7px;height:40px;padding:0 14px;border-radius:999px;background:#F4F0FE;font:700 13px Manrope;color:#140C3D"><span style="width:7px;height:7px;border-radius:50%;background:#1B8A5A"></span>CBSE · Class 10 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#837CA3" stroke-width="2.5"><path d="M6 9l6 6 6-6"></path></svg></span>
+<span style="flex:1"></span>
+<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#4B426E" stroke-width="2"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
+<span style="width:32px;height:32px;border-radius:50%;background:#6134EB;color:#fff;font:700 13px Manrope;display:flex;align-items:center;justify-content:center">P</span>
+</div>
+<div style="padding:16px">
+<h1 style="margin:0;font:800 22px/1.2 Sora;color:#140C3D">My progress</h1>
+<p style="margin:3px 0 0;font:600 12.5px Manrope;color:#837CA3">Scores, coverage, and where to focus next</p>
+<div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+<span style="display:inline-flex;align-items:center;height:36px;padding:0 14px;border-radius:999px;background:#6134EB;color:#fff;font:700 13px Manrope">All</span>
+<span style="display:inline-flex;align-items:center;height:36px;padding:0 14px;border-radius:999px;background:#F4F0FE;color:#4B426E;font:700 13px Manrope">Maths</span>
+<span style="display:inline-flex;align-items:center;height:36px;padding:0 14px;border-radius:999px;background:#F4F0FE;color:#4B426E;font:700 13px Manrope">Science</span>
+<span style="display:inline-flex;align-items:center;height:36px;padding:0 14px;border-radius:999px;background:#F4F0FE;color:#4B426E;font:700 13px Manrope">English</span>
+</div>
+<div style="border:1px solid #E6E1F5;border-radius:18px;background:#fff;padding:16px;margin-top:14px">
+<div style="font:700 15px Sora;color:#140C3D">Score trend — last 8 attempts</div>
+<svg width="311" height="150" viewBox="0 0 343 150" style="margin-top:8px;display:block">
+<line x1="16" y1="110" x2="336" y2="110" stroke="#E6E1F5" stroke-width="1"></line><line x1="16" y1="80" x2="336" y2="80" stroke="#E6E1F5" stroke-width="1"></line><line x1="16" y1="50" x2="336" y2="50" stroke="#E6E1F5" stroke-width="1"></line>
+<text x="4" y="113" font-family="Manrope" font-size="9" fill="#837CA3">25</text><text x="4" y="83" font-family="Manrope" font-size="9" fill="#837CA3">50</text><text x="4" y="53" font-family="Manrope" font-size="9" fill="#837CA3">75</text>
+<polyline points="24,74 68,82 112,66 156,70 200,56 244,61 288,51 332,42" fill="none" stroke="#6134EB" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></polyline>
+<circle cx="24" cy="74" r="3" fill="#A790EA"></circle><circle cx="68" cy="82" r="3" fill="#A790EA"></circle><circle cx="112" cy="66" r="3" fill="#A790EA"></circle><circle cx="156" cy="70" r="3" fill="#A790EA"></circle><circle cx="200" cy="56" r="3" fill="#A790EA"></circle><circle cx="244" cy="61" r="3" fill="#A790EA"></circle><circle cx="288" cy="51" r="3" fill="#A790EA"></circle>
+<circle cx="332" cy="42" r="4" fill="#6134EB"></circle><text x="332" y="28" text-anchor="middle" font-family="Sora" font-size="11" font-weight="800" fill="#140C3D">82%</text>
+</svg>
+</div>
+<div style="border:1px solid #E6E1F5;border-radius:18px;background:#fff;margin-top:14px;overflow:hidden">
+<div style="display:flex;align-items:baseline;justify-content:space-between;padding:14px 16px 10px"><span style="font:700 15px Sora;color:#140C3D">Recent attempts</span><span style="font:700 11px Manrope;color:#642CC8">View all 32</span></div>
+<div style="display:flex;align-items:center;gap:12px;padding:11px 16px;border-top:1px solid #E6E1F5;min-height:44px;box-sizing:border-box">
+<span style="width:38px;height:38px;border-radius:11px;background:#F4F0FE;color:#6134EB;font:800 14px Sora;display:flex;align-items:center;justify-content:center;flex-shrink:0">M</span>
+<div style="flex:1;min-width:0"><div style="font:700 13px Manrope;color:#140C3D;display:flex;align-items:center;gap:6px">Trigonometry — Test 2 <span style="padding:2px 7px;border-radius:999px;background:#F4F0FE;color:#642CC8;font:700 9.5px Manrope">In progress</span></div><div style="font:600 11px Manrope;color:#837CA3">Maths · today</div></div>
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#837CA3" stroke-width="2.5"><path d="M9 18l6-6-6-6"></path></svg>
+</div>
+<div style="display:flex;align-items:center;gap:12px;padding:11px 16px;border-top:1px solid #E6E1F5">
+<span style="width:38px;height:38px;border-radius:11px;background:#F4F0FE;color:#6134EB;font:800 14px Sora;display:flex;align-items:center;justify-content:center;flex-shrink:0">M</span>
+<div style="flex:1;min-width:0"><div style="font:700 13px Manrope;color:#140C3D">Real Numbers — Test 1</div><div style="font:600 11px Manrope;color:#837CA3">Maths · 14 Aug</div></div>
+<div style="text-align:right"><div style="font:800 15px Sora;color:#1B8A5A">82%</div><div style="font:600 10.5px Manrope;color:#837CA3">20 / 24</div></div>
+</div>
+<div style="display:flex;align-items:center;gap:12px;padding:11px 16px;border-top:1px solid #E6E1F5">
+<span style="width:38px;height:38px;border-radius:11px;background:#F4F0FE;color:#6134EB;font:800 14px Sora;display:flex;align-items:center;justify-content:center;flex-shrink:0">S</span>
+<div style="flex:1;min-width:0"><div style="font:700 13px Manrope;color:#140C3D">Light — Test 3</div><div style="font:600 11px Manrope;color:#837CA3">Science · 9 Aug</div></div>
+<div style="text-align:right"><div style="font:800 15px Sora;color:#B45309">54%</div><div style="font:600 10.5px Manrope;color:#837CA3">13 / 24</div></div>
+</div>
+<div style="display:flex;align-items:center;gap:12px;padding:11px 16px;border-top:1px solid #E6E1F5">
+<span style="width:38px;height:38px;border-radius:11px;background:#F4F0FE;color:#6134EB;font:800 14px Sora;display:flex;align-items:center;justify-content:center;flex-shrink:0">M</span>
+<div style="flex:1;min-width:0"><div style="font:700 13px Manrope;color:#140C3D">Polynomials — Test 2</div><div style="font:600 11px Manrope;color:#837CA3">Maths · 2 Aug</div></div>
+<div style="text-align:right"><div style="font:800 15px Sora;color:#D92D20">41%</div><div style="font:600 10.5px Manrope;color:#837CA3">17 / 42</div></div>
+</div>
+</div>
+<div style="border:1px solid #E6E1F5;border-radius:18px;background:#fff;padding:16px;margin-top:14px">
+<div style="font:700 15px Sora;color:#140C3D;margin-bottom:12px">Coverage by subject</div>
+<div style="display:flex;align-items:baseline;justify-content:space-between;font:600 12.5px Manrope"><span style="color:#140C3D;font-weight:700">Mathematics</span><span style="color:#837CA3">9/38</span></div>
+<div style="margin-top:5px;height:8px;border-radius:4px;background:#F4F0FE"><div style="width:24%;height:8px;border-radius:4px;background:#6134EB"></div></div>
+<div style="display:flex;align-items:baseline;justify-content:space-between;font:600 12.5px Manrope;margin-top:12px"><span style="color:#140C3D;font-weight:700">Science</span><span style="color:#837CA3">4/30</span></div>
+<div style="margin-top:5px;height:8px;border-radius:4px;background:#F4F0FE"><div style="width:13%;height:8px;border-radius:4px;background:#815FE9"></div></div>
+<div style="display:flex;align-items:baseline;justify-content:space-between;font:600 12.5px Manrope;margin-top:12px"><span style="color:#140C3D;font-weight:700">English</span><span style="color:#837CA3">2/22</span></div>
+<div style="margin-top:5px;height:8px;border-radius:4px;background:#F4F0FE"><div style="width:9%;height:8px;border-radius:4px;background:#A790EA"></div></div>
+</div>
+<div style="position:relative;overflow:hidden;border:1px solid #E6E1F5;border-radius:18px;background:#fff;padding:16px;margin-top:14px">
+<div style="position:absolute;left:0;right:0;top:0;height:4px;background:#B45309"></div>
+<div style="display:flex;align-items:center;gap:8px;font:700 15px Sora;color:#140C3D;margin-bottom:10px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#B45309" stroke-width="2.2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg>Worth another look</div>
+<div style="display:flex;align-items:center;gap:10px;border-radius:12px;background:#F4F0FE;padding:10px 14px">
+<span style="flex:1;font:700 13px Manrope;color:#140C3D">Social Science</span><span style="font:800 13px Sora;color:#B45309">48%</span>
+<span style="display:inline-flex;align-items:center;gap:4px;border-radius:8px;background:#6134EB;color:#fff;font:700 11.5px Manrope;padding:7px 10px">Practice <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"></path></svg></span>
+</div>
+<div style="display:flex;align-items:center;gap:10px;border-radius:12px;background:#F4F0FE;padding:10px 14px;margin-top:8px">
+<span style="flex:1;font:700 13px Manrope;color:#140C3D">Hindi</span><span style="font:800 13px Sora;color:#B45309">52%</span>
+<span style="display:inline-flex;align-items:center;gap:4px;border-radius:8px;background:#6134EB;color:#fff;font:700 11.5px Manrope;padding:7px 10px">Practice <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"></path></svg></span>
+</div>
+</div>
+</div>
+</div><span class="dv-cap">375 · light — the /my-attempts page retires; its list lives here as Recent attempts, scoped to the active class and filtered by the same pills as the trend. In-progress attempts resume on tap</span></div>
+
+<div class="dv-frame"><div class="dv-card" style="width:375px;background:#130C36;border-color:#332A6B">
+<div style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid #332A6B;background:#1D1550">
+<img src="assets/logo-mark.png" width="28" height="28" style="display:block" alt="">
+<span style="display:flex;align-items:center;gap:7px;height:40px;padding:0 14px;border-radius:999px;background:#251C5E;font:700 13px Manrope;color:#F1EDFF"><span style="width:7px;height:7px;border-radius:50%;background:#45C990"></span>CBSE · Class 10 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#948BC4" stroke-width="2.5"><path d="M6 9l6 6 6-6"></path></svg></span>
+<span style="flex:1"></span>
+<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#C0B5EA" stroke-width="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"></path></svg>
+<span style="width:32px;height:32px;border-radius:50%;background:#815FE9;color:#fff;font:700 13px Manrope;display:flex;align-items:center;justify-content:center">P</span>
+</div>
+<div style="padding:16px">
+<h1 style="margin:0;font:800 22px/1.2 Sora;color:#F1EDFF">My progress</h1>
+<div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+<span style="display:inline-flex;align-items:center;height:36px;padding:0 14px;border-radius:999px;background:#815FE9;color:#fff;font:700 13px Manrope">All</span>
+<span style="display:inline-flex;align-items:center;height:36px;padding:0 14px;border-radius:999px;background:#251C5E;color:#C0B5EA;font:700 13px Manrope">Maths</span>
+<span style="display:inline-flex;align-items:center;height:36px;padding:0 14px;border-radius:999px;background:#251C5E;color:#C0B5EA;font:700 13px Manrope">Science</span>
+</div>
+<div style="border:1px solid #332A6B;border-radius:18px;background:#1D1550;padding:16px;margin-top:14px">
+<div style="font:700 15px Sora;color:#F1EDFF">Score trend — last 8 attempts</div>
+<svg width="311" height="150" viewBox="0 0 343 150" style="margin-top:8px;display:block">
+<line x1="16" y1="110" x2="336" y2="110" stroke="#332A6B" stroke-width="1"></line><line x1="16" y1="80" x2="336" y2="80" stroke="#332A6B" stroke-width="1"></line><line x1="16" y1="50" x2="336" y2="50" stroke="#332A6B" stroke-width="1"></line>
+<polyline points="24,74 68,82 112,66 156,70 200,56 244,61 288,51 332,42" fill="none" stroke="#815FE9" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></polyline>
+<circle cx="24" cy="74" r="3" fill="#A790EA"></circle><circle cx="68" cy="82" r="3" fill="#A790EA"></circle><circle cx="112" cy="66" r="3" fill="#A790EA"></circle><circle cx="156" cy="70" r="3" fill="#A790EA"></circle><circle cx="200" cy="56" r="3" fill="#A790EA"></circle><circle cx="244" cy="61" r="3" fill="#A790EA"></circle><circle cx="288" cy="51" r="3" fill="#A790EA"></circle>
+<circle cx="332" cy="42" r="4" fill="#A790EA"></circle><text x="332" y="28" text-anchor="middle" font-family="Sora" font-size="11" font-weight="800" fill="#F1EDFF">82%</text>
+</svg>
+</div>
+<div style="border:1px solid #332A6B;border-radius:18px;background:#1D1550;margin-top:14px;overflow:hidden">
+<div style="display:flex;align-items:baseline;justify-content:space-between;padding:14px 16px 10px"><span style="font:700 15px Sora;color:#F1EDFF">Recent attempts</span><span style="font:700 11px Manrope;color:#A790EA">View all 32</span></div>
+<div style="display:flex;align-items:center;gap:12px;padding:11px 16px;border-top:1px solid #332A6B">
+<span style="width:38px;height:38px;border-radius:11px;background:#251C5E;color:#A790EA;font:800 14px Sora;display:flex;align-items:center;justify-content:center;flex-shrink:0">M</span>
+<div style="flex:1;min-width:0"><div style="font:700 13px Manrope;color:#F1EDFF">Real Numbers — Test 1</div><div style="font:600 11px Manrope;color:#948BC4">Maths · 14 Aug</div></div>
+<div style="text-align:right"><div style="font:800 15px Sora;color:#45C990">82%</div><div style="font:600 10.5px Manrope;color:#948BC4">20 / 24</div></div>
+</div>
+<div style="display:flex;align-items:center;gap:12px;padding:11px 16px;border-top:1px solid #332A6B">
+<span style="width:38px;height:38px;border-radius:11px;background:#251C5E;color:#A790EA;font:800 14px Sora;display:flex;align-items:center;justify-content:center;flex-shrink:0">S</span>
+<div style="flex:1;min-width:0"><div style="font:700 13px Manrope;color:#F1EDFF">Light — Test 3</div><div style="font:600 11px Manrope;color:#948BC4">Science · 9 Aug</div></div>
+<div style="text-align:right"><div style="font:800 15px Sora;color:#E1A03C">54%</div><div style="font:600 10.5px Manrope;color:#948BC4">13 / 24</div></div>
+</div>
+</div>
+</div>
+</div><span class="dv-cap">375 · dark — score colors move to the dark semantic set</span></div>
+</div>
+</div>
+
+<div class="dv-opt" id="1g">
+<div class="dv-olabel"><a class="dv-oid" href="#1g">1g</a>My subscriptions — one card per class the student holds</div>
+<div class="dv-row">
+<div class="dv-frame"><div class="dv-card" style="width:375px;background:#FBFAFE">
+<div style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid #E6E1F5;background:#fff">
+<img src="assets/logo-mark.png" width="28" height="28" style="display:block" alt="">
+<span style="display:flex;align-items:center;gap:7px;height:40px;padding:0 14px;border-radius:999px;background:#F4F0FE;font:700 13px Manrope;color:#140C3D"><span style="width:7px;height:7px;border-radius:50%;background:#1B8A5A"></span>CBSE · Class 10 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#837CA3" stroke-width="2.5"><path d="M6 9l6 6 6-6"></path></svg></span>
+<span style="flex:1"></span>
+<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#4B426E" stroke-width="2"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
+<span style="width:32px;height:32px;border-radius:50%;background:#6134EB;color:#fff;font:700 13px Manrope;display:flex;align-items:center;justify-content:center">P</span>
+</div>
+<div style="padding:16px">
+<h1 style="margin:0;font:800 22px/1.2 Sora;color:#140C3D">My subscriptions</h1>
+<p style="margin:3px 0 0;font:600 12.5px Manrope;color:#837CA3">Your passes, payments, and purchases</p>
+<div style="position:relative;overflow:hidden;border:1px solid #E6E1F5;border-radius:18px;background:#fff;box-shadow:0 2px 8px rgba(20,12,61,.05);margin-top:16px">
+<div style="position:absolute;left:0;right:0;top:0;height:4px;background:#1B8A5A"></div>
+<div style="padding:18px 16px 16px">
+<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+<div><div style="font:700 16px Sora;color:#140C3D">CBSE · Class 10</div><div style="font:600 12.5px Manrope;color:#4B426E;margin-top:2px">12-month pass · valid till 12 Jan 2027 · <strong>168 days left</strong></div></div>
+<span style="padding:4px 10px;border-radius:999px;background:#EAF7F0;color:#1B8A5A;font:700 11px Manrope">Active</span>
+</div>
+<div style="margin-top:12px;height:6px;border-radius:3px;background:#F4F0FE"><div style="width:54%;height:6px;border-radius:3px;background:#1B8A5A"></div></div>
+<div style="margin-top:14px;display:flex;align-items:center;gap:12px">
+<button style="min-height:44px;border:none;border-radius:12px;background:#6134EB;color:#fff;font:700 13.5px Manrope;padding:0 22px;cursor:pointer">Renew</button>
+<span style="font:600 11px/1.4 Manrope;color:#837CA3">Renewing adds time from your current expiry — you never lose days.</span>
+</div>
+</div>
+</div>
+<div style="border:1px solid #E6E1F5;border-radius:18px;background:#fff;margin-top:12px;padding:18px 16px">
+<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+<div><div style="font:700 16px Sora;color:#140C3D">CBSE · Class 7</div><div style="font:600 12.5px Manrope;color:#837CA3;margin-top:2px">Free browsing — no pass yet · 1 free test per subject</div></div>
+<span style="padding:4px 10px;border-radius:999px;background:#F4F0FE;color:#642CC8;font:700 11px Manrope">Free</span>
+</div>
+<button style="margin-top:12px;min-height:44px;border:1px solid #6134EB;border-radius:12px;background:none;color:#6134EB;font:700 13px Manrope;padding:0 18px;cursor:pointer">See plans — from ₹399</button>
+</div>
+<h2 style="margin:20px 0 10px;font:700 16px Sora;color:#140C3D">Payment history</h2>
+<div style="border:1px solid #E6E1F5;border-radius:18px;background:#fff;overflow:hidden">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 16px">
+<div style="min-width:0"><div style="font:700 13px Manrope;color:#140C3D">CBSE · Class 10 — 12-month pass</div><div style="font:600 11px Manrope;color:#837CA3">18 Jul 2026 · Razorpay · UPI</div></div>
+<div style="display:flex;align-items:center;gap:8px"><span style="font:800 13.5px Sora;color:#140C3D">₹1,299</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#837CA3" stroke-width="2"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1z"></path><path d="M8 8h8M8 12h8"></path></svg></div>
+</div>
+<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 16px;border-top:1px solid #E6E1F5">
+<div style="min-width:0"><div style="font:700 13px Manrope;color:#140C3D">Real Numbers — Test 2 (single test)</div><div style="font:600 11px Manrope;color:#837CA3">3 Mar 2025 · Razorpay · Card</div></div>
+<div style="display:flex;align-items:center;gap:8px"><span style="font:800 13.5px Sora;color:#140C3D">₹49</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#837CA3" stroke-width="2"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1z"></path><path d="M8 8h8M8 12h8"></path></svg></div>
+</div>
+</div>
+</div>
+</div><span class="dv-cap">375 · light — new here: one card per class (multi-class truth in one place); the Class 7 row is a quiet doorway to its paywall, never a nag. Grandfathered "Your purchased tests" stays below, unchanged</span></div>
+
+<div class="dv-frame"><div class="dv-card" style="width:375px;background:#130C36;border-color:#332A6B">
+<div style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid #332A6B;background:#1D1550">
+<img src="assets/logo-mark.png" width="28" height="28" style="display:block" alt="">
+<span style="display:flex;align-items:center;gap:7px;height:40px;padding:0 14px;border-radius:999px;background:#251C5E;font:700 13px Manrope;color:#F1EDFF"><span style="width:7px;height:7px;border-radius:50%;background:#45C990"></span>CBSE · Class 10 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#948BC4" stroke-width="2.5"><path d="M6 9l6 6 6-6"></path></svg></span>
+<span style="flex:1"></span>
+<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#C0B5EA" stroke-width="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"></path></svg>
+<span style="width:32px;height:32px;border-radius:50%;background:#815FE9;color:#fff;font:700 13px Manrope;display:flex;align-items:center;justify-content:center">P</span>
+</div>
+<div style="padding:16px">
+<h1 style="margin:0;font:800 22px/1.2 Sora;color:#F1EDFF">My subscriptions</h1>
+<div style="position:relative;overflow:hidden;border:1px solid #332A6B;border-radius:18px;background:#1D1550;margin-top:16px">
+<div style="position:absolute;left:0;right:0;top:0;height:4px;background:#45C990"></div>
+<div style="padding:18px 16px 16px">
+<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+<div><div style="font:700 16px Sora;color:#F1EDFF">CBSE · Class 10</div><div style="font:600 12.5px Manrope;color:#C0B5EA;margin-top:2px">12-month pass · valid till 12 Jan 2027 · <strong>168 days left</strong></div></div>
+<span style="padding:4px 10px;border-radius:999px;background:rgba(69,201,144,.14);color:#45C990;font:700 11px Manrope">Active</span>
+</div>
+<div style="margin-top:12px;height:6px;border-radius:3px;background:#251C5E"><div style="width:54%;height:6px;border-radius:3px;background:#45C990"></div></div>
+<div style="margin-top:14px;display:flex;align-items:center;gap:12px">
+<button style="min-height:44px;border:none;border-radius:12px;background:#815FE9;color:#fff;font:700 13.5px Manrope;padding:0 22px;cursor:pointer">Renew</button>
+<span style="font:600 11px/1.4 Manrope;color:#948BC4">Renewing adds time from your current expiry — you never lose days.</span>
+</div>
+</div>
+</div>
+<div style="border:1px solid #332A6B;border-radius:18px;background:#1D1550;margin-top:12px;padding:18px 16px">
+<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+<div><div style="font:700 16px Sora;color:#F1EDFF">CBSE · Class 7</div><div style="font:600 12.5px Manrope;color:#948BC4;margin-top:2px">Free browsing — no pass yet · 1 free test per subject</div></div>
+<span style="padding:4px 10px;border-radius:999px;background:#251C5E;color:#A790EA;font:700 11px Manrope">Free</span>
+</div>
+<button style="margin-top:12px;min-height:44px;border:1px solid #815FE9;border-radius:12px;background:none;color:#A790EA;font:700 13px Manrope;padding:0 18px;cursor:pointer">See plans — from ₹399</button>
+</div>
+</div>
+</div><span class="dv-cap">375 · dark</span></div>
+</div>
+</div>
+</section>
+</x-dc>
+</body>
+</html>

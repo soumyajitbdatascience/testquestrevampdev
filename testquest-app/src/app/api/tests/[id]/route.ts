@@ -1,62 +1,78 @@
+import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { handleApiError, success, error } from "@/lib/api-utils";
-import { getTest } from "@/lib/legacy-content";
-import { prisma } from "@/lib/db";
+import { resolveTestAccess } from "@/lib/access";
 
 type Params = { params: Promise<{ id: string }> };
 
+/**
+ * Test detail — the pre-start screen.
+ *
+ * Ids are plain `tq_tests.id`; the +1,000,000 practice offset is gone with the
+ * legacy tables it disambiguated.
+ *
+ * `randomizeQuestions` is now *true in fact*: `startAttempt` shuffles the paper
+ * per attempt. `randomizeOptions` is honestly **false** — 189 questions have
+ * options that refer to each other ("both A and B", "all of the above"), so
+ * shuffling them would corrupt the question. Neither flag has a column; they
+ * describe what the engine actually does.
+ */
 export async function GET(_request: Request, { params }: Params) {
   try {
     const { id } = await params;
     const testId = Number(id);
     if (!Number.isFinite(testId)) return error("Invalid test id", 400);
 
-    const test = await getTest(testId);
-    if (!test || !test.isActive) return error("Test not found", 404);
-
     const session = await getSession();
     const studentId = session?.role === "student" ? session.id : null;
 
-    // Phase 2 / Task 2.2 — org-privacy guard. If this test is private to
-    // some org, only members of that org may load its detail. Public
-    // visitors and members of other orgs get a 404 (same shape as inactive).
-    const orgMapping = await prisma.orgTest.findFirst({
-      where: { legacyTestId: testId, isActive: true },
-      select: { orgId: true },
+    const test = await prisma.test.findFirst({
+      where: { id: testId, isActive: true },
+      select: {
+        id: true, name: true, description: true, durationMinutes: true,
+        totalMarks: true, isPractice: true,
+        _count: { select: { questions: true } },
+        offering: {
+          select: {
+            id: true,
+            subject: { select: { id: true, name: true } },
+            class: { select: { id: true, name: true } },
+            board: { select: { id: true, name: true, code: true } },
+          },
+        },
+        freeTests: { select: { id: true } },
+      },
     });
-    if (orgMapping && session?.orgId !== orgMapping.orgId) {
-      return error("Test not found", 404);
-    }
+    if (!test) return error("Test not found", 404);
 
-    let hasAccess = test.isFree;
+    const { access: hasAccess, reason: accessReason } = await resolveTestAccess(studentId, testId);
+
     let attemptCount = 0;
-    let lastAttempt: { id: number; status: string; score: number; percentage: number; startedAt: Date | null; finishedAt: Date | null } | null = null;
+    let lastAttempt: {
+      id: number; status: string; score: number; percentage: number;
+      startedAt: Date; finishedAt: Date | null;
+    } | null = null;
 
     if (studentId) {
-      const access = await prisma.studentAccess.findUnique({
-        where: { studentId_testId: { studentId, testId } },
+      const attempts = await prisma.attempt.findMany({
+        where: { studentId, testId },
+        orderBy: { startedAt: "desc" },
+        take: 10,
+        select: {
+          id: true, status: true, score: true, totalMarks: true,
+          startedAt: true, finishedAt: true,
+        },
       });
-      if (access) hasAccess = !access.expiresAt || access.expiresAt > new Date();
-
-      const attempts = await prisma.$queryRaw<Array<{
-        id: number; score: unknown; percentage: unknown;
-        startedAt: Date | null; finishedAt: Date | null;
-      }>>`
-        SELECT id, score, percentage, startedAt, finishedAt
-        FROM vw_attempts_legacy
-        WHERE studentId = ${studentId} AND testId = ${testId}
-        ORDER BY finishedAt DESC
-        LIMIT 10
-      `;
       attemptCount = attempts.length;
-      if (attempts[0]) {
+      const a = attempts[0];
+      if (a) {
         lastAttempt = {
-          id: attempts[0].id,
-          status: "LEGACY_COMPLETED",
-          score: Number(attempts[0].score ?? 0),
-          percentage: Number(attempts[0].percentage ?? 0),
-          startedAt: attempts[0].startedAt,
-          finishedAt: attempts[0].finishedAt,
+          id: a.id,
+          status: a.status,
+          score: a.score,
+          percentage: a.totalMarks > 0 ? Number(((a.score / a.totalMarks) * 100).toFixed(2)) : 0,
+          startedAt: a.startedAt,
+          finishedAt: a.finishedAt,
         };
       }
     }
@@ -67,16 +83,18 @@ export async function GET(_request: Request, { params }: Params) {
       description: test.description,
       durationMinutes: test.durationMinutes,
       totalMarks: test.totalMarks,
-      isFree: test.isFree,
-      price: test.price,
       isPractice: test.isPractice,
+      isFreeSample: test.freeTests.length > 0,
       randomizeQuestions: true,
-      randomizeOptions: true,
-      retakeCooldownDays: test.retakeCooldownDays,
-      questionCount: test.questionCount,
-      class: test.classId ? { id: test.classId, name: test.className || `Class ${test.classId}` } : null,
-      subject: test.subjectId ? { id: test.subjectId, name: test.subjectName || `Subject ${test.subjectId}` } : null,
+      randomizeOptions: false,
+      retakeCooldownDays: 0,
+      questionCount: test._count.questions,
+      offeringId: test.offering.id,
+      board: test.offering.board,
+      class: test.offering.class,
+      subject: test.offering.subject,
       hasAccess,
+      accessReason,
       attemptCount,
       lastAttempt,
     });

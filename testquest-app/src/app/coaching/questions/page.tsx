@@ -18,7 +18,7 @@ export const dynamic = "force-dynamic";
 export default async function CoachingQuestionsPage() {
   const session = await getSession();
   if (!session || !session.orgId) redirect("/coaching/login");
-  if (session.orgRole === "STUDENT" || session.orgRole === "PARENT") redirect("/tests");
+  if (session.orgRole === "STUDENT" || session.orgRole === "PARENT") redirect("/dashboard");
 
   const [classes, subjects] = await Promise.all([
     listClasses(),

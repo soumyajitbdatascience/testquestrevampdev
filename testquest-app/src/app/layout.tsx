@@ -1,18 +1,19 @@
 import type { Metadata } from "next";
-import { DM_Serif_Display, DM_Sans } from "next/font/google";
+import { Sora, Manrope } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { BrandingProvider } from "@/components/student/branding-provider";
 
-const dmSerifDisplay = DM_Serif_Display({
+// B2C design handoff: display = Sora (600–800), body = Manrope (400–800)
+const sora = Sora({
   variable: "--font-display",
-  weight: "400",
-  style: ["normal", "italic"],
+  weight: ["400", "600", "700", "800"],
   subsets: ["latin"],
 });
 
-const dmSans = DM_Sans({
+const manrope = Manrope({
   variable: "--font-sans",
+  weight: ["400", "500", "600", "700", "800"],
   subsets: ["latin"],
 });
 
@@ -45,7 +46,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${dmSans.variable} ${dmSerifDisplay.variable} h-full antialiased`}
+      className={`${manrope.variable} ${sora.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <head>

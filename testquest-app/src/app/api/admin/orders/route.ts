@@ -2,7 +2,8 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAuth } from "@/lib/auth";
 import { handleApiError, success } from "@/lib/api-utils";
-import { findStudentsByIds, findTestsByIds } from "@/lib/legacy-lookups";
+import { findStudentsByIds } from "@/lib/commerce-lookups";
+import type { Prisma } from "@/generated/prisma/client";
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,31 +15,24 @@ export async function GET(request: NextRequest) {
     const page = Number(params.get("page") || "1");
     const limit = Number(params.get("limit") || "20");
 
-    // Student name/email and razorpayPaymentId all need to be searched together,
-    // but `student` lives in legacy (vw_students), not in tq_orders. So when
-    // `search` is provided we resolve matching student IDs first (in legacy),
-    // then OR them with razorpayPaymentId at the SQL layer for accurate paging.
-    const where: Record<string, unknown> = {};
-    if (status) where.status = status;
+    // Search spans the payment id, the coupon code and the buyer's name/email.
+    // The student is a real relation on tq_orders now, so this is one query
+    // rather than the old two-step through the legacy student view.
+    const where: Prisma.OrderWhereInput = {};
+    if (status) where.status = status as Prisma.EnumOrderStatusFilter["equals"];
     if (search) {
-      const term = `%${search}%`;
-      const matched = await prisma.$queryRawUnsafe<Array<{ id: number }>>(
-        `SELECT id FROM vw_students WHERE name LIKE ? OR email LIKE ? LIMIT 500`,
-        term, term,
-      );
-      const matchedIds = matched.map((r) => Number(r.id));
       where.OR = [
         { razorpayPaymentId: { contains: search } },
-        ...(matchedIds.length ? [{ studentId: { in: matchedIds } }] : []),
+        { couponCode: { contains: search } },
+        { student: { name: { contains: search } } },
+        { student: { email: { contains: search } } },
       ];
     }
 
     const [orders, total] = await Promise.all([
+      // Orders only reference a class pass now — no bundle or test to join.
       prisma.order.findMany({
         where,
-        include: {
-          bundle: { select: { id: true, name: true } },
-        },
         orderBy: { createdAt: "desc" },
         skip: (page - 1) * limit,
         take: limit,
@@ -47,16 +41,12 @@ export async function GET(request: NextRequest) {
     ]);
 
     const studentIds = Array.from(new Set(orders.map((o) => o.studentId)));
-    const testIds = Array.from(new Set(orders.flatMap((o) => (o.itemType === "TEST" && o.testId ? [o.testId] : []))));
-    const [studentMap, testMap] = await Promise.all([
-      findStudentsByIds(studentIds),
-      findTestsByIds(testIds),
-    ]);
+    const studentMap = await findStudentsByIds(studentIds);
 
     const ordersOut = orders.map((o) => ({
       ...o,
       student: studentMap.get(o.studentId) ?? null,
-      test: o.testId ? (testMap.get(o.testId) ? { id: o.testId, name: testMap.get(o.testId)!.name } : null) : null,
+      test: null,
     }));
 
     return success({ orders: ordersOut, total, page, totalPages: Math.ceil(total / limit) });

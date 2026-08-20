@@ -72,7 +72,7 @@ export function JoinForm({ token, centreName, batchName }: { token: string; cent
       const data = await res.json() as { ok: boolean; data?: { redirect: string }; error?: string };
       if (!data.ok) { setError(data.error || "Couldn't verify"); return; }
       setStage("done");
-      router.push(data.data?.redirect || "/tests");
+      router.push(data.data?.redirect || "/dashboard");
       router.refresh();
     } catch {
       setError("Network error. Please try again.");
