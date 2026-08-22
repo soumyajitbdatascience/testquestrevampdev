@@ -19,6 +19,81 @@ type Params = { params: Promise<{ id: string }> };
  * the questions that were sat, in the order they were sat.
  */
 
+/**
+ * The success payload, exported so the page can import it instead of
+ * re-declaring the shape by hand.
+ *
+ * `fetch(...).then(r => r.json())` is `any`, so a page-local `interface` is
+ * decorative — it documents an intention the compiler never checks. That is how
+ * `summary` and `showSolutions` went missing from this route while `tsc` and
+ * `next build` both stayed green all the way to a paying student. Importing
+ * this type makes the next drift a build failure instead of a white screen.
+ *
+ * Kept hand-written rather than inferred from the handler: `success()` erases
+ * the shape into `NextResponse`, and a type that has to be *stated* is one a
+ * reviewer can read next to the JSX.
+ */
+export interface AttemptResultOption {
+  id: number;
+  label: string;
+  text: string;
+  /** Always false in the locked variant — the key stays server-side. */
+  isCorrect: boolean;
+}
+
+export interface AttemptResultQuestion {
+  index: number;
+  id: number;
+  type: string;
+  text: string;
+  marks: number;
+  chapter: { id: number; name: string };
+  isCorrect: boolean;
+  marksAwarded: number;
+  skipped: boolean;
+  studentAnswer: {
+    selectedOptionId: number | null;
+    selectedOptionIds: number[];
+    selectedOption: AttemptResultOption | null;
+    fillAnswer: string | null;
+  };
+  allOptions: AttemptResultOption[];
+  explanation: string | null;
+  /** Present only on the locked variant. */
+  solutionLocked?: true;
+  /** Present only when solutions are shown. */
+  correctAnswer?: { options: AttemptResultOption[]; correctText: string | null };
+}
+
+export interface AttemptResultResponse {
+  id: number;
+  test: {
+    id: number;
+    name: string;
+    durationMinutes: number;
+    totalMarks: number;
+    isPractice: boolean;
+    subject: { id: number; name: string };
+    class: { id: number; name: string };
+  };
+  status: string;
+  score: number;
+  totalMarks: number;
+  percentage: number | string;
+  correctCount: number;
+  wrongCount: number;
+  unansweredCount: number;
+  summary: { total: number; correct: number; incorrect: number; skipped: number };
+  /** True when the student may see the answer key and explanations. */
+  showSolutions: boolean;
+  startedAt: string | Date;
+  finishedAt: string | Date | null;
+  timeSpentSeconds: number;
+  solutionsLocked: boolean;
+  upsell: { boardId: number; classId: number; minPrice: number | null } | null;
+  questions: AttemptResultQuestion[];
+}
+
 export async function GET(_request: Request, { params }: Params) {
   try {
     const session = await requireAuth("student");
@@ -151,6 +226,29 @@ export async function GET(_request: Request, { params }: Params) {
       correctCount: attempt.correctCount,
       wrongCount: attempt.wrongCount,
       unansweredCount: attempt.unansweredCount,
+      /**
+       * The same three counters, in the shape the result page reads.
+       *
+       * The page has always declared `summary` and `showSolutions`; this route
+       * has always sent flat `correctCount` / `wrongCount` / `solutionsLocked`.
+       * The fetch is untyped, so nothing caught the mismatch and every read of
+       * `result.summary.*` threw on a real score screen. Both spellings ship
+       * now — the flat ones stay for any consumer already on them.
+       *
+       * `total` comes from `answers.length` rather than the counters: the rows
+       * are the paper as it was actually sat, one per question, so they are the
+       * denominator a student is being scored against. If a stored counter ever
+       * drifts from that (a partial re-score), the tiles would stop summing to
+       * the total — which is the visible symptom you want, not a silently
+       * reconciled number.
+       */
+      summary: {
+        total: attempt.answers.length,
+        correct: attempt.correctCount,
+        incorrect: attempt.wrongCount,
+        skipped: attempt.unansweredCount,
+      },
+      showSolutions,
       startedAt: attempt.startedAt,
       finishedAt: attempt.finishedAt,
       timeSpentSeconds: attempt.timeSpentSeconds,
