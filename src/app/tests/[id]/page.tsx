@@ -43,6 +43,12 @@ interface TestDetail {
   randomizeOptions: boolean;
   retakeCooldownDays: number;
   questionCount: number;
+  /**
+   * The OFFERING this test belongs to — what `/offerings/[id]` is keyed by.
+   * The route has always sent it; this interface simply never declared it,
+   * which is how the back link ended up pointing at a subject id instead.
+   */
+  offeringId: number;
   hasAccess: boolean;
   attemptCount: number;
   lastAttempt: { id: number; status: string; score: number | null; percentage: string | number | null; startedAt: string; finishedAt: string | null } | null;
@@ -162,7 +168,11 @@ function TestDetailPageInner({ params }: { params: Promise<{ id: string }> }) {
   return (
     <StudentShell>
       <SecondaryBar
-        backHref={test.subject ? `/offerings/${test.subject.id}` : "/dashboard"}
+        // Offering id, not subject id. `/offerings/[id]` is keyed by offering,
+        // so a subject id resolves to a different offering or to none — which
+        // rendered as "Subject not found." for a student who had just come
+        // from that very page.
+        backHref={test.offeringId ? `/offerings/${test.offeringId}` : "/dashboard"}
         title={test.name}
         subtitle={<>{test.class?.name ?? "Uncategorized"}{test.subject?.name && <> · {test.subject.name}</>}</>}
       />
