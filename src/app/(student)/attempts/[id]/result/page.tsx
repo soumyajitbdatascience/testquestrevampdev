@@ -337,22 +337,38 @@ function QuestionReview({ question, showSolution, onUnlock }: { question: Questi
           {question.allOptions.map((opt) => {
             const isSelected = question.studentAnswer.selectedOptionId === opt.id ||
               (question.type === "MULTI_MCQ" && question.studentAnswer.fillAnswer?.split(",").includes(String(opt.id)));
+            /**
+             * In the locked variant the server flattens every option to
+             * `isCorrect: false` — the answer key is the product and stays
+             * server-side. That is correct, but it makes `isSelected &&
+             * !opt.isCorrect` true for the student's own choice on every
+             * question, so a free-sample sitter saw all of their answers
+             * marked wrong in red. We do not know they were wrong; we have
+             * simply not been told. Show the selection neutrally and let the
+             * score above be the only claim about how they did.
+             */
+            const locked = question.solutionLocked === true;
             return (
               <div key={opt.id} className={cn(
                 "flex items-center gap-2.5 rounded-lg border px-3 py-2.5 text-sm",
-                opt.isCorrect && "bg-[color:var(--score-strong)]/10 border-[color:var(--score-strong)]/40",
-                isSelected && !opt.isCorrect && "bg-destructive/10 border-destructive/40",
-                !opt.isCorrect && !isSelected && "bg-surface-hi"
+                !locked && opt.isCorrect && "bg-[color:var(--score-strong)]/10 border-[color:var(--score-strong)]/40",
+                !locked && isSelected && !opt.isCorrect && "bg-destructive/10 border-destructive/40",
+                locked && isSelected && "bg-primary-dim border-primary/40",
+                !isSelected && !(!locked && opt.isCorrect) && "bg-surface-hi"
               )}>
                 <span className={cn(
                   "flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md text-xs font-medium",
-                  opt.isCorrect ? "bg-[color:var(--score-strong)] text-background" :
-                  isSelected ? "bg-destructive text-destructive-foreground" :
+                  !locked && opt.isCorrect ? "bg-[color:var(--score-strong)] text-background" :
+                  !locked && isSelected ? "bg-destructive text-destructive-foreground" :
+                  locked && isSelected ? "bg-primary text-primary-foreground" :
                   "bg-surface text-foreground"
                 )}>{opt.label}</span>
                 <RichText html={opt.text} className="flex-1" />
-                {opt.isCorrect && <CheckCircle2 className="h-4 w-4 text-[color:var(--score-strong)] flex-shrink-0" />}
-                {isSelected && !opt.isCorrect && <XCircle className="h-4 w-4 text-destructive flex-shrink-0" />}
+                {locked && isSelected && (
+                  <span className="flex-shrink-0 text-[10px] font-semibold text-primary">Your answer</span>
+                )}
+                {!locked && opt.isCorrect && <CheckCircle2 className="h-4 w-4 text-[color:var(--score-strong)] flex-shrink-0" />}
+                {!locked && isSelected && !opt.isCorrect && <XCircle className="h-4 w-4 text-destructive flex-shrink-0" />}
               </div>
             );
           })}

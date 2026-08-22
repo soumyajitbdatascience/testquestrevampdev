@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { prismaMock } from "@/test/prisma-mock";
 import { bareRequest, readJson, routeCtx } from "@/test/http";
 import type { AttemptResultResponse } from "@/app/api/attempts/[id]/result/route";
@@ -21,12 +21,21 @@ vi.mock("@/lib/auth", async () => {
   };
 });
 
-/** `resolveTestAccess` is the gate this route reads; each test states its verdict. */
+/**
+ * The two access calls this route makes, mocked separately on purpose.
+ *
+ * `resolveTestAccess` answers "may this be opened", where a free sample wins
+ * before a pass is even considered. `hasClassAccess` answers "does this student
+ * hold the class". Bug 4 was the route deriving the second question from the
+ * first, so the tests below must be able to say FREE_SAMPLE and "holds a pass"
+ * at the same time — which is exactly the pass holder's situation.
+ */
 vi.mock("@/lib/access", async () => {
   const actual = await vi.importActual<typeof import("@/lib/access")>("@/lib/access");
   return {
     ...actual,
     resolveTestAccess: vi.fn(async () => ({ access: true, reason: "FREE_SAMPLE" as const })),
+    hasClassAccess: vi.fn(async () => false),
   };
 });
 
@@ -136,5 +145,78 @@ describe("attempt result payload — the summary the page renders", () => {
 
     expect(res.status).toBe(400);
     expect(res.error).toMatch(/hasn't been submitted/i);
+  });
+});
+
+describe("who may see the answer key", () => {
+  // Call history accumulates across tests in a file; the last case asserts
+  // that a lookup did NOT happen, so it needs a clean slate. Implementations
+  // survive — only the recorded calls are dropped.
+  beforeEach(async () => {
+    const access = await import("@/lib/access");
+    vi.mocked(access.hasClassAccess).mockClear();
+    vi.mocked(access.resolveTestAccess).mockClear();
+  });
+
+  /**
+   * The Bug 4 regression. A free sample resolves `FREE_SAMPLE` for everyone,
+   * pass holder or not — so if solutions are derived from that reason alone, a
+   * student is shown a paywall for a class already in their account.
+   */
+  it("shows solutions to a pass holder sitting a free sample", async () => {
+    stubAttempt();
+    const access = await import("@/lib/access");
+    vi.mocked(access.resolveTestAccess).mockResolvedValue({ access: true, reason: "FREE_SAMPLE" } as never);
+    vi.mocked(access.hasClassAccess).mockResolvedValue(true as never);
+
+    const d = (await getResult()).data;
+
+    expect(d.showSolutions).toBe(true);
+    expect(d.solutionsLocked).toBe(false);
+    // No upsell for something they already own.
+    expect(d.upsell).toBeNull();
+  });
+
+  it("locks solutions for a student with no pass on the same sample", async () => {
+    stubAttempt();
+    const access = await import("@/lib/access");
+    vi.mocked(access.resolveTestAccess).mockResolvedValue({ access: true, reason: "FREE_SAMPLE" } as never);
+    vi.mocked(access.hasClassAccess).mockResolvedValue(false as never);
+
+    const d = (await getResult()).data;
+
+    expect(d.showSolutions).toBe(false);
+    expect(d.solutionsLocked).toBe(true);
+  });
+
+  it("keeps the answer key server-side when locked", async () => {
+    stubAttempt();
+    const access = await import("@/lib/access");
+    vi.mocked(access.resolveTestAccess).mockResolvedValue({ access: true, reason: "FREE_SAMPLE" } as never);
+    vi.mocked(access.hasClassAccess).mockResolvedValue(false as never);
+
+    const d = (await getResult()).data;
+
+    // Every option flattened, explanation replaced — no amount of poking at
+    // the response reveals which one was right.
+    for (const q of d.questions) {
+      expect(q.allOptions.every((o) => o.isCorrect === false)).toBe(true);
+      expect(q.solutionLocked).toBe(true);
+      expect(q.explanation).toMatch(/included in the class pass/i);
+    }
+  });
+
+  it("still shows solutions on a CLASS_PASS reason without a second lookup", async () => {
+    stubAttempt();
+    const access = await import("@/lib/access");
+    vi.mocked(access.resolveTestAccess).mockResolvedValue({ access: true, reason: "CLASS_PASS" } as never);
+    vi.mocked(access.hasClassAccess).mockResolvedValue(false as never);
+
+    const d = (await getResult()).data;
+
+    // The cheap check short-circuits; the extra query is only for the case it
+    // cannot answer.
+    expect(d.showSolutions).toBe(true);
+    expect(access.hasClassAccess).not.toHaveBeenCalled();
   });
 });

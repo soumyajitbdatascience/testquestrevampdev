@@ -1,6 +1,6 @@
 import { requireAuth } from "@/lib/auth";
 import { handleApiError, success, error } from "@/lib/api-utils";
-import { resolveTestAccess } from "@/lib/access";
+import { hasClassAccess, resolveTestAccess } from "@/lib/access";
 import { parseSelectedIds } from "@/lib/attempts";
 import { prisma } from "@/lib/db";
 
@@ -140,10 +140,29 @@ export async function GET(_request: Request, { params }: Params) {
     if (!attempt) return error("Attempt not found", 404);
     if (attempt.status !== "COMPLETED") return error("This attempt hasn't been submitted yet", 400);
 
-    const { reason } = await resolveTestAccess(session.id, attempt.testId);
-    const showSolutions = reason === "CLASS_PASS";
-
     const offering = attempt.test.offering;
+
+    /**
+     * Who may see the answer key.
+     *
+     * This used to be `reason === "CLASS_PASS"` alone, which quietly charged
+     * pass holders for solutions they had already bought.
+     * `resolveAccessForTests` checks free samples *before* passes, so a sample
+     * always resolves `FREE_SAMPLE` — correct for **access**, since a sample is
+     * public and the cheapest true answer wins — but it means the reason says
+     * nothing about whether this particular student also holds the class. A
+     * Class 7 pass holder reviewing the Biology sample got the locked variant:
+     * blurred explanations and an upsell for the pass in their account.
+     *
+     * So access precedence is left exactly as it is, and this derivation asks
+     * the question it actually cares about: does this student hold the class?
+     * One extra indexed lookup on a page that already runs several, and only
+     * when the cheap check has not already said yes.
+     */
+    const { reason } = await resolveTestAccess(session.id, attempt.testId);
+    const showSolutions =
+      reason === "CLASS_PASS" ||
+      (await hasClassAccess(session.id, offering.boardId, offering.classId));
 
     // Upsell scope for the locked variant's paywall CTA.
     let upsell: { boardId: number; classId: number; minPrice: number | null } | null = null;
