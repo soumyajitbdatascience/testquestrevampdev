@@ -1,0 +1,1045 @@
+// Testquest — Prisma schema for the clean decoupled DB (<db-user>_TquestTestEnv).
+//
+// The tables in this database were created by the migration SQL in
+// docs/handover/migration/ and are already populated. This schema is aligned to
+// them BY INTROSPECTION (`prisma db pull` into a scratch file, then hand-merged
+// to keep app-friendly model/field names).
+//
+//   NEVER run `prisma db push` against this database. Schema changes go through
+//   raw ALTER TABLE in a prisma/migration/*.ts script.
+//
+// Model shape follows the decoupled model:
+//   Board → Class → Subject are MASTERS (each exists once)
+//   BoardClass maps which classes a board offers
+//   Offering is the shelf: one row per real Board+Class+Subject
+//   All content (chapters, tests, videos, free sample) hangs off an Offering
+//   Questions are a shared bank keyed by subject + optional chapter
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+// A second, CommonJS copy of the same client, for the Playwright suite only.
+//
+// The app's client above is ESM TypeScript, which Next compiles happily but
+// Playwright's CJS-first test loader cannot require ("exports is not defined").
+// Rather than change the module format the whole app is built against, the
+// tests get their own build. Additive: nothing outside e2e/ imports it.
+generator e2eClient {
+  provider     = "prisma-client"
+  output       = "../e2e/.prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Masters ────────────────────────────────────────────
+
+model Board {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(100)
+  code      String   @unique(map: "uq_board_code") @db.VarChar(20)
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now()) @db.DateTime(0)
+  updatedAt DateTime @updatedAt @db.DateTime(0)
+
+  boardClasses BoardClass[]
+  offerings    Offering[]
+
+  @@map("tq_boards")
+}
+
+/// Shared class master (Class 6–12). A board does not own a class — it offers
+/// it via BoardClass. `legacyId` traces back to the old `catigories` row.
+model Class {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(100)
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  legacyId  Int?     @unique(map: "uq_class_legacy")
+  createdAt DateTime @default(now()) @db.DateTime(0)
+  updatedAt DateTime @updatedAt @db.DateTime(0)
+
+  boardClasses BoardClass[]
+  offerings    Offering[]
+
+  @@map("tq_classes")
+}
+
+/// Shared subject master (8 rows). Deliberately has NO classId — the specific
+/// "CBSE Class 10 Mathematics" combination is an Offering, not a subject row.
+model Subject {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(200)
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now()) @db.DateTime(0)
+  updatedAt DateTime @updatedAt @db.DateTime(0)
+
+  offerings Offering[]
+  questions Question[]
+  legacyMap SubjectLegacyMap[]
+
+  @@map("tq_subjects")
+}
+
+/// Migration helper: many legacy `subjects` rows collapse onto one clean master.
+model SubjectLegacyMap {
+  legacyId  Int @id
+  subjectId Int
+
+  subject Subject @relation(fields: [subjectId], references: [id], onUpdate: Restrict, map: "fk_sublegacy_subject")
+
+  @@index([subjectId], map: "fk_sublegacy_subject")
+  @@map("tq_subject_legacy_map")
+}
+
+// ─── Maps ───────────────────────────────────────────────
+
+/// Which classes a board offers. Adding a new board later = a few rows here.
+model BoardClass {
+  id        Int      @id @default(autoincrement())
+  boardId   Int
+  classId   Int
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now()) @db.DateTime(0)
+
+  board Board @relation(fields: [boardId], references: [id], onUpdate: Restrict, map: "fk_bc_board")
+  class Class @relation(fields: [classId], references: [id], onUpdate: Restrict, map: "fk_bc_class")
+
+  @@unique([boardId, classId], map: "uq_board_class")
+  @@index([classId], map: "fk_bc_class")
+  @@map("tq_board_classes")
+}
+
+// ─── Offerings — the shelf ──────────────────────────────
+
+/// One row per real Board + Class + Subject. This is the anchor: chapters,
+/// tests, videos and the free sample all attach here, so CBSE Maths and
+/// Odisha Maths never mix even though they share a subject master.
+model Offering {
+  id        Int      @id @default(autoincrement())
+  boardId   Int
+  classId   Int
+  subjectId Int
+  isActive  Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now()) @db.DateTime(0)
+  updatedAt DateTime @updatedAt @db.DateTime(0)
+
+  board    Board     @relation(fields: [boardId], references: [id], onUpdate: Restrict, map: "fk_off_board")
+  class    Class     @relation(fields: [classId], references: [id], onUpdate: Restrict, map: "fk_off_class")
+  subject  Subject   @relation(fields: [subjectId], references: [id], onUpdate: Restrict, map: "fk_off_subject")
+  chapters Chapter[]
+  tests    Test[]
+  videos   Video[]
+  freeTest FreeTest?
+
+  @@unique([boardId, classId, subjectId], map: "uq_offering")
+  @@index([classId], map: "fk_off_class")
+  @@index([subjectId], map: "fk_off_subject")
+  @@map("tq_offerings")
+}
+
+// ─── Content ────────────────────────────────────────────
+
+model Chapter {
+  id         Int      @id @default(autoincrement())
+  offeringId Int
+  name       String   @db.VarChar(300)
+  sortOrder  Int      @default(0)
+  isActive   Boolean  @default(true)
+  legacyId   Int?
+  createdAt  DateTime @default(now()) @db.DateTime(0)
+  updatedAt  DateTime @updatedAt @db.DateTime(0)
+
+  offering  Offering   @relation(fields: [offeringId], references: [id], onUpdate: Restrict, map: "fk_chapter_offering")
+  questions Question[]
+  videos    Video[]
+
+  @@index([offeringId], map: "idx_chapter_offering")
+  @@map("tq_chapters")
+}
+
+enum QuestionType {
+  SINGLE_MCQ
+  MULTI_MCQ
+  FILL_IN_BLANK
+  PARAGRAPH
+  SUBJECTIVE
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+/// Shared question bank. `text` and option `text` hold cleaned HTML/MathML —
+/// admin and student UIs must RENDER it, never print the raw tags.
+model Question {
+  id          Int          @id @default(autoincrement())
+  subjectId   Int
+  chapterId   Int?
+  type        QuestionType
+  difficulty  Difficulty   @default(MEDIUM)
+  text        String       @db.Text
+  explanation String?      @db.Text
+  correctText String?      @db.Text
+  marks       Int          @default(1)
+  isLegacy    Boolean      @default(false)
+  legacyId    Int?         @unique(map: "uq_question_legacy")
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now()) @db.DateTime(0)
+  updatedAt   DateTime     @updatedAt @db.DateTime(0)
+
+  subject        Subject         @relation(fields: [subjectId], references: [id], onUpdate: Restrict, map: "fk_q_subject")
+  chapter        Chapter?        @relation(fields: [chapterId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_q_chapter")
+  options        QuestionOption[]
+  testQuestions  TestQuestion[]
+  attemptAnswers AttemptAnswer[]
+
+  @@index([chapterId], map: "idx_q_chapter")
+  @@index([subjectId], map: "idx_q_subject")
+  @@map("tq_questions")
+}
+
+model QuestionOption {
+  id         Int     @id @default(autoincrement())
+  questionId Int
+  label      String  @db.VarChar(10)
+  text       String  @db.Text
+  isCorrect  Boolean @default(false)
+  sortOrder  Int     @default(0)
+
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_opt_question")
+
+  @@index([questionId], map: "idx_opt_question")
+  @@map("tq_question_options")
+}
+
+model Test {
+  id              Int      @id @default(autoincrement())
+  offeringId      Int
+  name            String   @db.VarChar(300)
+  description     String?  @db.Text
+  durationMinutes Int      @default(0)
+  totalMarks      Int      @default(0)
+  isFree          Boolean  @default(false)
+  price           Decimal  @default(0.00) @db.Decimal(10, 2)
+  isPractice      Boolean  @default(false)
+  isActive        Boolean  @default(true)
+  isLegacy        Boolean  @default(false)
+  legacyId        Int?     @unique(map: "uq_test_legacy")
+  createdAt       DateTime @default(now()) @db.DateTime(0)
+  updatedAt       DateTime @updatedAt @db.DateTime(0)
+
+  offering  Offering       @relation(fields: [offeringId], references: [id], onUpdate: Restrict, map: "fk_test_offering")
+  questions TestQuestion[]
+  freeTests FreeTest[]
+  attempts  Attempt[]
+
+  @@index([offeringId], map: "idx_test_offering")
+  @@map("tq_tests")
+}
+
+model TestQuestion {
+  id         Int @id @default(autoincrement())
+  testId     Int
+  questionId Int
+  sortOrder  Int @default(0)
+
+  test     Test     @relation(fields: [testId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_tq_test")
+  question Question @relation(fields: [questionId], references: [id], onUpdate: Restrict, map: "fk_tq_question")
+
+  @@unique([testId, questionId], map: "uq_test_question")
+  @@index([questionId], map: "idx_tq_question")
+  @@map("tq_test_questions")
+}
+
+/// The one free sample test per offering.
+model FreeTest {
+  id         Int      @id @default(autoincrement())
+  offeringId Int      @unique(map: "uq_free_offering")
+  testId     Int
+  createdAt  DateTime @default(now()) @db.DateTime(0)
+
+  offering Offering @relation(fields: [offeringId], references: [id], onUpdate: Restrict, map: "fk_free_offering")
+  test     Test     @relation(fields: [testId], references: [id], onUpdate: Restrict, map: "fk_free_test")
+
+  @@index([testId], map: "fk_free_test")
+  @@map("tq_free_tests")
+}
+
+enum VideoProvider {
+  YOUTUBE
+}
+
+model Video {
+  id              Int           @id @default(autoincrement())
+  offeringId      Int
+  chapterId       Int?
+  provider        VideoProvider @default(YOUTUBE)
+  /// YouTube video id only, never the URL — MUST NOT reach clients whose pass
+  /// doesn't cover this offering.
+  videoRef        String        @db.VarChar(32)
+  title           String        @db.VarChar(300)
+  description     String?       @db.Text
+  durationSeconds Int?
+  sortOrder       Int           @default(0)
+  isActive        Boolean       @default(true)
+  createdAt       DateTime      @default(now()) @db.DateTime(0)
+  updatedAt       DateTime      @updatedAt @db.DateTime(0)
+
+  offering Offering @relation(fields: [offeringId], references: [id], onUpdate: Restrict, map: "fk_video_offering")
+  chapter  Chapter? @relation(fields: [chapterId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_video_chapter")
+
+  @@index([chapterId], map: "fk_video_chapter")
+  @@index([offeringId], map: "idx_video_offering")
+  @@map("tq_videos")
+}
+
+// ─── People ─────────────────────────────────────────────
+
+/// Starts EMPTY on the new DB — signups populate it. Legacy students are NOT
+/// migrated. Board/class now live in StudentContext, not on the student row.
+model Student {
+  id            Int      @id @default(autoincrement())
+  name          String   @db.VarChar(150)
+  email         String   @unique(map: "uq_student_email") @db.VarChar(255)
+  passwordHash  String?  @db.VarChar(255)
+  mobile        String?  @db.VarChar(20)
+  googleId      String?  @unique(map: "uq_student_google") @db.VarChar(255)
+  emailVerified Boolean  @default(false)
+  isActive      Boolean  @default(true)
+  /// Unsubscribed from lifecycle mail. Transactional sends (verification,
+  /// password reset, receipts) ignore this — they are records, not marketing.
+  marketingOptOut Boolean @default(false)
+  createdAt     DateTime @default(now()) @db.DateTime(0)
+  updatedAt     DateTime @updatedAt @db.DateTime(0)
+
+  contexts    StudentContext[]
+  attempts    Attempt[]
+  orders      Order[]
+  classAccess ClassAccess[]
+
+  @@map("tq_students")
+}
+
+/// Which board+class contexts a student picked at onboarding (up to 2).
+model StudentContext {
+  id        Int      @id @default(autoincrement())
+  studentId Int
+  boardId   Int
+  classId   Int
+  isPrimary Boolean  @default(false)
+  createdAt DateTime @default(now()) @db.DateTime(0)
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_ctx_student")
+
+  @@unique([studentId, boardId, classId], map: "uq_ctx")
+  @@index([boardId], map: "fk_ctx_board")
+  @@index([classId], map: "fk_ctx_class")
+  @@map("tq_student_contexts")
+}
+
+model Admin {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique(map: "uq_admin_email") @db.VarChar(255)
+  passwordHash String   @db.VarChar(255)
+  name         String?  @db.VarChar(150)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now()) @db.DateTime(0)
+
+  @@map("tq_admins")
+}
+
+enum EmailTokenType {
+  VERIFY
+  RESET
+}
+
+model EmailToken {
+  id        Int            @id @default(autoincrement())
+  studentId Int
+  token     String         @unique(map: "uq_email_token") @db.VarChar(120)
+  type      EmailTokenType
+  expiresAt DateTime       @db.DateTime(0)
+  usedAt    DateTime?      @db.DateTime(0)
+  createdAt DateTime       @default(now()) @db.DateTime(0)
+
+  @@index([studentId], map: "fk_tok_student")
+  @@map("tq_email_tokens")
+}
+
+// ─── Attempts ───────────────────────────────────────────
+
+enum AttemptStatus {
+  IN_PROGRESS
+  COMPLETED
+}
+
+model Attempt {
+  id               Int           @id @default(autoincrement())
+  studentId        Int
+  testId           Int
+  status           AttemptStatus @default(IN_PROGRESS)
+  score            Int           @default(0)
+  totalMarks       Int           @default(0)
+  correctCount     Int           @default(0)
+  wrongCount       Int           @default(0)
+  unansweredCount  Int           @default(0)
+  startedAt        DateTime      @default(now()) @db.DateTime(0)
+  finishedAt       DateTime?     @db.DateTime(0)
+  timeSpentSeconds Int           @default(0)
+  createdAt        DateTime      @default(now()) @db.DateTime(0)
+
+  student Student         @relation(fields: [studentId], references: [id], onUpdate: Restrict, map: "fk_attempt_student")
+  test    Test            @relation(fields: [testId], references: [id], onUpdate: Restrict, map: "fk_attempt_test")
+  answers AttemptAnswer[]
+
+  @@index([studentId], map: "idx_attempt_student")
+  @@index([testId], map: "idx_attempt_test")
+  @@map("tq_attempts")
+}
+
+model AttemptAnswer {
+  id         Int  @id @default(autoincrement())
+  attemptId  Int
+  questionId Int
+  /// JSON array of chosen QuestionOption ids, e.g. "[41,43]". MariaDB stores
+  /// JSON as LONGTEXT, so this is a string — parse/stringify at the edges.
+  selectedOptionIds String?  @db.LongText
+  isCorrect         Boolean?
+  marksAwarded      Int      @default(0)
+  answeredAt        DateTime @default(now()) @db.DateTime(0)
+
+  attempt  Attempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_ans_attempt")
+  question Question @relation(fields: [questionId], references: [id], onUpdate: Restrict, map: "fk_ans_question")
+
+  @@unique([attemptId, questionId], map: "uq_attempt_question")
+  @@index([questionId], map: "fk_ans_question")
+  @@map("tq_attempt_answers")
+}
+
+// ─── Commerce ───────────────────────────────────────────
+
+/// Prepaid Board+Class pass (3/6/12 months). subjectId is NULL at launch;
+/// reserved for future subject-level plans.
+model B2cPlan {
+  id             Int      @id @default(autoincrement())
+  boardId        Int
+  classId        Int
+  subjectId      Int?
+  durationMonths Int
+  price          Decimal  @db.Decimal(10, 2)
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now()) @db.DateTime(0)
+  updatedAt      DateTime @updatedAt @db.DateTime(0)
+
+  orders Order[]
+
+  @@unique([boardId, classId, subjectId, durationMonths], map: "uq_plan")
+  @@index([classId], map: "fk_plan_class")
+  @@index([subjectId], map: "fk_plan_subject")
+  @@map("tq_b2c_plans")
+}
+
+enum OrderItemType {
+  B2C_PLAN
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  FAILED
+}
+
+model Order {
+  id                Int           @id @default(autoincrement())
+  studentId         Int
+  itemType          OrderItemType @default(B2C_PLAN)
+  planId            Int?
+  /// Snapshot of what was bought, so history survives a plan edit.
+  boardId           Int?
+  classId           Int?
+  amount            Decimal       @db.Decimal(10, 2)
+  discount          Decimal       @default(0.00) @db.Decimal(10, 2)
+  finalAmount       Decimal       @db.Decimal(10, 2)
+  couponCode        String?       @db.VarChar(50)
+  status            OrderStatus   @default(PENDING)
+  razorpayOrderId   String?       @db.VarChar(100)
+  razorpayPaymentId String?       @db.VarChar(100)
+  razorpaySignature String?       @db.VarChar(255)
+  createdAt         DateTime      @default(now()) @db.DateTime(0)
+  updatedAt         DateTime      @updatedAt @db.DateTime(0)
+
+  student      Student       @relation(fields: [studentId], references: [id], onUpdate: Restrict, map: "fk_order_student")
+  plan         B2cPlan?      @relation(fields: [planId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_order_plan")
+  classAccess  ClassAccess[]
+  couponUsages CouponUsage[]
+
+  @@index([planId], map: "fk_order_plan")
+  @@index([razorpayOrderId], map: "idx_order_rzp")
+  @@index([studentId], map: "idx_order_student")
+  @@map("tq_orders")
+}
+
+/// The pass a student holds. One row per purchase (history preserved);
+/// renewal inserts a new row so unused days are never lost.
+model ClassAccess {
+  id        Int      @id @default(autoincrement())
+  studentId Int
+  boardId   Int
+  classId   Int
+  planId    Int?
+  orderId   Int?
+  startsAt  DateTime @db.DateTime(0)
+  expiresAt DateTime @db.DateTime(0)
+  createdAt DateTime @default(now()) @db.DateTime(0)
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_access_student")
+  order   Order?  @relation(fields: [orderId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_access_order")
+
+  @@index([boardId], map: "fk_access_board")
+  @@index([classId], map: "fk_access_class")
+  @@unique([orderId], map: "uq_access_order")
+  @@index([planId], map: "fk_access_plan")
+  @@index([studentId, boardId, classId, expiresAt], map: "idx_access_active")
+  @@index([studentId], map: "idx_access_student")
+  @@map("tq_class_access")
+}
+
+enum DiscountType {
+  PERCENT
+  FLAT
+}
+
+model Coupon {
+  id            Int          @id @default(autoincrement())
+  code          String       @unique(map: "uq_coupon_code") @db.VarChar(50)
+  discountType  DiscountType
+  discountValue Decimal      @db.Decimal(10, 2)
+  minOrder      Decimal      @default(0.00) @db.Decimal(10, 2)
+  maxDiscount   Decimal?     @db.Decimal(10, 2)
+  validFrom     DateTime?    @db.DateTime(0)
+  validUntil    DateTime?    @db.DateTime(0)
+  totalLimit    Int?
+  perUserLimit  Int?
+  /// Free-text scope, not an enum in the DB. "ALL" | "FIRST_TIME".
+  scope         String       @default("ALL") @db.VarChar(50)
+  isActive      Boolean      @default(true)
+  createdAt     DateTime     @default(now()) @db.DateTime(0)
+
+  usages CouponUsage[]
+
+  @@map("tq_coupons")
+}
+
+model CouponUsage {
+  id        Int      @id @default(autoincrement())
+  couponId  Int
+  studentId Int
+  orderId   Int
+  createdAt DateTime @default(now()) @db.DateTime(0)
+
+  coupon Coupon @relation(fields: [couponId], references: [id], onUpdate: Restrict, map: "fk_cu_coupon")
+  order  Order  @relation(fields: [orderId], references: [id], onUpdate: Restrict, map: "fk_cu_order")
+
+  @@unique([couponId, orderId], map: "uq_cu_order")
+  @@index([orderId], map: "fk_cu_order")
+  @@index([studentId], map: "fk_cu_student")
+  @@map("tq_coupon_usages")
+}
+
+/// Razorpay redelivers webhooks (at-least-once). The UNIQUE on eventId is what
+/// makes the handler exactly-once: insert first, short-circuit on duplicate.
+model WebhookEvent {
+  id        Int      @id @default(autoincrement())
+  eventId   String   @unique(map: "uq_webhook_event") @db.VarChar(120)
+  eventType String   @db.VarChar(80)
+  createdAt DateTime @default(now()) @db.DateTime(0)
+
+  @@map("tq_webhook_events")
+}
+
+// ─── Ops ────────────────────────────────────────────────
+
+model Event {
+  id         Int      @id @default(autoincrement())
+  studentId  Int?
+  name       String   @db.VarChar(80)
+  /// JSON object as text (MariaDB stores JSON as LONGTEXT).
+  properties String?  @db.LongText
+  createdAt  DateTime @default(now()) @db.DateTime(0)
+
+  @@index([name, createdAt], map: "idx_event_name")
+  @@map("tq_events")
+}
+
+model Setting {
+  settingKey   String   @id @db.VarChar(80)
+  settingValue String?  @db.Text
+  updatedAt    DateTime @updatedAt @db.DateTime(0)
+
+  @@map("tq_settings")
+}
+
+// ════════════════════════════════════════════════════════
+//  ORPHAN MODELS — no table in TquestTestEnv
+// ════════════════════════════════════════════════════════
+//
+// These belong to features built against the OLD database (the coaching/B2B
+// stack, per-test bundles, legacy per-test access). The new decoupled DB has no
+// tables for them, and the admin revamp brief drops bundles outright.
+//
+// They stay here so the ~100 files that reference them still compile while the
+// revamp proceeds phase by phase. Any query against them WILL fail at runtime
+// with "table doesn't exist" — that is expected until the owning routes are
+// retired or re-pointed. Do not add new code against these models.
+//
+// Cross-relations into the live models above have been removed; each orphan is
+// self-contained.
+
+enum OrgType {
+  COACHING_CENTRE
+  SCHOOL
+  B2C_FAMILY
+}
+
+enum OrgRole {
+  OWNER
+  ADMIN
+  TEACHER
+  STUDENT
+  PARENT
+}
+
+/// ORPHAN — no table in TquestTestEnv.
+model Organization {
+  id           Int      @id @default(autoincrement())
+  type         OrgType
+  name         String   @db.VarChar(300)
+  logoUrl      String?  @db.VarChar(500)
+  city         String?  @db.VarChar(100)
+  brandingJson Json?
+  salesJson    Json?
+  parentOrgId  Int?
+  ownerUserId  Int
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  parent        Organization?   @relation("OrgHierarchy", fields: [parentOrgId], references: [id], onDelete: Restrict)
+  children      Organization[]  @relation("OrgHierarchy")
+  memberships   OrgMembership[]
+  batches       Batch[]
+  subscriptions Subscription[]
+  orgQuestions  OrgQuestion[]
+  orgTests      OrgTest[]
+  inviteTokens  InviteToken[]
+  teamInvites   TeamInvite[]
+  assignments   Assignment[]
+
+  @@index([parentOrgId])
+  @@index([ownerUserId])
+  @@map("tq_organizations")
+}
+
+/// ORPHAN — no table in TquestTestEnv.
+model OrgMembership {
+  id       Int      @id @default(autoincrement())
+  orgId    Int
+  userId   Int
+  role     OrgRole
+  isActive Boolean  @default(true)
+  joinedAt DateTime @default(now())
+
+  org Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@unique([orgId, userId, role])
+  @@index([userId])
+  @@index([orgId, role])
+  @@map("tq_org_memberships")
+}
+
+/// ORPHAN — no table in TquestTestEnv.
+model Batch {
+  id          Int      @id @default(autoincrement())
+  orgId       Int
+  name        String   @db.VarChar(200)
+  classId     Int
+  board       String   @db.VarChar(50)
+  subjectsCsv String   @db.VarChar(500)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  org          Organization      @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  enrollments  BatchEnrollment[]
+  inviteTokens InviteToken[]
+  assignments  Assignment[]
+  teachers     BatchTeacher[]
+
+  @@index([orgId])
+  @@map("tq_batches")
+}
+
+/// ORPHAN — no table in TquestTestEnv.
+model BatchTeacher {
+  id         Int      @id @default(autoincrement())
+  batchId    Int
+  userId     Int
+  assignedAt DateTime @default(now())
+  isActive   Boolean  @default(true)
+
+  batch Batch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+
+  @@unique([batchId, userId])
+  @@index([userId])
+  @@index([batchId])
+  @@map("tq_batch_teachers")
+}
+
+/// ORPHAN — no table in TquestTestEnv.
+model Assignment {
+  id           Int       @id @default(autoincrement())
+  orgId        Int
+  batchId      Int
+  testId       Int
+  title        String?   @db.VarChar(300)
+  instructions String?   @db.Text
+  settingsJson Json?
+  dueAt        DateTime?
+  assignedBy   Int
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  org      Organization        @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  batch    Batch               @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  attempts AssignmentAttempt[]
+
+  @@index([orgId])
+  @@index([batchId])
+  @@index([createdAt])
+  @@map("tq_assignments")
+}
+
+/// ORPHAN — no table in TquestTestEnv.
+model AssignmentAttempt {
+  id           Int       @id @default(autoincrement())
+  assignmentId Int
+  studentId    Int
+  attemptToken String    @unique @db.VarChar(80)
+  startedAt    DateTime  @default(now())
+  completedAt  DateTime?
+
+  assignment Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+
+  @@index([assignmentId])
+  @@index([studentId])
+  @@map("tq_assignment_attempts")
+}
+
+/// ORPHAN — no table in TquestTestEnv.
+model BatchEnrollment {
+  id         Int      @id @default(autoincrement())
+  batchId    Int
+  studentId  Int
+  isActive   Boolean  @default(true)
+  enrolledAt DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  batch Batch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+
+  @@unique([batchId, studentId])
+  @@index([studentId])
+  @@map("tq_batch_enrollments")
+}
+
+enum PlanAudience {
+  B2C
+  COACHING_CENTRE
+  SCHOOL
+}
+
+enum PricingModel {
+  PER_SEAT
+  FLAT
+  TIERED
+}
+
+enum BillingCycle {
+  MONTHLY
+  QUARTERLY
+  ANNUAL
+}
+
+enum SubscriptionStatus {
+  TRIAL
+  ACTIVE
+  GRACE
+  EXPIRED
+  CANCELLED
+}
+
+/// ORPHAN — no table in TquestTestEnv.
+model SubscriptionPlan {
+  id             Int          @id @default(autoincrement())
+  name           String       @db.VarChar(120)
+  targetAudience PlanAudience
+  pricingModel   PricingModel
+  featuresJson   Json?
+  durationDays   Int
+  basePrice      Decimal      @db.Decimal(10, 2)
+  isActive       Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  subscriptions Subscription[]
+
+  @@index([targetAudience])
+  @@map("tq_subscription_plans")
+}
+
+/// ORPHAN — no table in TquestTestEnv.
+model Subscription {
+  id                     Int                @id @default(autoincrement())
+  orgId                  Int?
+  studentId              Int?
+  planId                 Int
+  seatsPurchased         Int                @default(1)
+  seatsUsed              Int                @default(0)
+  startsAt               DateTime           @default(now())
+  expiresAt              DateTime
+  billingCycle           BillingCycle       @default(ANNUAL)
+  autoRenew              Boolean            @default(false)
+  status                 SubscriptionStatus @default(TRIAL)
+  razorpayCustomerId     String?            @db.VarChar(64)
+  razorpaySubscriptionId String?            @db.VarChar(64)
+  razorpayMeta           Json?
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
+
+  org  Organization?    @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  plan SubscriptionPlan @relation(fields: [planId], references: [id])
+
+  @@unique([razorpaySubscriptionId], map: "uniq_rzp_sub")
+  @@index([orgId])
+  @@index([studentId])
+  @@index([status])
+  @@index([expiresAt])
+  @@map("tq_subscriptions")
+}
+
+/// ORPHAN — no table in TquestTestEnv.
+model InviteToken {
+  id        Int       @id @default(autoincrement())
+  token     String    @unique @db.VarChar(64)
+  batchId   Int
+  orgId     Int
+  createdBy Int
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  batch Batch        @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  org   Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([batchId])
+  @@index([orgId])
+  @@index([expiresAt])
+  @@map("tq_invite_tokens")
+}
+
+enum TeamInviteRole {
+  ADMIN
+  TEACHER
+}
+
+/// ORPHAN — no table in TquestTestEnv.
+model TeamInvite {
+  id         Int            @id @default(autoincrement())
+  orgId      Int
+  email      String         @db.VarChar(255)
+  name       String         @db.VarChar(200)
+  role       TeamInviteRole
+  token      String         @unique @db.VarChar(64)
+  invitedBy  Int
+  expiresAt  DateTime
+  acceptedAt DateTime?
+  revokedAt  DateTime?
+  createdAt  DateTime       @default(now())
+
+  org Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+  @@index([email])
+  @@index([expiresAt])
+  @@map("tq_team_invites")
+}
+
+/// ORPHAN — no table in TquestTestEnv.
+model OtpCode {
+  id        Int       @id @default(autoincrement())
+  mobile    String    @db.VarChar(20)
+  codeHash  String    @db.VarChar(255)
+  purpose   String    @db.VarChar(40)
+  attempts  Int       @default(0)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([mobile, purpose])
+  @@index([expiresAt])
+  @@map("tq_otp_codes")
+}
+
+/// ORPHAN — no table in TquestTestEnv.
+model OrgQuestion {
+  id               Int      @id @default(autoincrement())
+  orgId            Int
+  legacyQuestionId Int
+  createdBy        Int
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  org Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@unique([orgId, legacyQuestionId])
+  @@index([orgId])
+  @@map("tq_org_questions")
+}
+
+/// ORPHAN — no table in TquestTestEnv.
+model OrgTest {
+  id           Int      @id @default(autoincrement())
+  orgId        Int
+  legacyTestId Int
+  createdBy    Int
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  org Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@unique([orgId, legacyTestId])
+  @@index([orgId])
+  @@index([legacyTestId])
+  @@map("tq_org_tests")
+}
+
+/// ORPHAN — no table in TquestTestEnv.
+model WeeklyReportRun {
+  id                Int      @id @default(autoincrement())
+  orgId             Int
+  studentId         Int
+  batchId           Int
+  weekKey           String   @db.Char(10)
+  pdfUrl            String?  @db.VarChar(500)
+  deliveredChannels String?  @db.VarChar(100)
+  sentAt            DateTime @default(now())
+  skippedReason     String?  @db.VarChar(200)
+
+  @@unique([orgId, studentId, batchId, weekKey], map: "tq_wrr_uniq")
+  @@index([orgId, weekKey], map: "tq_wrr_org_week")
+  @@map("tq_weekly_report_runs")
+}
+
+/// ORPHAN — no table in TquestTestEnv. Bundles are dropped in the new model.
+model Bundle {
+  id           Int      @id @default(autoincrement())
+  name         String   @db.VarChar(300)
+  description  String?  @db.Text
+  price        Decimal  @db.Decimal(10, 2)
+  validityDays Int
+  classId      Int?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  tests BundleTest[]
+
+  @@map("tq_bundles")
+}
+
+/// ORPHAN — no table in TquestTestEnv.
+model BundleTest {
+  id       Int @id @default(autoincrement())
+  bundleId Int
+  testId   Int
+
+  bundle Bundle @relation(fields: [bundleId], references: [id], onDelete: Cascade)
+
+  @@unique([bundleId, testId])
+  @@map("tq_bundle_tests")
+}
+
+/// ORPHAN — no table in TquestTestEnv. Superseded by ClassAccess (board+class
+/// passes) — the new model has no per-test access.
+model StudentAccess {
+  id        Int       @id @default(autoincrement())
+  studentId Int
+  testId    Int
+  orderId   Int?
+  expiresAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@unique([studentId, testId])
+  @@index([expiresAt])
+  @@map("tq_student_access")
+}
+
+/// ORPHAN — no table in TquestTestEnv. Superseded by EmailToken (type=RESET).
+model PasswordResetToken {
+  id        Int       @id @default(autoincrement())
+  email     String    @db.VarChar(200)
+  token     String    @unique @db.VarChar(255)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([email])
+  @@map("tq_password_reset_tokens")
+}
+
+/// ORPHAN — no table in TquestTestEnv. Tests now attach to an offering and
+/// carry their chapter through the questions they contain.
+model ChapterTest {
+  id        Int      @id @default(autoincrement())
+  chapterId Int
+  testId    Int
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@unique([chapterId, testId])
+  @@index([testId])
+  @@map("tq_chapter_tests")
+}
+
+/// One row per email actually sent. The unique key IS the idempotency: a
+/// repeated (kind, studentId, refKey) insert fails, and the send is skipped —
+/// which is what makes cron re-runs and retried webhooks safe.
+model EmailSend {
+  id                Int      @id @default(autoincrement())
+  /// Template identity, e.g. "receipt", "expiry_t7".
+  kind              String   @db.VarChar(60)
+  studentId         Int
+  /// What makes this send unique — "order:412", "access:88:T-7".
+  refKey            String   @db.VarChar(120)
+  providerMessageId String?  @db.VarChar(200)
+  sentAt            DateTime @default(now()) @db.DateTime(0)
+
+  @@unique([kind, studentId, refKey], map: "uq_email_send")
+  @@index([studentId], map: "idx_email_send_student")
+  @@index([sentAt], map: "idx_email_send_sent")
+  @@map("tq_email_sends")
+}

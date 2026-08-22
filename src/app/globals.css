@@ -1,0 +1,454 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ============================================================
+   TESTQUEST — Purple brand, light mode is primary
+   White background · Purple #6134EB primary · Lavender accents
+   Brand: #6134EB / #642CC8 / #140C3D / #815FE9 / #A790EA / #FFFFFF
+   ============================================================ */
+
+:root {
+  /* Base — light (default) */
+  --background:        oklch(1 0 0);                     /* #FFFFFF */
+  --surface:           oklch(0.985 0.008 295);
+  --surface-hi:        oklch(0.965 0.016 295);
+  --foreground:        oklch(0.205 0.089 282.7);         /* #140C3D dark indigo */
+  --muted:             oklch(0.965 0.016 295);
+  --muted-foreground:  oklch(0.49 0.05 290);
+
+  --card:              oklch(1 0 0);
+  --card-foreground:   oklch(0.205 0.089 282.7);
+  --popover:           oklch(1 0 0);
+  --popover-foreground:oklch(0.205 0.089 282.7);
+
+  /* Brand — primary purple #6134EB */
+  --primary:           oklch(0.508 0.251 284.3);
+  --primary-foreground:oklch(1 0 0);
+  --primary-dim:       oklch(0.508 0.251 284.3 / 0.10);
+  --primary-glow:      0 8px 32px oklch(0.508 0.251 284.3 / 0.25);
+
+  /* Accent — light purple #815FE9 */
+  --accent:            oklch(0.592 0.199 290.3);
+  --accent-foreground: oklch(1 0 0);
+  --accent-dim:        oklch(0.592 0.199 290.3 / 0.12);
+
+  --secondary:         oklch(0.95 0.025 295);            /* lavender tint */
+  --secondary-foreground: oklch(0.205 0.089 282.7);
+
+  --destructive:       oklch(0.58 0.22 25);
+  --destructive-foreground: oklch(1 0 0);
+
+  --border:            oklch(0.32 0.06 290 / 0.14);
+  --input:             oklch(0.32 0.06 290 / 0.16);
+  --ring:              oklch(0.508 0.251 284.3);
+
+  --radius:            0.75rem;
+
+  /* Semantic score colors */
+  --score-strong:      oklch(0.60 0.15 150);
+  --score-on-track:    oklch(0.70 0.15 70);
+  --score-needs-work:  oklch(0.58 0.22 25);
+
+  /* Chart palette */
+  --chart-1: oklch(0.508 0.251 284.3);   /* primary purple */
+  --chart-2: oklch(0.710 0.130 294.6);   /* soft lavender #A790EA */
+  --chart-3: oklch(0.60 0.15 150);       /* green */
+  --chart-4: oklch(0.65 0.18 350);       /* pink */
+  --chart-5: oklch(0.62 0.15 250);       /* blue */
+  /* B2C handoff roles (design_handoff_b2c_web) */
+  --wash:            #F4F0FE;  /* section bg, locked fills, selected rows */
+  --bg-alt:          #FBFAFE;
+  --ink:             #140C3D;  /* headings + body */
+  --text-secondary:  #4B426E;
+  --text-muted-2:    #837CA3;  /* captions/meta, large/secondary only */
+  /* #642CC8 — the deeper primary the handoff uses for small emphatic links
+     (the switcher's "Add a class" row, "View all"). 7.7:1 on white, so it
+     stays AA at the 11–13.5px sizes those call for, which --primary is not
+     guaranteed to be. */
+  --primary-deep:    oklch(0.469 0.220 291.8);
+  /* #A790EA — the soft lavender already used by --chart-2; promoted to a
+     named role for banner decor, trend dots, and the dark-mode deep primary. */
+  --lavender:        oklch(0.710 0.130 294.6);
+  --success:         #1B8A5A;
+  --success-tint:    #EAF7F0;
+  --warning:         #B45309;
+  --warning-tint:    #FDF3E7;
+  --error:           #D92D20;
+  --error-tint:      #FCEEE9;
+}
+
+/* Dark mode — deep indigo derived from #140C3D */
+.dark {
+  --background:        oklch(0.16 0.055 285);
+  --surface:           oklch(0.205 0.06 285);
+  --surface-hi:        oklch(0.255 0.065 285);
+  --foreground:        oklch(0.96 0.01 290);
+  --muted:             oklch(0.255 0.065 285);
+  --muted-foreground:  oklch(0.64 0.05 290);
+
+  --card:              oklch(0.205 0.06 285);
+  --card-foreground:   oklch(0.96 0.01 290);
+  --popover:           oklch(0.205 0.06 285);
+  --popover-foreground:oklch(0.96 0.01 290);
+
+  /* Primary lightened for dark surfaces (≈ #815FE9) */
+  --primary:           oklch(0.62 0.21 288);
+  --primary-foreground:oklch(1 0 0);
+  --primary-dim:       oklch(0.62 0.21 288 / 0.16);
+  --primary-glow:      0 8px 32px oklch(0.62 0.21 288 / 0.45);
+
+  /* Accent — soft lavender #A790EA */
+  --accent:            oklch(0.710 0.130 294.6);
+  --accent-foreground: oklch(0.16 0.055 285);
+  --accent-dim:        oklch(0.710 0.130 294.6 / 0.15);
+
+  --secondary:         oklch(0.255 0.065 285);
+  --secondary-foreground: oklch(0.96 0.01 290);
+
+  --destructive:       oklch(0.70 0.15 355);
+  --destructive-foreground: oklch(0.99 0 0);
+
+  --border:            oklch(1 0 0 / 0.10);
+  --input:             oklch(1 0 0 / 0.10);
+  --ring:              oklch(0.62 0.21 288);
+
+  /* Semantic score colors */
+  --score-strong:      oklch(0.68 0.16 150);
+  --score-on-track:    oklch(0.78 0.15 70);
+  --score-needs-work:  oklch(0.65 0.20 25);
+
+  /* Chart palette */
+  --chart-1: oklch(0.62 0.21 288);
+  --chart-2: oklch(0.710 0.130 294.6);
+  --chart-3: oklch(0.68 0.16 150);
+  --chart-4: oklch(0.70 0.16 350);
+  --chart-5: oklch(0.68 0.14 250);
+  /* B2C handoff roles — dark */
+  --wash:            #251C5E;  /* raised fill on dark */
+  --bg-alt:          #181040;
+  --ink:             #F1EDFF;
+  --text-secondary:  #C0B5EA;
+  --text-muted-2:    #948BC4;
+  /* On dark, #642CC8 is near-invisible against #1D1550, so the handoff swaps
+     the deep primary for lavender. Same role, legible ground: 6.1:1 on card. */
+  --primary-deep:    oklch(0.710 0.130 294.6);
+  --lavender:        oklch(0.710 0.130 294.6);
+  --success:         #45C990;
+  --success-tint:    color-mix(in oklab, #45C990 14%, transparent);
+  --warning:         #E1A03C;
+  --warning-tint:    color-mix(in oklab, #E1A03C 14%, transparent);
+  --error:           #F97066;
+  --error-tint:      color-mix(in oklab, #F97066 14%, transparent);
+}
+
+@theme inline {
+  --font-display: var(--font-display);
+  --font-sans: var(--font-sans);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-surface: var(--surface);
+  --color-surface-hi: var(--surface-hi);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --color-wash: var(--wash);
+  --color-bg-alt: var(--bg-alt);
+  --color-ink: var(--ink);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted-2: var(--text-muted-2);
+  --color-primary-deep: var(--primary-deep);
+  --color-lavender: var(--lavender);
+  --color-success: var(--success);
+  --color-success-tint: var(--success-tint);
+  --color-warning: var(--warning);
+  --color-warning-tint: var(--warning-tint);
+  --color-error: var(--error);
+  --color-error-tint: var(--error-tint);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  html {
+    color-scheme: light;
+  }
+  html.dark {
+    color-scheme: dark;
+  }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans), system-ui, sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  .font-display {
+    font-family: var(--font-display), system-ui, sans-serif;
+    letter-spacing: -0.01em;
+  }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: oklch(0 0 0 / 0.15); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: oklch(0 0 0 / 0.25); }
+  .dark ::-webkit-scrollbar-thumb { background: oklch(1 0 0 / 0.12); }
+  .dark ::-webkit-scrollbar-thumb:hover { background: oklch(1 0 0 / 0.2); }
+}
+
+/* ============================================================
+   Meridian utilities
+   ============================================================ */
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+  .text-pretty  { text-wrap: pretty; }
+
+  /* ── Rendered question / option content (see components/rich-text.tsx) ──
+     Migrated legacy HTML: paragraphs, tables, images, sub/sup and native
+     MathML. Styled to sit inside dense admin tables without blowing up row
+     height, and to stay readable in both themes. */
+  .tq-rich { font-size: 0.8125rem; line-height: 1.55; color: var(--foreground); overflow-wrap: anywhere; }
+  .tq-rich > :first-child { margin-top: 0; }
+  .tq-rich > :last-child  { margin-bottom: 0; }
+  .tq-rich p { margin: 0.25em 0; }
+  .tq-rich b, .tq-rich strong { font-weight: 600; }
+  .tq-rich sub, .tq-rich sup { font-size: 0.72em; line-height: 0; }
+  .tq-rich ul, .tq-rich ol { margin: 0.25em 0; padding-inline-start: 1.25em; }
+  .tq-rich ul { list-style: disc; }
+  .tq-rich ol { list-style: decimal; }
+
+  /* Images are frequently full-width scans; cap them so a row stays a row. */
+  .tq-rich img {
+    display: inline-block; max-width: 100%; height: auto;
+    max-height: 14rem; vertical-align: middle;
+    border-radius: 0.25rem; background: white;
+  }
+
+  /* Legacy tables carry border/cellpadding attributes; normalise them. */
+  .tq-rich table {
+    border-collapse: collapse; margin: 0.4em 0;
+    max-width: 100%; display: block; overflow-x: auto;
+  }
+  .tq-rich td, .tq-rich th {
+    border: 1px solid var(--border); padding: 0.25rem 0.5rem;
+    text-align: start; vertical-align: top;
+  }
+  .tq-rich th { font-weight: 600; background: var(--surface-hi); }
+
+  /* Native MathML. Wide expressions scroll rather than stretch the layout. */
+  .tq-rich math { font-size: 1.05em; max-width: 100%; }
+  .tq-rich math[display="block"] { display: block; overflow-x: auto; margin: 0.4em 0; }
+
+  .tq-rich-inline, .tq-rich-inline p { display: inline; margin: 0; }
+
+  /* Dense-table preview: clamp to N lines, full markup still in the DOM. */
+  .tq-rich-clamp {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: var(--tq-clamp, 2);
+    line-clamp: var(--tq-clamp, 2);
+    overflow: hidden;
+  }
+  .tq-rich-clamp img { max-height: 3.5rem; }
+  /* Many legacy questions wrap their whole body in a table. Hiding it would
+     blank the preview, so flatten it to inline text instead — the content and
+     its MathML still render, just without grid furniture. */
+  .tq-rich-clamp table,
+  .tq-rich-clamp tbody,
+  .tq-rich-clamp thead,
+  .tq-rich-clamp tr,
+  .tq-rich-clamp td,
+  .tq-rich-clamp th {
+    display: inline; border: none; padding: 0; margin: 0;
+    background: none; overflow: visible;
+  }
+  .tq-rich-clamp td::after, .tq-rich-clamp th::after { content: " "; }
+  .tq-rich-clamp p { display: inline; }
+
+  /* Backgrounds */
+  .bg-surface       { background-color: var(--surface); }
+  .bg-surface-hi    { background-color: var(--surface-hi); }
+  .bg-primary-dim   { background-color: var(--primary-dim); }
+  .bg-accent-dim    { background-color: var(--accent-dim); }
+
+  .text-primary-fg     { color: var(--primary-foreground); }
+  .border-strong       { border-color: oklch(0 0 0 / 0.18); }
+  .dark .border-strong { border-color: oklch(1 0 0 / 0.18); }
+
+  /* Grid + glows */
+  .bg-grid {
+    background-image:
+      linear-gradient(oklch(0 0 0 / 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, oklch(0 0 0 / 0.04) 1px, transparent 1px);
+    background-size: 64px 64px;
+  }
+  .dark .bg-grid {
+    background-image:
+      linear-gradient(oklch(1 0 0 / 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, oklch(1 0 0 / 0.035) 1px, transparent 1px);
+  }
+
+  /* Brand glows — follow the tokens (names kept for existing callers) */
+  .bg-glow-gold {
+    background: radial-gradient(circle, color-mix(in oklab, var(--primary) 11%, transparent), transparent 62%);
+  }
+  .bg-glow-teal {
+    background: radial-gradient(circle, color-mix(in oklab, var(--accent) 9%, transparent), transparent 62%);
+  }
+
+  /* Shadows */
+  .shadow-soft {
+    box-shadow: 0 1px 2px oklch(0 0 0 / 0.04), 0 8px 24px -8px oklch(0 0 0 / 0.08);
+  }
+  .dark .shadow-soft {
+    box-shadow: 0 4px 24px oklch(0 0 0 / 0.32);
+  }
+  .shadow-gold {
+    box-shadow: var(--primary-glow);
+  }
+  .shadow-lift {
+    box-shadow: 0 2px 4px oklch(0 0 0 / 0.04), 0 24px 48px -12px oklch(0 0 0 / 0.18);
+  }
+  .dark .shadow-lift {
+    box-shadow: 0 10px 40px oklch(0 0 0 / 0.45);
+  }
+}
+
+/* ============================================================
+   Meridian keyframes
+   ============================================================ */
+@keyframes slideUp {
+  from { transform: translateY(44px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+@keyframes slideInR {
+  from { transform: translateX(56px); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes pulseGold {
+  0%, 100% { box-shadow: var(--primary-glow); }
+  50%      { box-shadow: 0 8px 52px color-mix(in oklab, var(--primary) 60%, transparent); }
+}
+@keyframes glow {
+  0%, 100% { opacity: 0.09; }
+  50%      { opacity: 0.17; }
+}
+@keyframes float0 { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
+@keyframes float1 { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-11px); } }
+@keyframes float2 { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+@keyframes float3 { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-13px); } }
+@keyframes ticker          { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+@keyframes carouselScroll  { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+/* --- Decorative animation patterns (ANIMATIONS.md) --- */
+
+/* Pattern 1 — Quest Constellation node pulse */
+@keyframes tq-node-pulse {
+  0%, 100% { opacity: 0.22; }
+  50%      { opacity: 0.55; }
+}
+
+/* Pattern 2 — Achievement pulse rings */
+@keyframes tq-ring-expand {
+  0%   { transform: scale(0.4); opacity: 0.55; }
+  100% { transform: scale(var(--tq-final-scale, 2.4)); opacity: 0; }
+}
+
+/* Pattern 3 — Drifting formulas */
+@keyframes tq-formula-drift {
+  0%   { transform: translate(0, 0); opacity: 0; }
+  12%  { opacity: var(--tq-formula-op, 0.08); }
+  88%  { opacity: var(--tq-formula-op, 0.08); }
+  100% { transform: translate(1400px, -1000px); opacity: 0; }
+}
+
+/* Pattern 4 — Rotating yantra fallback (SVG uses animateTransform) */
+@keyframes tq-rotate-cw  { to { transform: rotate(360deg); } }
+@keyframes tq-rotate-ccw { to { transform: rotate(-360deg); } }
+
+.tq-yantra-position {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+@layer utilities {
+  .animate-slide-up   { animation: slideUp 0.65s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .animate-slide-in-r { animation: slideInR 0.65s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .animate-fade-in    { animation: fadeIn 0.75s ease both; }
+  .animate-pulse-gold { animation: pulseGold 2.8s ease-in-out infinite; }
+  .animate-glow       { animation: glow 5s ease-in-out infinite; }
+  .animate-float-0    { animation: float0 4.6s ease-in-out infinite; }
+  .animate-float-1    { animation: float1 5.3s ease-in-out infinite; }
+  .animate-float-2    { animation: float2 4.1s ease-in-out infinite; }
+  .animate-float-3    { animation: float3 5.8s ease-in-out infinite; }
+  .animate-ticker     { animation: ticker 28s linear infinite; }
+  .animate-carousel   { animation: carouselScroll 38s linear infinite; }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-slide-up,
+  .animate-slide-in-r,
+  .animate-fade-in,
+  .animate-pulse-gold,
+  .animate-glow,
+  .animate-float-0,
+  .animate-float-1,
+  .animate-float-2,
+  .animate-float-3,
+  .animate-ticker,
+  .animate-carousel {
+    animation: none;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  /* Decorative patterns — render static */
+  [data-tq-decor] *,
+  [data-tq-decor] {
+    animation: none !important;
+  }
+}
