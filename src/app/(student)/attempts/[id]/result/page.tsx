@@ -6,58 +6,76 @@ import { SecondaryBar } from "@/components/student/student-shell";
 import { PoweredByTestquest } from "@/components/student/powered-by-testquest";
 import { Button } from "@/components/ui/button";
 import {
-  Trophy, CheckCircle2, XCircle, MinusCircle, ChevronLeft, Lock, Loader2, AlertCircle, ArrowRight, Sparkles,
+  Trophy, CheckCircle2, XCircle, MinusCircle, Lock, Loader2, AlertCircle, ArrowRight, Sparkles, Clock,
 } from "lucide-react";
 import { cn, friendlyAuthError } from "@/lib/utils";
 import { RichText } from "@/components/rich-text";
 import { Paywall } from "@/components/student/paywall";
+import type {
+  AttemptResultResponse, AttemptResultQuestion,
+} from "@/app/api/attempts/[id]/result/route";
 
-interface QuestionResult {
-  index: number;
-  id: number;
-  type: string;
-  text: string;
-  marks: number;
-  chapter: { id: number; name: string };
-  isCorrect: boolean;
-  marksAwarded: number;
-  skipped: boolean;
-  studentAnswer: { selectedOptionId: number | null; selectedOption: { id: number; label: string; text: string } | null; fillAnswer: string | null };
-  correctAnswer?: { options: { id: number; label: string; text: string }[]; correctText: string | null };
-  explanation?: string | null;
-  allOptions?: { id: number; label: string; text: string; isCorrect: boolean }[];
-  solutionLocked?: boolean;
-}
+/**
+ * The shape comes from the route, not from here.
+ *
+ * This page used to declare its own `Result` interface. `r.json()` is `any`, so
+ * that interface was never checked against what the route sent — it drifted,
+ * the page read `summary.correct` off `undefined`, and a paying student got a
+ * white screen while `tsc` and `next build` stayed green. Importing the route's
+ * own type means the next rename is a build error instead.
+ */
+type Result = AttemptResultResponse;
+type QuestionResult = AttemptResultQuestion;
 
-interface Result {
-  id: number;
-  test: { id: number; name: string; durationMinutes: number; totalMarks: number; isFree: boolean };
-  status: string;
-  score: number;
-  totalMarks: number;
-  percentage: string | number;
-  timeSpentSeconds: number;
-  finishedAt: string;
-  summary: { total: number; correct: number; incorrect: number; skipped: number };
-  showSolutions: boolean;
-  solutionsLocked?: boolean;
-  upsell?: { boardId: number; classId: number; minPrice: number | null } | null;
-  questions: QuestionResult[];
-}
+/**
+ * Why a load failed, when that changes what we should say.
+ *
+ * `unsubmitted` is not an error the student caused — the attempt exists and is
+ * theirs, they simply have not finished it. It earns a way back into the paper
+ * rather than a dead end.
+ */
+type ErrorKind = "unsubmitted" | "notfound";
 
 export default function ResultPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const [result, setResult] = useState<Result | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [errorKind, setErrorKind] = useState<ErrorKind>("notfound");
   const [showSolutions, setShowSolutions] = useState(true);
   const [paywallOpen, setPaywallOpen] = useState(false);
 
   useEffect(() => {
-    fetch(`/api/attempts/${id}/result`).then((r) => r.json()).then((d) => {
-      if (d.ok) setResult(d.data);
-      else setError(friendlyAuthError(d.error, "Could not load this result"));
-    }).finally(() => setLoading(false));
+    fetch(`/api/attempts/${id}/result`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (!d.ok) {
+          // 400 from this route means one specific thing: the attempt is real
+          // and theirs, but unfinished. That deserves a way back into the
+          // paper, not a generic failure.
+          setErrorKind(/hasn't been submitted/i.test(String(d.error)) ? "unsubmitted" : "notfound");
+          setError(friendlyAuthError(d.error, "Could not load this result"));
+          return;
+        }
+
+        // A payload missing the parts this page renders is a failed load, not
+        // something to render around. Reading `summary.correct` off a response
+        // that never carried `summary` is exactly how this page white-screened;
+        // defaulting the number to 0 would have been worse — a fabricated score.
+        const payload = d.data as Partial<Result> | undefined;
+        if (!payload?.summary || !Array.isArray(payload.questions)) {
+          setErrorKind("notfound");
+          setError("This result came back incomplete. Please try again.");
+          return;
+        }
+
+        setResult(payload as Result);
+      })
+      .catch(() => {
+        setErrorKind("notfound");
+        setError("Could not load this result");
+      })
+      .finally(() => setLoading(false));
   }, [id]);
 
   if (loading) {
@@ -65,13 +83,39 @@ export default function ResultPage({ params }: { params: Promise<{ id: string }>
   }
 
   if (!result) {
+    // One branch, two honest endings. An unfinished attempt is not a failure
+    // state — the student's answers are still sitting there, so the primary
+    // action is to go back and finish, not to be told something went wrong.
+    const unsubmitted = errorKind === "unsubmitted";
     return (
       <div className="mx-auto max-w-md px-4 py-24 text-center">
-        <AlertCircle className="mx-auto h-12 w-12 text-muted-foreground" />
-        <h2 className="mt-6 font-display text-3xl">{error || "Result not found"}</h2>
-        <Button asChild className="mt-8 bg-primary text-primary-foreground hover:bg-primary/90 shadow-gold">
-          <Link href="/dashboard">Back to home <ArrowRight className="h-4 w-4" /></Link>
-        </Button>
+        {unsubmitted
+          ? <Clock className="mx-auto h-12 w-12 text-primary" />
+          : <AlertCircle className="mx-auto h-12 w-12 text-muted-foreground" />}
+        <h2 className="mt-6 font-display text-3xl">
+          {unsubmitted ? "You haven't finished this test yet" : (error || "Result not found")}
+        </h2>
+        {unsubmitted && (
+          <p className="mt-2 text-sm text-muted-foreground">
+            Your answers are saved. Pick up where you left off and submit to see your score.
+          </p>
+        )}
+        {unsubmitted ? (
+          <>
+            <Button asChild className="mt-8 h-11 bg-primary text-primary-foreground hover:bg-primary/90 shadow-gold">
+              <Link href={`/attempts/${id}`}>Resume test <ArrowRight className="h-4 w-4" /></Link>
+            </Button>
+            <div className="mt-3">
+              <Link href="/dashboard" className="text-sm font-semibold text-text-secondary hover:text-ink">
+                Back to home
+              </Link>
+            </div>
+          </>
+        ) : (
+          <Button asChild className="mt-8 h-11 bg-primary text-primary-foreground hover:bg-primary/90 shadow-gold">
+            <Link href="/dashboard">Back to home <ArrowRight className="h-4 w-4" /></Link>
+          </Button>
+        )}
       </div>
     );
   }
@@ -98,9 +142,16 @@ export default function ResultPage({ params }: { params: Promise<{ id: string }>
                 <Trophy className="h-3.5 w-3.5" /><span>Test complete</span>
               </div>
               <h1 className="mt-5 font-display text-3xl md:text-4xl leading-tight">{result.test.name}</h1>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Finished {new Date(result.finishedAt).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })}
-              </p>
+              {/* `finishedAt` is nullable on the model. The route only serves
+                  COMPLETED attempts, so in practice it is always set — but the
+                  old hand-written interface claimed it was non-null, and
+                  `new Date(null)` would have printed "1 January 1970" rather
+                  than failing. Omit the line instead of inventing a date. */}
+              {result.finishedAt && (
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Finished {new Date(result.finishedAt).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })}
+                </p>
+              )}
 
               <div className="mt-8 flex items-end gap-6 flex-wrap">
                 {result.solutionsLocked ? (
