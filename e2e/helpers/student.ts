@@ -132,3 +132,47 @@ export async function findScopeWithVideo() {
   });
   return video ? { videoId: video.id, ...video.offering } : null;
 }
+
+/**
+ * A free-sample test that actually has questions, with the offering it sits on.
+ *
+ * The result-page suite needs a paper a student can genuinely sit end to end,
+ * and it needs the offering id separately from the subject id — those two being
+ * conflated is one of the bugs under test.
+ */
+export async function findFreeSampleWithQuestions() {
+  const sample = await prisma.freeTest.findFirst({
+    where: {
+      offering: { isActive: true },
+      test: { isActive: true, questions: { some: {} } },
+    },
+    select: {
+      testId: true,
+      offering: {
+        select: {
+          id: true, boardId: true, classId: true,
+          subject: { select: { id: true, name: true } },
+        },
+      },
+    },
+    orderBy: { id: "asc" },
+  });
+  if (!sample) return null;
+  return {
+    testId: sample.testId,
+    offeringId: sample.offering.id,
+    boardId: sample.offering.boardId,
+    classId: sample.offering.classId,
+    subjectId: sample.offering.subject.id,
+    subjectName: sample.offering.subject.name,
+  };
+}
+
+/** Puts a student in a board+class so scoped pages will render for them. */
+export async function giveContext(studentId: number, boardId: number, classId: number) {
+  await prisma.studentContext.upsert({
+    where: { studentId_boardId_classId: { studentId, boardId, classId } },
+    create: { studentId, boardId, classId, isPrimary: true },
+    update: {},
+  });
+}
