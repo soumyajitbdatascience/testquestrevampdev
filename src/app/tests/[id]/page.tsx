@@ -228,7 +228,13 @@ function TestDetailPageInner({ params }: { params: Promise<{ id: string }> }) {
               </ul>
             </div>
 
-            {test.lastAttempt && test.lastAttempt.percentage !== null && (
+            {/* Only a finished attempt has a result to view. `percentage` is
+                computed for every attempt — 0 when nothing is scored yet — so
+                gating on it offered "View result" for a paper still in
+                progress, and the link answered 400. An unfinished attempt has
+                exactly one correct affordance, and it is the Resume button in
+                the sticky panel below. */}
+            {test.lastAttempt && test.lastAttempt.status === "COMPLETED" && (
               <div className="rounded-2xl border bg-surface p-6 flex items-center gap-5">
                 <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-gold">
                   <Trophy className="h-6 w-6" />

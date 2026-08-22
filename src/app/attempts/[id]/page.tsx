@@ -64,6 +64,17 @@ export default function AttemptPage({ params }: { params: Promise<{ id: string }
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [showPaletteSheet, setShowPaletteSheet] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /**
+   * Submit failures are kept apart from `error` on purpose.
+   *
+   * `error` means the attempt could not be loaded, and the render short-circuits
+   * to a full-page card. Routing a failed submit through it took the student
+   * off the paper they had just spent an hour on and replaced it with
+   * "Back to home" — their answers were safe on the server, but the only way
+   * back to them was to navigate again. A submit failure is recoverable, so it
+   * belongs inline next to the retry.
+   */
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const saveTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -123,19 +134,38 @@ export default function AttemptPage({ params }: { params: Promise<{ id: string }
     });
   }
 
-  async function autoSubmit() {
+  /**
+   * Sends the paper. Navigates only when the server confirms it landed.
+   *
+   * The previous auto-submit fired and pushed to the result page without
+   * reading the response, so a network drop at the exact moment the timer hit
+   * zero sent the student to a result page for an attempt that was never
+   * submitted — which the result API answers with "This attempt hasn't been
+   * submitted yet". The worst possible moment to lose an hour of work.
+   */
+  async function submitAttempt(auto: boolean) {
     setSubmitting(true);
-    await fetch(`/api/attempts/${id}/submit`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ auto: true }) });
-    router.push(`/attempts/${id}/result`);
+    setSubmitError(null);
+    try {
+      const res = await fetch(`/api/attempts/${id}/submit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ auto }),
+      });
+      const data = await res.json();
+      if (data.ok) { router.push(`/attempts/${id}/result`); return; }
+      setSubmitError(friendlyAuthError(data.error, "Submit failed"));
+    } catch {
+      setSubmitError("Couldn't reach the server. Your answers are saved — check your connection and submit again.");
+    }
+    // Auto-submit runs with no modal open, so a silent failure would leave the
+    // student on a timer reading zero with nothing to act on. Surface the retry.
+    if (auto) setShowSubmitModal(true);
+    setSubmitting(false);
   }
 
-  async function manualSubmit() {
-    setSubmitting(true);
-    const res = await fetch(`/api/attempts/${id}/submit`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ auto: false }) });
-    const data = await res.json();
-    if (data.ok) router.push(`/attempts/${id}/result`);
-    else { setError(friendlyAuthError(data.error, "Submit failed")); setSubmitting(false); }
-  }
+  function autoSubmit() { return submitAttempt(true); }
+  function manualSubmit() { return submitAttempt(false); }
 
   async function pauseAttempt() {
     await fetch(`/api/attempts/${id}/pause`, { method: "POST" });
@@ -392,7 +422,7 @@ export default function AttemptPage({ params }: { params: Promise<{ id: string }
                 <SummaryStat value={totalQs - answeredIds.size} label="Unanswered" color="text-muted-foreground" />
               </div>
 
-              {error && <div className="mt-4 rounded-md bg-destructive/10 border border-destructive/20 px-3 py-2 text-sm text-destructive">{error}</div>}
+              {submitError && <div className="mt-4 rounded-md bg-destructive/10 border border-destructive/20 px-3 py-2 text-sm text-destructive">{submitError}</div>}
             </div>
 
             <div className="p-6 pt-0 flex gap-2">
